@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/splash/splash_content.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/splash_data.dart';
@@ -25,213 +26,115 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            currentPage == 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        ScreenRoute.login.route,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 31, vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            width: 2,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        child: Text(
-                          'Skip',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : SizedBox(height: 47),
-            SizedBox(height: 30),
-            Expanded(
-              flex: 11,
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (value) {
-                  setState(() {
-                    currentPage = value;
-                  });
-                },
-                itemCount: splashData.length,
-                itemBuilder: (context, index) => SplashContent(
-                  title: splashData[index]["title"]!,
-                  subtitle: splashData[index]["subtitle"]!,
-                  image: splashData[index]["image"]!,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 30,
+          vertical: 60,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              currentPage == 0
+                  ? buildSkipButton(context)
+                  : SizedBox(height: 42),
+              SizedBox(height: 32),
+              Expanded(
+                flex: 11,
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (value) {
+                    setState(() {
+                      currentPage = value;
+                    });
+                  },
+                  itemCount: splashData.length,
+                  itemBuilder: (context, index) => SplashContent(
+                    title: splashData[index]["title"]!,
+                    subtitle: splashData[index]["subtitle"]!,
+                    image: splashData[index]["image"]!,
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                child: Column(
-                  children: [
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        splashData.length,
-                        (index) => dotBuilder(index: index),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      // Dot Builder
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          splashData.length,
+                          (index) => dotBuilder(index: index),
+                        ),
                       ),
-                    ),
-                    const Spacer(
-                      flex: 3,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          if (currentPage < splashData.length - 1) {
-                            setState(() {
-                              currentPage++;
-                            });
-                            _pageController.animateToPage(
-                              currentPage,
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            Navigator.pushNamed(
-                                context, ScreenRoute.login.route);
-                          }
-                        },
-                        child: const Text('Continue'),
+                      const Spacer(),
+                      // Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {
+                            if (currentPage < splashData.length - 1) {
+                              setState(() {
+                                currentPage++;
+                              });
+                              _pageController.animateToPage(
+                                currentPage,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
+                              Navigator.pushNamed(
+                                  context, ScreenRoute.login.route);
+                            }
+                          },
+                          child: const Text('Continue'),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Theme.of(context).colorScheme.surface,
-  //     body: SingleChildScrollView(
-  //       child: Padding(
-  //         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
-  //         child: Column(
-  //             children: [
-  //               currentPage == 0
-  //                   ? Align(
-  //                       alignment: Alignment.topRight,
-  //                       child: GestureDetector(
-  //                         onTap: () {
-  //                           if (currentPage == 0) {
-  //                             setState(() {
-  //                               currentPage = splashData.length - 1;
-  //                             });
-  //                             _pageController.animateToPage(
-  //                               currentPage,
-  //                               duration: Duration(milliseconds: 300),
-  //                               curve: Curves.easeInOut,
-  //                             );
-  //                           }
-  //                         },
-  //                         child: Container(
-  //                           padding: const EdgeInsets.symmetric(
-  //                               horizontal: 30, vertical: 8),
-  //                           decoration: BoxDecoration(
-  //                             borderRadius: BorderRadius.circular(10),
-  //                             border: Border.all(width: 1.5),
-  //                           ),
-  //                           child: Text(
-  //                             'Skip',
-  //                             style:
-  //                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-  //                                       fontWeight: FontWeight.w500,
-  //                                     ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     )
-  //                   : SizedBox(height: 43),
-  //               SizedBox(height: 50),
-  //               SizedBox(
-  //                 height: 534,
-  //                 child: PageView.builder(
-  //                   controller: _pageController,
-  //                   onPageChanged: (value) {
-  //                     setState(() {
-  //                       currentPage = value;
-  //                     });
-  //                   },
-  //                   itemCount: splashData.length,
-  //                   itemBuilder: (context, index) => SplashContent(
-  //                     title: splashData[index]['title']!,
-  //                     subtitle: splashData[index]['subtitle']!,
-  //                     image: splashData[index]['image']!,
-  //                   ),
-  //                 ),
-  //               ),
-  //               SizedBox(height: 30),
-  //               SizedBox(
-  //                 height: 10,
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 20),
-  //                   child:
-  //                       Row(
-  //                         mainAxisAlignment: MainAxisAlignment.center,
-  //                         children: List.generate(
-  //                           splashData.length,
-  //                           (index) => dotBuilder(index: index),
-  //                         ),
-  //                       )
-  //                 ),
-  //               ),
-  //               SizedBox(height: 30),
-  //               SizedBox(
-  //                 width: double.infinity,
-  //                 child: FilledButton(
-  //                   onPressed: () {
-  //                     if (currentPage < splashData.length - 1) {
-  //                       setState(() {
-  //                         currentPage++;
-  //                       });
-  //                       _pageController.animateToPage(
-  //                         currentPage,
-  //                         duration: Duration(milliseconds: 300),
-  //                         curve: Curves.easeInOut,
-  //                       );
-  //                     } else {
-  //                       Navigator.pushReplacementNamed(
-  //                           context, ScreenRoute.auth.route);
-  //                     }
-  //                   },
-  //                   child: const Text('Continue'),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //
-  //       ),
-  //     ),
-  //   );
-  // }
+  Align buildSkipButton(BuildContext context) {
+    return Align(
+      alignment: Alignment.topRight,
+      child: GestureDetector(
+        onTap: () => Navigator.pushNamed(
+          context,
+          ScreenRoute.login.route,
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 30,
+            vertical: 7.5,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              width: 2,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          child: Text(
+            'Skip',
+            style: GoogleFonts.montserrat(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {

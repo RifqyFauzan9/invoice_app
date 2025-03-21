@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
+import "package:google_fonts/google_fonts.dart";
 
 class InvoiceTheme {
   final TextTheme textTheme;
@@ -13,10 +14,10 @@ class InvoiceTheme {
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xffc5e7ff),
       onPrimaryContainer: Color(0xff004c6a),
-      secondary: Color(0xff88511d),
+      secondary: Color(0xff4e616d),
       onSecondary: Color(0xffffffff),
-      secondaryContainer: Color(0xffffdcc2),
-      onSecondaryContainer: Color(0xff6b3a05),
+      secondaryContainer: Color(0xffd2e5f4),
+      onSecondaryContainer: Color(0xff374955),
       tertiary: Color(0xff62597c),
       onTertiary: Color(0xffffffff),
       tertiaryContainer: Color(0xffe7deff),
@@ -38,10 +39,10 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xff001e2d),
       primaryFixedDim: Color(0xff91cef5),
       onPrimaryFixedVariant: Color(0xff004c6a),
-      secondaryFixed: Color(0xffffdcc2),
-      onSecondaryFixed: Color(0xff2e1500),
-      secondaryFixedDim: Color(0xffffb77b),
-      onSecondaryFixedVariant: Color(0xff6b3a05),
+      secondaryFixed: Color(0xffd2e5f4),
+      onSecondaryFixed: Color(0xff0a1e28),
+      secondaryFixedDim: Color(0xffb6c9d8),
+      onSecondaryFixedVariant: Color(0xff374955),
       tertiaryFixed: Color(0xffe7deff),
       onTertiaryFixed: Color(0xff1e1735),
       tertiaryFixedDim: Color(0xffcbc1e9),
@@ -68,9 +69,9 @@ class InvoiceTheme {
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xff337396),
       onPrimaryContainer: Color(0xffffffff),
-      secondary: Color(0xff552c00),
+      secondary: Color(0xff263844),
       onSecondary: Color(0xffffffff),
-      secondaryContainer: Color(0xff99602a),
+      secondaryContainer: Color(0xff5d6f7c),
       onSecondaryContainer: Color(0xffffffff),
       tertiary: Color(0xff393152),
       onTertiary: Color(0xffffffff),
@@ -93,9 +94,9 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xffffffff),
       primaryFixedDim: Color(0xff0e5b7c),
       onPrimaryFixedVariant: Color(0xffffffff),
-      secondaryFixed: Color(0xff99602a),
+      secondaryFixed: Color(0xff5d6f7c),
       onSecondaryFixed: Color(0xffffffff),
-      secondaryFixedDim: Color(0xff7c4814),
+      secondaryFixedDim: Color(0xff455764),
       onSecondaryFixedVariant: Color(0xffffffff),
       tertiaryFixed: Color(0xff70688c),
       onTertiaryFixed: Color(0xffffffff),
@@ -123,9 +124,9 @@ class InvoiceTheme {
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xff004f6e),
       onPrimaryContainer: Color(0xffffffff),
-      secondary: Color(0xff462300),
+      secondary: Color(0xff1c2e3a),
       onSecondary: Color(0xffffffff),
-      secondaryContainer: Color(0xff6e3d08),
+      secondaryContainer: Color(0xff394b58),
       onSecondaryContainer: Color(0xffffffff),
       tertiary: Color(0xff2e2747),
       onTertiary: Color(0xffffffff),
@@ -148,9 +149,9 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xffffffff),
       primaryFixedDim: Color(0xff00374e),
       onPrimaryFixedVariant: Color(0xffffffff),
-      secondaryFixed: Color(0xff6e3d08),
+      secondaryFixed: Color(0xff394b58),
       onSecondaryFixed: Color(0xffffffff),
-      secondaryFixedDim: Color(0xff502900),
+      secondaryFixedDim: Color(0xff233540),
       onSecondaryFixedVariant: Color(0xffffffff),
       tertiaryFixed: Color(0xff4c4466),
       onTertiaryFixed: Color(0xffffffff),
@@ -178,10 +179,10 @@ class InvoiceTheme {
       onPrimary: Color(0xff00344b),
       primaryContainer: Color(0xff004c6a),
       onPrimaryContainer: Color(0xffc5e7ff),
-      secondary: Color(0xffffb77b),
-      onSecondary: Color(0xff4c2700),
-      secondaryContainer: Color(0xff6b3a05),
-      onSecondaryContainer: Color(0xffffdcc2),
+      secondary: Color(0xffb6c9d8),
+      onSecondary: Color(0xff20333e),
+      secondaryContainer: Color(0xff374955),
+      onSecondaryContainer: Color(0xffd2e5f4),
       tertiary: Color(0xffcbc1e9),
       onTertiary: Color(0xff332c4c),
       tertiaryContainer: Color(0xff4a4263),
@@ -203,10 +204,10 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xff001e2d),
       primaryFixedDim: Color(0xff91cef5),
       onPrimaryFixedVariant: Color(0xff004c6a),
-      secondaryFixed: Color(0xffffdcc2),
-      onSecondaryFixed: Color(0xff2e1500),
-      secondaryFixedDim: Color(0xffffb77b),
-      onSecondaryFixedVariant: Color(0xff6b3a05),
+      secondaryFixed: Color(0xffd2e5f4),
+      onSecondaryFixed: Color(0xff0a1e28),
+      secondaryFixedDim: Color(0xffb6c9d8),
+      onSecondaryFixedVariant: Color(0xff374955),
       tertiaryFixed: Color(0xffe7deff),
       onTertiaryFixed: Color(0xff1e1735),
       tertiaryFixedDim: Color(0xffcbc1e9),
@@ -233,9 +234,9 @@ class InvoiceTheme {
       onPrimary: Color(0xff00293b),
       primaryContainer: Color(0xff5a98bc),
       onPrimaryContainer: Color(0xff000000),
-      secondary: Color(0xffffd4b3),
-      onSecondary: Color(0xff3d1e00),
-      secondaryContainer: Color(0xffc3824a),
+      secondary: Color(0xffccdfee),
+      onSecondary: Color(0xff152833),
+      secondaryContainer: Color(0xff8093a1),
       onSecondaryContainer: Color(0xff000000),
       tertiary: Color(0xffe2d7ff),
       onTertiary: Color(0xff282140),
@@ -258,10 +259,10 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xff00131e),
       primaryFixedDim: Color(0xff91cef5),
       onPrimaryFixedVariant: Color(0xff003a53),
-      secondaryFixed: Color(0xffffdcc2),
-      onSecondaryFixed: Color(0xff1f0c00),
-      secondaryFixedDim: Color(0xffffb77b),
-      onSecondaryFixedVariant: Color(0xff552c00),
+      secondaryFixed: Color(0xffd2e5f4),
+      onSecondaryFixed: Color(0xff01131d),
+      secondaryFixedDim: Color(0xffb6c9d8),
+      onSecondaryFixedVariant: Color(0xff263844),
       tertiaryFixed: Color(0xffe7deff),
       onTertiaryFixed: Color(0xff130c2a),
       tertiaryFixedDim: Color(0xffcbc1e9),
@@ -288,10 +289,10 @@ class InvoiceTheme {
       onPrimary: Color(0xff000000),
       primaryContainer: Color(0xff8dcaf0),
       onPrimaryContainer: Color(0xff000d16),
-      secondary: Color(0xffffede1),
+      secondary: Color(0xffe2f2ff),
       onSecondary: Color(0xff000000),
-      secondaryContainer: Color(0xfffcb376),
-      onSecondaryContainer: Color(0xff170800),
+      secondaryContainer: Color(0xffb2c5d4),
+      onSecondaryContainer: Color(0xff000d16),
       tertiary: Color(0xfff4edff),
       onTertiary: Color(0xff000000),
       tertiaryContainer: Color(0xffc7bde5),
@@ -313,10 +314,10 @@ class InvoiceTheme {
       onPrimaryFixed: Color(0xff000000),
       primaryFixedDim: Color(0xff91cef5),
       onPrimaryFixedVariant: Color(0xff00131e),
-      secondaryFixed: Color(0xffffdcc2),
+      secondaryFixed: Color(0xffd2e5f4),
       onSecondaryFixed: Color(0xff000000),
-      secondaryFixedDim: Color(0xffffb77b),
-      onSecondaryFixedVariant: Color(0xff1f0c00),
+      secondaryFixedDim: Color(0xffb6c9d8),
+      onSecondaryFixedVariant: Color(0xff01131d),
       tertiaryFixed: Color(0xffe7deff),
       onTertiaryFixed: Color(0xff000000),
       tertiaryFixedDim: Color(0xffcbc1e9),
@@ -336,6 +337,7 @@ class InvoiceTheme {
   }
 
   ThemeData theme(ColorScheme colorScheme) => ThemeData(
+        fontFamily: 'SFProDisplay',
         useMaterial3: true,
         brightness: colorScheme.brightness,
         colorScheme: colorScheme,
@@ -347,10 +349,9 @@ class InvoiceTheme {
         canvasColor: colorScheme.surface,
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            textStyle: TextStyle(
-              fontSize: 18.68,
+            textStyle: GoogleFonts.montserrat(
+              fontSize: 17,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onPrimary,
             ),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -360,18 +361,21 @@ class InvoiceTheme {
         ),
         inputDecorationTheme: InputDecorationTheme(
           contentPadding: EdgeInsets.symmetric(
-            vertical: 18,
-            horizontal: 24,
+            vertical: 16,
+            horizontal: 18,
           ),
-          hintStyle: TextStyle(
-            fontWeight: FontWeight.normal,
+          hintStyle: GoogleFonts.montserrat(
             fontSize: 14,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
+            color: colorScheme.onSurface.withOpacity(0.5),
           ),
-          filled: true,
-          fillColor: four.value.withOpacity(0.5),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(
+              color: colorScheme.onSurface.withOpacity(0.4),
+              width: 2,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -381,100 +385,15 @@ class InvoiceTheme {
             ),
           ),
           border: OutlineInputBorder(
-            borderSide: BorderSide(width: 2),
             borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              width: 2,
+            ),
           ),
         ),
       );
 
-  /// Third
-  static const third = ExtendedColor(
-    seed: Color(0xffede7d9),
-    value: Color(0xffede7d9),
-    light: ColorFamily(
-      color: Color(0xff6b5f10),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xfff5e389),
-      onColorContainer: Color(0xff514700),
-    ),
-    lightMediumContrast: ColorFamily(
-      color: Color(0xff6b5f10),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xfff5e389),
-      onColorContainer: Color(0xff514700),
-    ),
-    lightHighContrast: ColorFamily(
-      color: Color(0xff6b5f10),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xfff5e389),
-      onColorContainer: Color(0xff514700),
-    ),
-    dark: ColorFamily(
-      color: Color(0xffd8c770),
-      onColor: Color(0xff383000),
-      colorContainer: Color(0xff514700),
-      onColorContainer: Color(0xfff5e389),
-    ),
-    darkMediumContrast: ColorFamily(
-      color: Color(0xffd8c770),
-      onColor: Color(0xff383000),
-      colorContainer: Color(0xff514700),
-      onColorContainer: Color(0xfff5e389),
-    ),
-    darkHighContrast: ColorFamily(
-      color: Color(0xffd8c770),
-      onColor: Color(0xff383000),
-      colorContainer: Color(0xff514700),
-      onColorContainer: Color(0xfff5e389),
-    ),
-  );
-
-  /// Four
-  static const four = ExtendedColor(
-    seed: Color(0xffd9dcd6),
-    value: Color(0xffd9dcd6),
-    light: ColorFamily(
-      color: Color(0xff2f6a43),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xffb2f1c1),
-      onColorContainer: Color(0xff13512d),
-    ),
-    lightMediumContrast: ColorFamily(
-      color: Color(0xff2f6a43),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xffb2f1c1),
-      onColorContainer: Color(0xff13512d),
-    ),
-    lightHighContrast: ColorFamily(
-      color: Color(0xff2f6a43),
-      onColor: Color(0xffffffff),
-      colorContainer: Color(0xffb2f1c1),
-      onColorContainer: Color(0xff13512d),
-    ),
-    dark: ColorFamily(
-      color: Color(0xff96d5a6),
-      onColor: Color(0xff00391c),
-      colorContainer: Color(0xff13512d),
-      onColorContainer: Color(0xffb2f1c1),
-    ),
-    darkMediumContrast: ColorFamily(
-      color: Color(0xff96d5a6),
-      onColor: Color(0xff00391c),
-      colorContainer: Color(0xff13512d),
-      onColorContainer: Color(0xffb2f1c1),
-    ),
-    darkHighContrast: ColorFamily(
-      color: Color(0xff96d5a6),
-      onColor: Color(0xff00391c),
-      colorContainer: Color(0xff13512d),
-      onColorContainer: Color(0xffb2f1c1),
-    ),
-  );
-
-  List<ExtendedColor> get extendedColors => [
-        third,
-        four,
-      ];
+  List<ExtendedColor> get extendedColors => [];
 }
 
 class ExtendedColor {

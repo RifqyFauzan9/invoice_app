@@ -8,6 +8,18 @@ enum ScreenRoute {
   listInvoice('listInvoice'),
   invoiceForm('invoiceForm'),
   profile('profile'),
+  chooseForm('chooseForm'),
+  setup('setup'),
+  transaksi('transaksi'),
+  realSplash('realSplash'),
+  travel('travel'),
+  item('item'),
+  bank('bank'),
+  airlines('airlines'),
+  travelForm('travelForm'),
+  bankForm('bankForm'),
+  airlinesForm('airlinesForm'),
+  itemForm('itemForm'),
   main('main');
 
   final String route;

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class InvoiceStatusCard extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final int total;
   final String status;
 
@@ -34,27 +35,23 @@ class InvoiceStatusCard extends StatelessWidget {
               color: Theme.of(context).colorScheme.surface,
             ),
             padding: const EdgeInsets.all(5),
-            height: 40,
-            width: 40,
-            child: Icon(
+            child: Image.asset(
               icon,
-              size: 29,
-              color: Theme.of(context).colorScheme.primary,
+              width: getPropScreenWidth(29),
+              height: getPropScreenWidth(29),
             ),
           ),
           Text(
             '$total',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge!
-                .copyWith(fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: getPropScreenWidth(16), fontWeight: FontWeight.bold),
           ),
           Text(
             status,
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge!
-                .copyWith(color: Colors.grey, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: getPropScreenWidth(12),
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
           ),
         ],
       ),

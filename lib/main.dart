@@ -1,27 +1,55 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/firebase_options.dart';
-import 'package:my_invoice_app/screens/auth/login/forgot_password/forgot_password_screen.dart';
-import 'package:my_invoice_app/screens/auth/login/login_screen.dart';
-import 'package:my_invoice_app/screens/auth/login/login_success/login_success_screen.dart';
-import 'package:my_invoice_app/screens/auth/signup/sign_up_screen.dart';
-import 'package:my_invoice_app/screens/home/home_screen.dart';
-import 'package:my_invoice_app/screens/home/invoice/invoice_form.dart';
-import 'package:my_invoice_app/screens/home/invoice/invoice_screen.dart';
-import 'package:my_invoice_app/screens/splash/splash_screen.dart';
+import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
+import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
+import 'package:my_invoice_app/services/firebase_auth_service.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/shared_preferences_service.dart';
+import 'package:my_invoice_app/static/routes.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/style/theme/invoice_theme.dart';
-import 'package:my_invoice_app/style/typography/text_theme.dart';
-
-import 'screens/home/invoice/list_invoice_screen.dart';
-import 'screens/home/profile/profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final pref = await SharedPreferences.getInstance();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  final firebaseAuth = FirebaseAuth.instance;
+  final firebaseFirestore = FirebaseFirestore.instance;
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(
+          create: (context) => SharedPreferencesService(pref),
+        ),
+        Provider(
+          create: (context) => FirebaseAuthService(firebaseAuth),
+        ),
+        Provider(
+          create: (context) => FirebaseFirestoreService(firebaseFirestore),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SharedPreferencesProvider(
+            context.read<SharedPreferencesService>(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FirebaseAuthProvider(
+            context.read<FirebaseAuthService>(),
+          ),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -33,29 +61,22 @@ class MyApp extends StatelessWidget {
     // Brigthness of the platform
     final brightness = View.of(context).platformDispatcher.platformBrightness;
 
-    // Generate text theme
-    TextTheme textTheme = createTextTheme(context, "Montserrat", "Montserrat");
+    // Generate default text theme of the App
+    TextTheme textTheme = Theme.of(context).textTheme;
 
     // Generate theme of the App
     InvoiceTheme theme = InvoiceTheme(textTheme);
 
     return MaterialApp(
+      builder: (context, child) {
+        SizeConfig().init(context);
+        return child!;
+      },
       debugShowCheckedModeBanner: false,
       title: 'My Invoice App',
       theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-      initialRoute: ScreenRoute.splash.route,
-      routes: {
-        ScreenRoute.splash.route: (context) => SplashScreen(),
-        ScreenRoute.login.route: (context) => LoginScreen(),
-        ScreenRoute.logSuccess.route: (context) => LoginSuccessScreen(),
-        ScreenRoute.signUp.route: (context) => SignUpScreen(),
-        ScreenRoute.forgot.route: (context) => ForgotPasswordScreen(),
-        ScreenRoute.main.route: (context) => HomeScreen(),
-        ScreenRoute.listInvoice.route: (context) => ListInvoiceScreen(),
-        ScreenRoute.invoiceForm.route: (context) => InvoiceForm(),
-        ScreenRoute.invoiceScreen.route: (context) => InvoiceScreen(),
-        ScreenRoute.profile.route: (context) => ProfileScreen(),
-      },
+      initialRoute: ScreenRoute.realSplash.route,
+      routes: routes,
     );
   }
 }

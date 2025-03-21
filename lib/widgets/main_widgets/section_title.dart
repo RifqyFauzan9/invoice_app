@@ -20,22 +20,23 @@ class SectionTitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge!
-              .copyWith(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0,
+          ),
         ),
         viewAll
-        ? GestureDetector(
-          onTap: onTap,
-          child: Text(
-            'View All',
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
-            ),
-          )
-        )
+            ? GestureDetector(
+                onTap: onTap,
+                child: Text(
+                  'View All',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                ))
             : const SizedBox(),
       ],
     );

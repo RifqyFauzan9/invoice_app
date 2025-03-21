@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/signup/sign_up_form.dart';
+import '../../../static/screen_route.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -9,88 +11,108 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        body: SafeArea(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(30, 20, 30, 0),
-                    child: SvgPicture.asset('assets/images/sign_up.svg'),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
+                      child: SvgPicture.asset('assets/svgs/sign_up.svg'),
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 60,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
+                  Positioned(
+                    bottom: 0,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.65,
                       ),
-                    ),
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Hello,',
-                              style: TextStyle(
+                      width: MediaQuery.of(context).size.width,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 50,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hello,',
+                              style: GoogleFonts.montserrat(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              )),
-                          const SizedBox(height: 7),
-                          Text(
-                            'Please Sign up',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.6),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          SignUpForm(),
-                          const SizedBox(height: 16),
-                          Text.rich(
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.manrope(fontSize: 14),
-                            TextSpan(
-                                text: 'By singing up, You agree to our ',
-                                children: [
-                                  TextSpan(
-                                    text: 'Term of Service ',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
+                            const SizedBox(height: 7),
+                            Text(
+                              'Please Sign Up',
+                              style: GoogleFonts.montserrat(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SignUpForm(),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: Text.rich(
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  letterSpacing: 0,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                TextSpan(
+                                  text: 'Already have an account? ',
+                                  children: [
+                                    TextSpan(
+                                      text: 'Sign In',
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () => Navigator.pushNamed(
+                                              context,
+                                              ScreenRoute.login.route,
+                                            ),
                                     ),
-                                  ),
-                                  TextSpan(text: 'and '),
-                                  TextSpan(
-                                    text: 'Privacy Policy',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ]),
-                          )
-                        ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    );
   }
 }

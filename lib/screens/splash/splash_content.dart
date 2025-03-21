@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class SplashContent extends StatelessWidget {
   final String title, subtitle, image;
@@ -14,32 +17,34 @@ class SplashContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Spacer(),
-        Image.asset(
-          image,
-          height: 309,
-          width: 342,
+        Expanded(
+          flex: 3,
+          child: SvgPicture.asset(image),
         ),
-        const SizedBox(height: 48),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
+        const SizedBox(height: 32),
+        Expanded(
+          flex: 1,
+          child: Text(
+            title,
+            style: GoogleFonts.montserrat(
+              fontSize: getPropScreenWidth(28),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 20),
-        Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+        const SizedBox(height: 8),
+        Expanded(
+          flex: 1,
+          child: Text(
+            subtitle,
+            style: GoogleFonts.montserrat(
+              fontSize: getPropScreenWidth(13),
+              fontWeight: FontWeight.normal,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        const Spacer(
-          flex: 2,
         ),
       ],
     );

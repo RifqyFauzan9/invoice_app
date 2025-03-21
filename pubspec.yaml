@@ -42,6 +42,12 @@ dependencies:
   test: ^1.25.8
   equatable: ^2.0.7
   another_flushbar: ^1.12.30
+  firebase_auth: ^5.4.2
+  cloud_firestore: ^5.6.3
+  provider: ^6.1.2
+  shared_preferences: ^2.5.2
+  font_awesome_flutter: ^10.8.0
+  loading_animation_widget: ^1.3.0
 
 dev_dependencies:
   flutter_test:
@@ -88,23 +94,6 @@ flutter:
           weight: 700
         - asset: assets/fonts/sf_pro_display/SFProDisplayMedium.otf
           weight: 500
-        - asset: assets/fonts/sf_pro_display/SFProDisplayLightItalic.otf
-          style: italic
-        - asset: assets/fonts/sf_pro_display/SFProDisplayBlackItalic.otf
-          weight: 900
-          style: italic
-        - asset: assets/fonts/sf_pro_display/SFProDisplayHeavyItalic.otf
-          weight: 800
-          style: italic
-        - asset: assets/fonts/sf_pro_display/SFProDisplaySemiBoldItalic.otf
-          weight: 600
-          style: italic
-        - asset: assets/fonts/sf_pro_display/SFProDisplayThinItalic.otf
-          weight: 200
-          style: italic
-        - asset: assets/fonts/sf_pro_display/SFProDisplayUltraLightItalic.otf
-          weight: 100
-          style: italic
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 
 class InvoiceCard extends StatelessWidget {
-  final VoidCallback onTap;
+  final String imageLeading, title, subtitle;
+  final String? description;
+  final Widget? trailing;
+  final VoidCallback? onCardTapped;
 
   const InvoiceCard({
     super.key,
-    required this.onTap,
+    required this.imageLeading,
+    required this.title,
+    required this.subtitle,
+    this.description,
+    this.trailing,
+    this.onCardTapped,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onCardTapped ?? () {},
       child: Container(
         margin: EdgeInsets.only(bottom: 16),
         height: 107,
@@ -24,51 +32,54 @@ class InvoiceCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/bmw.png',
-                  width: 80,
-                  height: 80,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ferrari',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+            Expanded(
+              flex: 2,
+              child: Image.asset(
+                imageLeading,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Text(
-                      'Nguyen, Shane',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge!
-                          .copyWith(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
                     ),
-                    Text(
-                      'May 9, 2014',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelMedium!
-                          .copyWith(
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey,
-                      ),
-                    )
-                  ],
-                ),
-              ],
+                  ),
+                  Text(
+                    description ?? '',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: trailing ?? SizedBox(),
             ),
           ],
         ),
