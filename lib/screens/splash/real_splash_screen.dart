@@ -18,7 +18,7 @@ class _RealSplashScreenState extends State<RealSplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(const Duration(seconds: 5), () {
+    Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(
         context,
         ScreenRoute.splash.route,
@@ -55,7 +55,7 @@ class _RealSplashScreenState extends State<RealSplashScreen> {
             ),
             LoadingAnimationWidget.fourRotatingDots(
               color: Color(0xFFB0D0E3),
-              size: getPropScreenWidth(90),
+              size: getPropScreenWidth(60),
             ),
           ],
         ),

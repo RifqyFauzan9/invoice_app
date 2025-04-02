@@ -1,0 +1,12 @@
+flutter_native_splash:
+  # IOS and Android 11 below
+  image: "assets/images/image_ios.png"
+  color: "#2F6F91"
+  branding: "assets/images/branding_ios.png"
+  android: true
+  ios: true
+  # Android 12 above
+  android_12:
+    image: "assets/images/image_android.png"
+    color: "#2F6F91"
+    branding: "assets/images/branding_android.png"

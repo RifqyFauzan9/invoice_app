@@ -2,12 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_invoice_app/model/profile.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
-import 'package:provider/provider.dart';
-import '../../provider/firebase_auth_provider.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import '../../widgets/main_widgets/custom_icon_button.dart';
-import '../../widgets/main_widgets/invoice_card.dart';
+import '../../widgets/main_widgets/custom_card.dart';
 import '../../widgets/main_widgets/invoice_status_card.dart';
 import '../../widgets/main_widgets/section_title.dart';
 
@@ -60,11 +58,24 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildGreetUser(),
-                CustomIconButton(
-                  icon: CupertinoIcons.person_fill,
-                  onPressed: () =>
-                      Navigator.pushNamed(context, ScreenRoute.profile.route),
-                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CustomIconButton(
+                      icon: CupertinoIcons.person_fill,
+                      onPressed: () => Navigator.pushNamed(
+                          context, ScreenRoute.profile.route),
+                    ),
+                    SizedBox(width: getPropScreenWidth(8),),
+                    CustomIconButton(
+                      icon: CupertinoIcons.add,
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        ScreenRoute.chooseForm.route,
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
             const SizedBox(height: 24),
@@ -97,11 +108,10 @@ class HomeScreen extends StatelessWidget {
                 scrollDirection: Axis.vertical,
                 itemCount: 5,
                 itemBuilder: (context, index) {
-                  return InvoiceCard(
-                    imageLeading: 'assets/images/bmw.png',
-                    title: 'Ferrari',
-                    subtitle: 'Nguyen, Shane',
-                    description: 'May 9, 2014',
+                  return CustomCard(
+                    imageLeading: 'assets/images/travel_icon.png',
+                    title: 'Rihlah Wisata',
+                    subtitle: 'IBU DEDE',
                     trailing: Icon(
                       Icons.query_stats,
                       color: Theme.of(context).colorScheme.primary,
@@ -118,11 +128,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.pushNamed(context, ScreenRoute.chooseForm.route),
-        child: Icon(CupertinoIcons.add),
-      ),
     );
   }
 
@@ -133,7 +138,7 @@ class HomeScreen extends StatelessWidget {
         Text(
           'Hello,',
           style: GoogleFonts.montserrat(
-            fontSize: 35,
+            fontSize: getPropScreenWidth(32),
             fontWeight: FontWeight.bold,
             letterSpacing: 0,
           ),
@@ -142,7 +147,7 @@ class HomeScreen extends StatelessWidget {
           'Welcome to InvoTek!',
           style: GoogleFonts.montserrat(
             fontWeight: FontWeight.w500,
-            fontSize: 18,
+            fontSize: getPropScreenWidth(16),
             letterSpacing: 0,
           ),
         ),
@@ -154,13 +159,14 @@ class HomeScreen extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+        AspectRatio(
+          aspectRatio: 16 / 5,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
-          width: MediaQuery.of(context).size.width,
-          height: 104,
         ),
         Positioned(
           top: 2,
@@ -171,7 +177,7 @@ class HomeScreen extends StatelessWidget {
               Text(
                 '200',
                 style: GoogleFonts.montserrat(
-                  fontSize: 67.2,
+                  fontSize: getPropScreenWidth(60),
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.primary,
                   height: 1.1,
@@ -180,7 +186,7 @@ class HomeScreen extends StatelessWidget {
               Text(
                 'Total Invoice Created',
                 style: GoogleFonts.montserrat(
-                  fontSize: 12,
+                  fontSize: getPropScreenWidth(12),
                   fontWeight: FontWeight.w600,
                 ),
               ),

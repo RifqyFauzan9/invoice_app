@@ -12,6 +12,8 @@ import 'package:my_invoice_app/screens/invoice_form/setup/bank/data_bank_form.da
 import 'package:my_invoice_app/screens/invoice_form/setup/bank/data_bank_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/item/data_item_form.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/item/data_item_screen.dart';
+import 'package:my_invoice_app/screens/invoice_form/setup/note/note_form.dart';
+import 'package:my_invoice_app/screens/invoice_form/setup/note/note_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/setup_form_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/travel/data_travel_form.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/travel/data_travel_screen.dart';
@@ -44,4 +46,6 @@ final Map<String, WidgetBuilder> routes = {
   ScreenRoute.airlinesForm.route: (context) => DataAirlinesForm(),
   ScreenRoute.itemForm.route: (context) => DataItemForm(),
   ScreenRoute.realSplash.route: (context) => RealSplashScreen(),
+  ScreenRoute.note.route: (context) => NoteScreen(),
+  ScreenRoute.noteForm.route: (context) => NoteForm(),
 };

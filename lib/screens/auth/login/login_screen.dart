@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/login/login_form.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../../provider/firebase_auth_provider.dart';
@@ -91,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 'Let\'s Sign in',
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 28,
+                                  fontSize: getPropScreenWidth(24),
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0,
                                 ),

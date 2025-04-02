@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/splash/splash_content.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/static/splash_data.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
               currentPage == 0
                   ? buildSkipButton(context)
                   : SizedBox(height: 42),
-              SizedBox(height: 32),
+              SizedBox(height: getPropScreenWidth(60)),
               Expanded(
                 flex: 11,
                 child: PageView.builder(
@@ -58,7 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: getPropScreenWidth(16)),
                   child: Column(
                     children: [
                       // Dot Builder
@@ -89,7 +91,12 @@ class _SplashScreenState extends State<SplashScreen> {
                                   context, ScreenRoute.login.route);
                             }
                           },
-                          child: const Text('Continue'),
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
                         ),
                       ),
                     ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
-import 'package:my_invoice_app/widgets/main_widgets/invoice_card.dart';
+import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
 
 class DataBankScreen extends StatelessWidget {
   const DataBankScreen({super.key});
@@ -76,7 +76,7 @@ class DataBankScreen extends StatelessWidget {
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => InvoiceCard(
+                itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/bank_icon.png',
                   title: 'BCA',
                   subtitle: '1231231231321',

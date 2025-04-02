@@ -20,6 +20,8 @@ enum ScreenRoute {
   bankForm('bankForm'),
   airlinesForm('airlinesForm'),
   itemForm('itemForm'),
+  note('note'),
+  noteForm('noteForm'),
   main('main');
 
   final String route;

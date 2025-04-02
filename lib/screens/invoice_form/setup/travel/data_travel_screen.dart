@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
-import 'package:my_invoice_app/widgets/main_widgets/invoice_card.dart';
+import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
 
 class DataTravelScreen extends StatelessWidget {
   const DataTravelScreen({super.key});
@@ -74,7 +74,7 @@ class DataTravelScreen extends StatelessWidget {
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => InvoiceCard(
+                itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/travel_icon.png',
                   title: 'RIHLAH WISATA',
                   subtitle: 'IBU DEDE',

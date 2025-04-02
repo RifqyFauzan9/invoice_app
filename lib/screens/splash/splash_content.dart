@@ -17,34 +17,28 @@ class SplashContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          flex: 3,
-          child: SvgPicture.asset(image),
+        SvgPicture.asset(
+          image,
+          width: getPropScreenWidth(290),
         ),
-        const SizedBox(height: 32),
-        Expanded(
-          flex: 1,
-          child: Text(
-            title,
-            style: GoogleFonts.montserrat(
-              fontSize: getPropScreenWidth(28),
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0,
-            ),
-            textAlign: TextAlign.center,
+        SizedBox(height: getPropScreenWidth(48)),
+        Text(
+          title,
+          style: GoogleFonts.montserrat(
+            fontSize: getPropScreenWidth(25),
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0,
           ),
+          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        Expanded(
-          flex: 1,
-          child: Text(
-            subtitle,
-            style: GoogleFonts.montserrat(
-              fontSize: getPropScreenWidth(13),
-              fontWeight: FontWeight.normal,
-            ),
-            textAlign: TextAlign.center,
+        SizedBox(height: getPropScreenWidth(10)),
+        Text(
+          subtitle,
+          style: GoogleFonts.montserrat(
+            fontSize: getPropScreenWidth(14),
+            fontWeight: FontWeight.normal,
           ),
+          textAlign: TextAlign.center,
         ),
       ],
     );

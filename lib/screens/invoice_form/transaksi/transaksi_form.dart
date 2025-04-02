@@ -10,6 +10,14 @@ class TransaksiForm extends StatefulWidget {
 }
 
 class _TransaksiFormState extends State<TransaksiForm> {
+  // Note Types
+  String defaultNoteType = 'Type 1';
+  final List<String> _noteTypes = [
+    'Type 1',
+    'Type 2',
+    'Type 3',
+  ];
+
   @override
   Widget build(BuildContext context) {
     // Field label style
@@ -147,13 +155,26 @@ class _TransaksiFormState extends State<TransaksiForm> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Catatan Invoice', style: fieldLabelStyle),
+                Text('Note Invoice', style: fieldLabelStyle),
                 const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Catatan Invoice',
-                    hintStyle: hintTextStyle,
+                DropdownButtonFormField(
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 17,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
+                  items: _noteTypes.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      defaultNoteType = value!;
+                    });
+                  },
+                  value: defaultNoteType,
                 ),
                 const SizedBox(height: 8),
                 Text('Catatan Penerbangan', style: fieldLabelStyle),

@@ -1,0 +1,1 @@
+D:\dicoding\Mobile\Kotlin\my_invoice_app\build\app\intermediates\cxx\RelWithDebInfo\676c5r5f\obj\x86_64

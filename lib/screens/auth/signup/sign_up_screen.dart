@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/signup/sign_up_form.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import '../../../static/screen_route.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -66,14 +67,14 @@ class SignUpScreen extends StatelessWidget {
                             Text(
                               'Please Sign Up',
                               style: GoogleFonts.montserrat(
-                                fontSize: 28,
+                                fontSize: getPropScreenWidth(24),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: getPropScreenWidth(14)),
                             SignUpForm(),
-                            const SizedBox(height: 16),
+                            SizedBox(height: getPropScreenWidth(14)),
                             Center(
                               child: Text.rich(
                                 style: GoogleFonts.montserrat(

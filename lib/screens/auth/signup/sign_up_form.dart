@@ -1,9 +1,8 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../../provider/firebase_auth_provider.dart';
@@ -31,19 +30,11 @@ class _SignUpFormState extends State<SignUpForm> {
       final firebaseAuthProvider = context.read<FirebaseAuthProvider>();
       final navigator = Navigator.of(context);
 
-      await firebaseAuthProvider.createAccount(email, password).then((user) {
-        if (user != null) {
-          final firestore = context.read<FirebaseFirestoreService>();
-          firestore.saveUserData(user.user!.uid, email, 'user');
-          debugPrint('Gacor kang!');
-        } else {
-          debugPrint('Babi kang!');
-        }
-      });
+      await firebaseAuthProvider.createAccount(email, password);
 
       switch (firebaseAuthProvider.authStatus) {
         case FirebaseAuthStatus.accountCreated:
-        // Tampilkan Flushbar dengan pesan sukses
+          // Tampilkan Flushbar dengan pesan sukses
           Flushbar(
             message: 'Account created successfully! Please login.',
             messageColor: Theme.of(context).colorScheme.onPrimary,
@@ -54,14 +45,6 @@ class _SignUpFormState extends State<SignUpForm> {
             backgroundColor: Colors.green, // Warna hijau untuk pesan sukses
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
-            boxShadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
             icon: Icon(
               Icons.check_circle_outline,
               color: Theme.of(context).colorScheme.onPrimary,
@@ -82,14 +65,6 @@ class _SignUpFormState extends State<SignUpForm> {
             backgroundColor: Theme.of(context).colorScheme.error,
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
-            boxShadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
             icon: Icon(
               Icons.error_outline,
               color: Theme.of(context).colorScheme.onError,
@@ -100,14 +75,6 @@ class _SignUpFormState extends State<SignUpForm> {
       const message = 'Fill the email and password correctly';
       Flushbar(
         message: message,
-        boxShadows: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            spreadRadius: 3,
-            offset: Offset(0, 2),
-          ),
-        ],
         messageColor: Theme.of(context).colorScheme.onError,
         messageSize: 14,
         duration: const Duration(seconds: 3),
@@ -147,7 +114,9 @@ class _SignUpFormState extends State<SignUpForm> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(
+            height: getPropScreenWidth(16),
+          ),
           TextFormField(
             controller: _passwordController,
             keyboardType: TextInputType.text,
@@ -178,7 +147,9 @@ class _SignUpFormState extends State<SignUpForm> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(
+            height: getPropScreenWidth(16),
+          ),
           TextFormField(
             controller: _confirmPasswordController,
             keyboardType: TextInputType.text,
@@ -211,13 +182,15 @@ class _SignUpFormState extends State<SignUpForm> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(
+            height: getPropScreenWidth(24),
+          ),
           Consumer<FirebaseAuthProvider>(builder: (context, value, child) {
             return switch (value.authStatus) {
               FirebaseAuthStatus.creatingAccount => Center(
                   child: LoadingAnimationWidget.fourRotatingDots(
                     color: Theme.of(context).colorScheme.primary,
-                    size: 32,
+                    size: getPropScreenWidth(30),
                   ),
                 ),
               _ => SizedBox(

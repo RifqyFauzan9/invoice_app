@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/login/forgot_password/forgot_password_form.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
@@ -53,7 +54,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                             Text(
                               'Forgot Password?',
                               style: GoogleFonts.montserrat(
-                                fontSize: 28,
+                                fontSize: getPropScreenWidth(24),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0,
                               ),

@@ -1,0 +1,2 @@
+D:/dicoding/Mobile/Kotlin/my_invoice_app/android/app/.cxx/Debug/21o2g3v1/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/dicoding/Mobile/Kotlin/my_invoice_app/android/app/.cxx/Debug/21o2g3v1/armeabi-v7a/CMakeFiles/rebuild_cache.dir

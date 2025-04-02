@@ -5,6 +5,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../../static/firebase_auth_status.dart';
@@ -49,14 +50,6 @@ class _LoginFormState extends State<LoginForm> {
             margin: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(10),
             backgroundColor: Theme.of(context).colorScheme.error,
-            boxShadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
             icon: Icon(
@@ -78,14 +71,6 @@ class _LoginFormState extends State<LoginForm> {
         backgroundColor: Theme.of(context).colorScheme.error,
         flushbarPosition: FlushbarPosition.TOP,
         flushbarStyle: FlushbarStyle.FLOATING,
-        boxShadows: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            spreadRadius: 3,
-            offset: Offset(0, 2),
-          ),
-        ],
         icon: Icon(
           Icons.error_outline,
           color: Theme.of(context).colorScheme.onPrimary,
@@ -123,7 +108,7 @@ class _LoginFormState extends State<LoginForm> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: getPropScreenWidth(16),),
           TextFormField(
             controller: _passwordController,
             textInputAction: TextInputAction.done,

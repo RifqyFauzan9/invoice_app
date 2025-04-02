@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:my_invoice_app/firebase_options.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
@@ -17,6 +18,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   final pref = await SharedPreferences.getInstance();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -73,7 +78,7 @@ class MyApp extends StatelessWidget {
         return child!;
       },
       debugShowCheckedModeBanner: false,
-      title: 'My Invoice App',
+      title: 'InvoTek',
       theme: brightness == Brightness.light ? theme.light() : theme.dark(),
       initialRoute: ScreenRoute.realSplash.route,
       routes: routes,

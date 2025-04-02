@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
-import '../../../../widgets/main_widgets/invoice_card.dart';
+import '../../../../widgets/main_widgets/custom_card.dart';
 
 class DataAirlinesScreen extends StatelessWidget {
   const DataAirlinesScreen({super.key});
@@ -77,7 +77,7 @@ class DataAirlinesScreen extends StatelessWidget {
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => InvoiceCard(
+                itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/airlines_icon.png',
                   title: 'Saudi Airlines',
                   subtitle: 'SV',

@@ -84,14 +84,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
             duration: const Duration(seconds: 3),
             margin: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(10),
-            boxShadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
             backgroundColor: Color(0xFF28A745),
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
@@ -112,14 +104,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
             borderRadius: BorderRadius.circular(10),
             backgroundColor: Theme.of(context).colorScheme.error,
             flushbarPosition: FlushbarPosition.TOP,
-            boxShadows: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
             flushbarStyle: FlushbarStyle.FLOATING,
             icon: Icon(
               Icons.info_outline,
@@ -135,14 +119,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
         messageSize: 12,
         duration: const Duration(seconds: 3),
         margin: const EdgeInsets.all(20),
-        boxShadows: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            spreadRadius: 3,
-            offset: Offset(0, 2),
-          ),
-        ],
         borderRadius: BorderRadius.circular(10),
         backgroundColor: Colors.red,
         flushbarPosition: FlushbarPosition.TOP,

@@ -1,9 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_invoice_app/services/firebase_auth_service.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/firebase_auth_status.dart';
-import 'package:provider/provider.dart';
 
 import '../model/profile.dart';
 
@@ -43,14 +41,11 @@ class FirebaseAuthProvider extends ChangeNotifier {
       notifyListeners();
 
       final result = await _service.signInUser(email, password);
-      final firestore = context.read<FirebaseFirestoreService>();
-      final userRole = await firestore.getUserRole(result.user!.uid);
 
       _profile = Profile(
         name: result.user?.displayName,
         email: result.user?.email,
         photoUrl: result.user?.photoURL,
-        role: userRole,
       );
 
       _authStatus = FirebaseAuthStatus.authenticated;
@@ -80,13 +75,10 @@ class FirebaseAuthProvider extends ChangeNotifier {
 
   Future updateProfile(BuildContext context) async {
     final user = await _service.userChanges();
-    final firestore = context.read<FirebaseFirestoreService>();
-    final userRole = await firestore.getUserRole(user!.uid);
     _profile = Profile(
-      name: user.displayName,
-      email: user.email,
-      photoUrl: user.photoURL,
-      role: userRole,
+      name: user?.displayName,
+      email: user?.email,
+      photoUrl: user?.photoURL,
     );
     notifyListeners();
   }

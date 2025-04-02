@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class ChooseFormCard extends StatelessWidget {
   final String image, text;
@@ -18,8 +19,8 @@ class ChooseFormCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       onTap: onPressed,
       child: Container(
-        height: 244,
-        width: 244,
+        height: getPropScreenWidth(220),
+        width: getPropScreenWidth(220),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -27,19 +28,16 @@ class ChooseFormCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 100,
-              child: Image.asset(
-                image,
-                fit: BoxFit.cover,
-              ),
+            Image.asset(
+              image,
+              width: getPropScreenWidth(90),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: getPropScreenWidth(12)),
             Text(
               text,
               style: GoogleFonts.montserrat(
                 fontWeight: FontWeight.bold,
-                fontSize: 25,
+                fontSize: getPropScreenWidth(22),
               ),
             ),
           ],

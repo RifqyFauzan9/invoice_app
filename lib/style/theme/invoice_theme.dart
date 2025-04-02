@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
+import "package:my_invoice_app/static/size_config.dart";
 
 class InvoiceTheme {
   final TextTheme textTheme;
@@ -350,10 +351,12 @@ class InvoiceTheme {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             textStyle: GoogleFonts.montserrat(
-              fontSize: 17,
+              fontSize: getPropScreenWidth(14),
               fontWeight: FontWeight.bold,
             ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: EdgeInsets.symmetric(
+              vertical: getPropScreenWidth(15),
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),

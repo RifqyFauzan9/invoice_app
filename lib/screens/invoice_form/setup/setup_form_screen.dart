@@ -1,44 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
-import 'package:my_invoice_app/widgets/invoice_form/setup_form_card.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
+import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
 
 class SetupFormScreen extends StatelessWidget {
   const SetupFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<SetUpFormCard> formCardList = [
-      SetUpFormCard(
-        image: 'assets/images/travel_icon.png',
-        text: 'Data Travel',
-        onPressed: () => Navigator.pushNamed(
+    final List<CustomCard> formCardList = [
+      CustomCard(
+        imageLeading: 'assets/images/travel_icon.png',
+        title: 'Data Travel',
+        onCardTapped: () => Navigator.pushNamed(
           context,
           ScreenRoute.travel.route,
         ),
       ),
-      SetUpFormCard(
-        image: 'assets/images/bank_icon.png',
-        text: 'Data Bank',
-        onPressed: () => Navigator.pushNamed(
+      CustomCard(
+        imageLeading: 'assets/images/bank_icon.png',
+        title: 'Data Bank',
+        onCardTapped: () => Navigator.pushNamed(
           context,
           ScreenRoute.bank.route,
         ),
       ),
-      SetUpFormCard(
-        image: 'assets/images/airlines_icon.png',
-        text: 'Data Maskapai',
-        onPressed: () => Navigator.pushNamed(
+      CustomCard(
+        imageLeading: 'assets/images/airlines_icon.png',
+        title: 'Data Airlines',
+        onCardTapped: () => Navigator.pushNamed(
           context,
           ScreenRoute.airlines.route,
         ),
       ),
-      SetUpFormCard(
-        image: 'assets/images/item_icon.png',
-        text: 'Data Item',
-        onPressed: () => Navigator.pushNamed(
+      CustomCard(
+        imageLeading: 'assets/images/item_icon.png',
+        title: 'Data Item',
+        onCardTapped: () => Navigator.pushNamed(
           context,
           ScreenRoute.item.route,
+        ),
+      ),
+      CustomCard(
+        imageLeading: 'assets/images/note_icon.png',
+        title: 'Data Note',
+        onCardTapped: () => Navigator.pushNamed(
+          context,
+          ScreenRoute.note.route,
         ),
       ),
     ];
@@ -52,26 +60,18 @@ class SetupFormScreen extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: CustomIconButton(
-                  icon: Icons.arrow_back,
-                  onPressed: () => Navigator.pop(context),
-                ),
+              CustomIconButton(
+                icon: Icons.arrow_back,
+                onPressed: () => Navigator.pop(context),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.04),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1),
-                  itemBuilder: (context, index) {
-                    return formCardList[index];
-                  },
-                  itemCount: 4,
+                child: ListView(
+                  children: formCardList.map((card) {
+                    return card;
+                  }).toList(),
                 ),
               ),
             ],

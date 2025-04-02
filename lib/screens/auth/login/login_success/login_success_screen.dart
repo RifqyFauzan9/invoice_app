@@ -2,6 +2,7 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 
 class LoginSuccessScreen extends StatefulWidget {
@@ -29,14 +30,6 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
       margin: const EdgeInsets.all(20),
       borderRadius: BorderRadius.circular(10),
       backgroundColor: Color(0xFF28A745),
-      boxShadows: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.3),
-          blurRadius: 6,
-          spreadRadius: 3,
-          offset: Offset(0, 2),
-        ),
-      ],
       flushbarPosition: FlushbarPosition.TOP,
       flushbarStyle: FlushbarStyle.FLOATING,
       icon: Icon(
@@ -62,7 +55,7 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
             const Spacer(),
             Icon(
               Icons.check_circle,
-              size: 231,
+              size: getPropScreenWidth(230),
               color: InvoiceColor.primary.color,
             ),
             const SizedBox(height: 48),
@@ -70,20 +63,21 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
               'Login Success',
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
-                fontSize: 36,
+                fontSize: getPropScreenWidth(33),
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: getPropScreenWidth(16)),
             Text(
-                'Anda berhasil masuk ke akun Anda. Selamat menggunakan layanan kami! Tekan ‘Continue‘ untuk melanjutkan ke beranda.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0,
-                )),
+              'Anda berhasil masuk ke akun Anda. Selamat menggunakan layanan kami! Tekan ‘Continue‘ untuk melanjutkan ke beranda.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: getPropScreenWidth(13),
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0,
+              ),
+            ),
             const Spacer(),
             FilledButton(
               onPressed: () => Navigator.pushNamed(

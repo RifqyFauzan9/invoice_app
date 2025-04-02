@@ -1,0 +1,1 @@
+D:\dicoding\Mobile\Kotlin\my_invoice_app\build\app\intermediates\cxx\Debug\21o2g3v1\obj\armeabi-v7a
