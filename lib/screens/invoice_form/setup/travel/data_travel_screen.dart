@@ -77,7 +77,7 @@ class DataTravelScreen extends StatelessWidget {
                 itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/travel_icon.png',
                   title: 'RIHLAH WISATA',
-                  subtitle: 'IBU DEDE',
+                  subtitle: Text('IBU DEDE'),
                   trailing: IconButton(
                     onPressed: () {},
                     icon: Icon(

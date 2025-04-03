@@ -16,7 +16,7 @@ class ProfileForm extends StatelessWidget {
     // Field label style
     TextStyle fieldLabelStyle = GoogleFonts.montserrat(
       color: Theme.of(context).colorScheme.primary,
-      fontSize: 17,
+      fontSize: 15,
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
     );
@@ -24,7 +24,7 @@ class ProfileForm extends StatelessWidget {
     // Hint Text Style
     TextStyle hintTextStyle = GoogleFonts.montserrat(
       color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
     );
@@ -37,51 +37,63 @@ class ProfileForm extends StatelessWidget {
           Text('Nama Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Masukkan Nama Perusahaan',
               hintStyle: hintTextStyle,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text('Alamat Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Masukkan Alamat Perusahaan',
               hintStyle: hintTextStyle,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text('Email Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Masukkan Email Perusahaan',
               hintStyle: hintTextStyle,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text('Website Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.url,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Masukkan Website Perusahaan',
               hintStyle: hintTextStyle,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text('Nomor Telepon Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               hintText: 'Masukkan Nomor Telepon Perusahaan',
               hintStyle: hintTextStyle,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text('PIC Perusahaan', style: fieldLabelStyle),
           const SizedBox(height: 4),
           TextFormField(
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               hintText: 'Masukkan PIC Perusahaan',
               hintStyle: hintTextStyle,

@@ -5,8 +5,16 @@ import 'package:my_invoice_app/api/pdf_invoice_api.dart';
 import 'package:my_invoice_app/model/invoice.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 
-class InvoiceScreen extends StatelessWidget {
+class InvoiceScreen extends StatefulWidget {
   const InvoiceScreen({super.key});
+
+  @override
+  State<InvoiceScreen> createState() => _InvoiceScreenState();
+}
+
+class _InvoiceScreenState extends State<InvoiceScreen> {
+  bool noteViewAll = false;
+  bool termViewAll = false;
 
   @override
   Widget build(BuildContext context) {
@@ -324,26 +332,37 @@ class InvoiceScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('CATATAN', style: titleStyle),
-                        Text(
-                          'View All',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w500,
-                            fontSize: getPropScreenWidth(12),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.5),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            overlayColor: Colors.transparent,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              noteViewAll = !noteViewAll;
+                            });
+                          },
+                          child: Text(
+                            'View All',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: getPropScreenWidth(12),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.5),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
                     Text(
                       '1. Deposit Sebesar Rp.4.000.000 / Pax (45)\n2. Limit Pembayaran Deposit 1 x 24 Jam Setelah LOBC Diterima\n3. Change Name & Core Name (Sebelum Issue Ticket) 10% dari Jumlah Group\n4. Full payment time limit 30 Hari sebelum keberangkatan\n5. Insert name time limit 21 Hari sebelum keberangkatan'
                           .toUpperCase()
                           .toString(),
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: noteViewAll ? null : 5,
+                      overflow: noteViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
                     ),
                   ],
@@ -360,26 +379,37 @@ class InvoiceScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('TERM PAYMENT', style: titleStyle),
-                        Text(
-                          'View All',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w500,
-                            fontSize: getPropScreenWidth(12),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.5),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            overlayColor: Colors.transparent,
                           ),
+                          child: Text(
+                            'View All',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: getPropScreenWidth(12),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.5),
+                            ),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              termViewAll = !termViewAll;
+                            });
+                          },
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
                     Text(
                       '1. Harga sewaktu-waktu bisa berubah tanpa pemberitahuan sebelumnya\n2. Apabila terdapat pengurangan seat dalam kurun waktu satu bulan sebelum keberangkatan maka denda yang dibebankan ke agent adalah sama dengan jumlah deposit yang sudah kami bayarkan ke airlines\n3. Deposit tidak dapat dikembalikan dan diubah ke PNR yang lain\n4. ﻿﻿Bilamana ada pembatalan dan tidak ada pelunasan dalam pemesanan 3 minggu sebelum keberangkatan maka deposit dianggap hilang / hangus'
                           .toUpperCase()
                           .toString(),
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: termViewAll ? null : 5,
+                      overflow: termViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
                     ),
                   ],

@@ -67,6 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.primary,
+            fontSize: getPropScreenWidth(20),
           ),
         ),
         centerTitle: true,

@@ -10,6 +10,8 @@ class TransaksiForm extends StatefulWidget {
 }
 
 class _TransaksiFormState extends State<TransaksiForm> {
+  final _formKey = GlobalKey<FormState>();
+
   // Note Types
   String defaultNoteType = 'Type 1';
   final List<String> _noteTypes = [
@@ -45,7 +47,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
           child: SizedBox(
             width: double.infinity,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -82,117 +83,156 @@ class _TransaksiFormState extends State<TransaksiForm> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                Text('Nama Travel', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                DropdownButtonFormField(
-                  value: 'Pilih Travel',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 17,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  icon: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  items: ['Pilih Travel', 'Rihlah Wisata'].map((travel) {
-                    return DropdownMenuItem(
-                      value: travel,
-                      child: Text(travel),
-                    );
-                  }).toList(),
-                  onChanged: (value) {},
-                ),
-                const SizedBox(height: 16),
-                Text('PNR', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan PNR',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text('Adult', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: TextFormField(
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Nama Travel', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      DropdownButtonFormField(
+                        value: 'Pilih Travel',
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 17,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        items: ['Pilih Travel', 'Rihlah Wisata'].map((travel) {
+                          return DropdownMenuItem(
+                            value: travel,
+                            child: Text(travel),
+                          );
+                        }).toList(),
+                        onChanged: (value) {},
+                      ),
+                      const SizedBox(height: 16),
+                      Text('PNR', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
-                          hintText: 'Harga Adult',
+                          hintText: 'Masukkan PNR',
                           hintStyle: hintTextStyle,
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.remove),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: TextFormField(
-                        textAlign: TextAlign.center,
+                      const SizedBox(height: 16),
+                      Text('Item 1', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: DropdownButtonFormField(
+                              value: 'Pilih Item',
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              items: ['Pilih Item', 'Adult', 'Child', 'Infant']
+                                  .map((travel) {
+                                return DropdownMenuItem(
+                                  value: travel,
+                                  child: Text(travel),
+                                );
+                              }).toList(),
+                              onChanged: (value) {},
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButtonFormField(
+                              value: 1,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 17,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              items: List.generate(100, (index) => index + 1)
+                                  .map((quantity) {
+                                return DropdownMenuItem(
+                                  value: quantity,
+                                  child: Text(quantity.toString()),
+                                );
+                              }).toList(),
+                              onChanged: (value) {},
+                            ),
+                          )
+                        ],
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(Icons.add),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {},
-                    label: const Text('Tambah Item'),
-                    icon: Icon(Icons.add),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: 'Harga Per Item (IDR)',
+                          hintStyle: hintTextStyle,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () {},
+                          label: Text('Tambah Item'),
+                          icon: Icon(Icons.add),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text('Note Invoice', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      DropdownButtonFormField(
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 17,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        items: _noteTypes.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            defaultNoteType = value!;
+                          });
+                        },
+                        value: defaultNoteType,
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Catatan Penerbangan', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Catatan Penerbangan',
+                          hintStyle: hintTextStyle,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {},
+                          child: const Text('Submit'),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text('Note Invoice', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                DropdownButtonFormField(
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 17,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  items: _noteTypes.map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: Text(type),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      defaultNoteType = value!;
-                    });
-                  },
-                  value: defaultNoteType,
-                ),
-                const SizedBox(height: 8),
-                Text('Catatan Penerbangan', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Catatan Penerbangan',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {},
-                    child: const Text('Submit'),
-                  ),
-                ),
+                )
               ],
             ),
           ),

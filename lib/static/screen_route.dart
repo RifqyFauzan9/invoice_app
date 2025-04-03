@@ -22,6 +22,7 @@ enum ScreenRoute {
   itemForm('itemForm'),
   note('note'),
   noteForm('noteForm'),
+  report('report'),
   main('main');
 
   final String route;

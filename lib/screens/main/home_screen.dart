@@ -84,7 +84,7 @@ class HomeScreen extends StatelessWidget {
             SectionTitle(title: 'Status', viewAll: false),
             const SizedBox(height: 16),
             SizedBox(
-              height: 142,
+              height: getPropScreenWidth(140),
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: invoiceStatusCardList.map((card) {
@@ -101,7 +101,7 @@ class HomeScreen extends StatelessWidget {
                 ScreenRoute.listInvoice.route,
               ),
             ),
-            const SizedBox(height: 25),
+            SizedBox(height: getPropScreenWidth(16)),
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.zero,
@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                   return CustomCard(
                     imageLeading: 'assets/images/travel_icon.png',
                     title: 'Rihlah Wisata',
-                    subtitle: 'IBU DEDE',
+                    subtitle: Text('IBU DEDE'),
                     trailing: Icon(
                       Icons.query_stats,
                       color: Theme.of(context).colorScheme.primary,

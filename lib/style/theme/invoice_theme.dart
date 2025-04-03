@@ -350,7 +350,9 @@ class InvoiceTheme {
         canvasColor: colorScheme.surface,
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
+            backgroundColor: colorScheme.primary,
             textStyle: GoogleFonts.montserrat(
+              color: colorScheme.onPrimary,
               fontSize: getPropScreenWidth(14),
               fontWeight: FontWeight.bold,
             ),

@@ -80,7 +80,7 @@ class DataItemScreen extends StatelessWidget {
                 itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/item_icon.png',
                   title: 'Adult',
-                  subtitle: 'Dewasa',
+                  subtitle: Text('Dewasa'),
                   trailing: IconButton(
                     onPressed: () {},
                     icon: Icon(

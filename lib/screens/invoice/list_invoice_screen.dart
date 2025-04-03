@@ -89,7 +89,7 @@ class ListInvoiceScreen extends StatelessWidget {
                     return CustomCard(
                       imageLeading: 'assets/images/travel_icon.png',
                       title: 'Rihlah Wisata',
-                      subtitle: 'IBU DEDE',
+                      subtitle: Text('IBU DEDE'),
                       trailing: Icon(
                         Icons.query_stats,
                         color: Theme.of(context).colorScheme.primary,

@@ -91,12 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                   context, ScreenRoute.login.route);
                             }
                           },
-                          child: Text(
-                            'Continue',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
+                          child: Text('Continue'),
                         ),
                       ),
                     ],

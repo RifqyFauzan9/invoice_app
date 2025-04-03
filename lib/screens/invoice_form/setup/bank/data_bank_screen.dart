@@ -79,8 +79,13 @@ class DataBankScreen extends StatelessWidget {
                 itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/bank_icon.png',
                   title: 'BCA',
-                  subtitle: '1231231231321',
-                  description: 'Jatinegara',
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('1231231231321'),
+                      Text('Jatinegara'),
+                    ],
+                  ),
                   trailing: IconButton(
                     onPressed: () {},
                     icon: Icon(

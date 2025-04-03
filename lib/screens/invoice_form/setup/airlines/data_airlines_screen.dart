@@ -80,7 +80,7 @@ class DataAirlinesScreen extends StatelessWidget {
                 itemBuilder: (context, index) => CustomCard(
                   imageLeading: 'assets/images/airlines_icon.png',
                   title: 'Saudi Airlines',
-                  subtitle: 'SV',
+                  subtitle: Text('SV'),
                   trailing: IconButton(
                     onPressed: () {},
                     icon: Icon(
