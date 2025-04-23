@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../services/firebase_firestore_service.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 
@@ -12,6 +14,10 @@ class DataAirlinesForm extends StatefulWidget {
 }
 
 class _DataAirlinesFormState extends State<DataAirlinesForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _airlineNameController = TextEditingController();
+  final _airlineCodeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Field label style
@@ -63,35 +69,76 @@ class _DataAirlinesFormState extends State<DataAirlinesForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Nama Maskapai', style: fieldLabelStyle),
-              const SizedBox(height: 4),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Masukkan Nama Maskapai',
-                  hintStyle: hintTextStyle,
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Nama Maskapai', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _airlineNameController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Nama Maskapai',
+                        hintStyle: hintTextStyle,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Kode', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _airlineCodeController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Kode Maskapai',
+                        hintStyle: hintTextStyle,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _saveAirline();
+                          }
+                        },
+                        child: const Text('Submit'),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text('Kode', style: fieldLabelStyle),
-              const SizedBox(height: 4),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Masukkan Kode Maskapai',
-                  hintStyle: hintTextStyle,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {},
-                  child: const Text('Submit'),
-                ),
-              ),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _saveAirline() async {
+    final service = context.read<FirebaseFirestoreService>();
+    final airlineName = _airlineNameController.text;
+    final airlineCode = _airlineCodeController.text;
+    final navigator = Navigator.of(context);
+
+    try {
+      await service.saveAirline(
+        airlineName: airlineName,
+        airlineCode: airlineCode,
+      );
+      debugPrint('data airline berhasil disimpan!');
+      navigator.pop();
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+    _airlineNameController.clear();
+    _airlineCodeController.clear();
+  }
+
+  @override
+  void dispose() {
+    _airlineNameController.dispose();
+    _airlineCodeController.dispose();
+    super.dispose();
   }
 }

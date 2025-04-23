@@ -6,7 +6,7 @@ import 'package:my_invoice_app/screens/auth/signup/sign_up_screen.dart';
 import 'package:my_invoice_app/screens/invoice/invoice_screen.dart';
 import 'package:my_invoice_app/screens/invoice/list_invoice_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/choose_form_screen.dart';
-import 'package:my_invoice_app/screens/invoice_form/report/report_screen.dart';
+import 'package:my_invoice_app/screens/report/report_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/airlines/data_airlines_form.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/airlines/data_airlines_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/bank/data_bank_form.dart';
@@ -25,6 +25,8 @@ import 'package:my_invoice_app/screens/splash/real_splash_screen.dart';
 import 'package:my_invoice_app/screens/splash/splash_screen.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 
+import '../model/transaction/invoice.dart';
+
 final Map<String, WidgetBuilder> routes = {
   ScreenRoute.splash.route: (context) => SplashScreen(),
   ScreenRoute.login.route: (context) => LoginScreen(),
@@ -36,7 +38,9 @@ final Map<String, WidgetBuilder> routes = {
   ScreenRoute.setup.route: (context) => SetupFormScreen(),
   ScreenRoute.transaksi.route: (context) => TransaksiForm(),
   ScreenRoute.listInvoice.route: (context) => ListInvoiceScreen(),
-  ScreenRoute.invoiceScreen.route: (context) => InvoiceScreen(),
+  ScreenRoute.invoiceScreen.route: (context) => InvoiceScreen(
+    invoice: ModalRoute.of(context)!.settings.arguments as Invoice,
+  ),
   ScreenRoute.profile.route: (context) => ProfileScreen(),
   ScreenRoute.travel.route: (context) => DataTravelScreen(),
   ScreenRoute.bank.route: (context) => DataBankScreen(),

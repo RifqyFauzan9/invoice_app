@@ -364,10 +364,17 @@ class InvoiceTheme {
             ),
           ),
         ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          toolbarHeight: getPropScreenWidth(75),
+          elevation: 5,
+          backgroundColor: Colors.white,
+          shadowColor: colorScheme.primary.withOpacity(0.5),
+        ),
         inputDecorationTheme: InputDecorationTheme(
           contentPadding: EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 18,
+            vertical: 14,
+            horizontal: 24,
           ),
           hintStyle: GoogleFonts.montserrat(
             fontSize: 14,
@@ -378,7 +385,7 @@ class InvoiceTheme {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: colorScheme.onSurface.withOpacity(0.4),
+              color: colorScheme.primary.withOpacity(0.3),
               width: 2,
             ),
           ),
@@ -391,9 +398,7 @@ class InvoiceTheme {
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              width: 2,
-            ),
+            borderSide: BorderSide(width: 2),
           ),
         ),
       );

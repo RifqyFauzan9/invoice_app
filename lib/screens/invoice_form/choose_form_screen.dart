@@ -29,9 +29,9 @@ class ChooseFormScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.06),
+                SizedBox(height: SizeConfig.screenHeight * 0.05),
                 ChooseFormCard(
-                  image: 'assets/images/setup_icon.png',
+                  icon: Icons.settings,
                   onPressed: () => Navigator.pushNamed(
                     context,
                     ScreenRoute.setup.route,
@@ -40,7 +40,7 @@ class ChooseFormScreen extends StatelessWidget {
                 ),
                 SizedBox(height: SizeConfig.screenHeight * 0.02),
                 ChooseFormCard(
-                  image: 'assets/images/invoice_icon.png',
+                  icon: Icons.credit_card,
                   onPressed: () => Navigator.pushNamed(
                     context,
                     ScreenRoute.transaksi.route,
@@ -49,7 +49,7 @@ class ChooseFormScreen extends StatelessWidget {
                 ),
                 SizedBox(height: SizeConfig.screenHeight * 0.02),
                 ChooseFormCard(
-                  image: 'assets/images/report_icon.png',
+                  icon: Icons.bar_chart,
                   onPressed: () => Navigator.pushNamed(
                     context,
                     ScreenRoute.report.route,

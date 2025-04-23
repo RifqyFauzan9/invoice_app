@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/model/setup/airline.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 import '../../../../widgets/main_widgets/custom_card.dart';
@@ -50,16 +53,17 @@ class DataAirlinesScreen extends StatelessWidget {
                 CustomIconButton(
                   icon: Icons.add,
                   onPressed: () {
-                    Navigator.pushNamed(context, ScreenRoute.airlinesForm.route,);
+                    Navigator.pushNamed(
+                      context,
+                      ScreenRoute.airlinesForm.route,
+                    );
                   },
                 ),
               ],
             ),
             const SizedBox(height: 24),
             SearchBar(
-              backgroundColor: WidgetStatePropertyAll(
-                  Colors.white
-              ),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               elevation: WidgetStatePropertyAll(0),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
@@ -72,25 +76,47 @@ class DataAirlinesScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => CustomCard(
-                  imageLeading: 'assets/images/airlines_icon.png',
-                  title: 'Saudi Airlines',
-                  subtitle: Text('SV'),
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.more_vert,
-                    ),
-                  ),
-                ),
-                itemCount: 3,
+              child: StreamProvider<List<Airline>>(
+                create: (context) =>
+                    context.read<FirebaseFirestoreService>().getAirline(),
+                initialData: const <Airline>[],
+                catchError: (context, error) {
+                  debugPrint('Error: $error');
+                  return [];
+                },
+                builder: (context, child) {
+                  final airlines = Provider.of<List<Airline>>(context);
+                  return airlines.isEmpty
+                      ? const Center(
+                          child: Text('Empty List'),
+                        )
+                      : ListView.builder(
+                          itemCount: airlines.length,
+                          itemBuilder: (context, index) {
+                            final airline = airlines[index];
+                            return CustomCard(
+                              imageLeading: 'assets/images/airlines_icon.png',
+                              title: airline.airline,
+                              content: Text(
+                                airline.code,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.more_vert,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                },
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/model/setup/item.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 import '../../../../widgets/main_widgets/custom_card.dart';
@@ -50,16 +53,17 @@ class DataItemScreen extends StatelessWidget {
                 CustomIconButton(
                   icon: Icons.add,
                   onPressed: () {
-                    Navigator.pushNamed(context, ScreenRoute.itemForm.route,);
+                    Navigator.pushNamed(
+                      context,
+                      ScreenRoute.itemForm.route,
+                    );
                   },
                 ),
               ],
             ),
             const SizedBox(height: 24),
             SearchBar(
-              backgroundColor: WidgetStatePropertyAll(
-                  Colors.white
-              ),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               elevation: WidgetStatePropertyAll(0),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
@@ -72,26 +76,41 @@ class DataItemScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => CustomCard(
-                  imageLeading: 'assets/images/item_icon.png',
-                  title: 'Adult',
-                  subtitle: Text('Dewasa'),
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.more_vert,
-                      size: 32,
-                    ),
-                  ),
-                ),
-                itemCount: 3,
-              ),
-            )
+                child: StreamProvider<List<Item>>(
+              create: (context) =>
+                  context.read<FirebaseFirestoreService>().getItem(),
+              initialData: const <Item>[],
+              catchError: (context, error) {
+                debugPrint('Error: $error');
+                return [];
+              },
+              builder: (context, child) {
+                final items = Provider.of<List<Item>>(context);
+                return items.isEmpty
+                    ? const Center(
+                        child: Text('Empty List'),
+                      )
+                    : ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return CustomCard(
+                            imageLeading: 'assets/images/item_icon.png',
+                            title: item.itemName,
+                            content: Text(item.itemCode),
+                            trailing: IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.more_vert,
+                                size: 32,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+              },
+            ))
           ],
         ),
       ),

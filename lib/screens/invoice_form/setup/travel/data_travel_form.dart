@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../widgets/invoice_form/section_title_form.dart';
 
@@ -12,6 +14,13 @@ class DataTravelForm extends StatefulWidget {
 }
 
 class _DataTravelFormState extends State<DataTravelForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _contactPersonController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Field label style
@@ -64,67 +73,115 @@ class _DataTravelFormState extends State<DataTravelForm> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('No ID Travel', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan No ID Travel',
-                    hintStyle: hintTextStyle,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Nama Travel', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _nameController,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Nama Travel',
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon isi form dengan benar!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Kontak Person', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _contactPersonController,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Kontak Person',
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon isi form dengan benar!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Alamat', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _addressController,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.streetAddress,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Alamat Travel',
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon isi form dengan benar!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Nomor Telepon', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _phoneController,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Nomor Telepon',
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon isi form dengan benar!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Email', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _emailController,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Email Travel',
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon isi form dengan benar!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _saveTravel();
+                            }
+                          },
+                          child: const Text('Submit'),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text('Nama Travel', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Nama Travel',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Kontak Person', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Kontak Person',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Alamat', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Alamat Travel',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Nomor Telepon', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Nomor Telepon',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text('Email', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Email Travel',
-                    hintStyle: hintTextStyle,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {},
-                    child: const Text('Submit'),
-                  ),
-                ),
+                )
               ],
             ),
           ),
@@ -132,5 +189,43 @@ class _DataTravelFormState extends State<DataTravelForm> {
       ),
     );
   }
-}
 
+  void _saveTravel() async {
+    final service = context.read<FirebaseFirestoreService>();
+    final travelName = _nameController.text;
+    final contactPerson = _contactPersonController.text;
+    final address = _addressController.text;
+    final phone = int.tryParse(_phoneController.text);
+    final email = _emailController.text;
+    final navigator = Navigator.of(context);
+
+    try {
+      await service.saveTravel(
+        travelName: travelName,
+        contactPerson: contactPerson,
+        travelAddress: address,
+        phoneNumber: phone ?? 08,
+        emailAddress: email,
+      );
+      debugPrint('data travel berhasil disimpan!');
+      navigator.pop();
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+    _nameController.clear();
+    _contactPersonController.clear();
+    _addressController.clear();
+    _phoneController.clear();
+    _emailController.clear();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _contactPersonController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+}

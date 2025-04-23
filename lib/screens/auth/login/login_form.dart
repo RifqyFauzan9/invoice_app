@@ -35,7 +35,7 @@ class _LoginFormState extends State<LoginForm> {
       final firebaseAuthProvider = context.read<FirebaseAuthProvider>();
       final navigator = Navigator.of(context);
 
-      await firebaseAuthProvider.signInUser(email, password, context);
+      await firebaseAuthProvider.signInUser(email, password);
       switch (firebaseAuthProvider.authStatus) {
         case FirebaseAuthStatus.authenticated:
           await sharedPreferenceProvider.login();

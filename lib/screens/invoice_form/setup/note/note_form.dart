@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../services/firebase_firestore_service.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 
 class NoteForm extends StatefulWidget {
@@ -12,6 +14,9 @@ class NoteForm extends StatefulWidget {
 }
 
 class _NoteFormState extends State<NoteForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _noteController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Field label style
@@ -64,22 +69,35 @@ class _NoteFormState extends State<NoteForm> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Masukkan Note', style: fieldLabelStyle),
-                const SizedBox(height: 4),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Note',
-                    hintStyle: hintTextStyle,
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Masukkan Note', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        controller: _noteController,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Note',
+                          hintStyle: hintTextStyle,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _saveNote();
+                            }
+                          },
+                          child: const Text('Submit'),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {},
-                    child: const Text('Submit'),
-                  ),
-                ),
+                )
               ],
             ),
           ),
@@ -87,5 +105,25 @@ class _NoteFormState extends State<NoteForm> {
       ),
     );
   }
-}
 
+  void _saveNote() async {
+    final service = context.read<FirebaseFirestoreService>();
+    final note = _noteController.text;
+    final navigator = Navigator.of(context);
+
+    try {
+      await service.saveNote(content: note);
+      debugPrint('data note berhasil disimpan!');
+      navigator.pop();
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+    _noteController.clear();
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
+}

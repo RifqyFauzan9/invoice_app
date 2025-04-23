@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_invoice_app/screens/profile/profile_form.dart';
+import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/firebase_auth_provider.dart';
@@ -37,49 +38,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: getPropScreenWidth(70),
-        elevation: 4,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.black,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back),
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        actions: [
-          IconButton(
-            padding: EdgeInsets.only(right: 10),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return buildLogoutAlert(context);
-                },
-              );
-            },
-            icon: Icon(Icons.logout),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ],
-        title: Text(
-          'Data Perusahaan',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
-            fontSize: getPropScreenWidth(20),
-          ),
-        ),
-        centerTitle: true,
-      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(30),
+          padding: EdgeInsets.symmetric(
+            horizontal: 30,
+            vertical: 50,
+          ),
           child: SizedBox(
             width: double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomIconButton(
+                      icon: Icons.arrow_back,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      'Data Perusahaan',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: getPropScreenWidth(20),
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    CustomIconButton(
+                      icon: Icons.logout,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return buildLogoutAlert(context);
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: SizeConfig.screenHeight * 0.02),
                 Align(
                   alignment: Alignment.center,
                   child: Stack(
@@ -89,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: getPropScreenWidth(120),
                         width: getPropScreenWidth(120),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
+                          shape: BoxShape.circle,
                           image: DecorationImage(
                             image: imageFile != null
                                 ? FileImage(imageFile!)
@@ -99,8 +98,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       Positioned(
-                        right: -10,
-                        bottom: -10,
+                        right: 0,
+                        bottom: 0,
                         child: IconButton(
                           padding: EdgeInsets.zero,
                           style: IconButton.styleFrom(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/model/setup/bank.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
+import 'package:provider/provider.dart';
 
 class DataBankScreen extends StatelessWidget {
   const DataBankScreen({super.key});
@@ -49,16 +52,17 @@ class DataBankScreen extends StatelessWidget {
                 CustomIconButton(
                   icon: Icons.add,
                   onPressed: () {
-                    Navigator.pushNamed(context, ScreenRoute.bankForm.route,);
+                    Navigator.pushNamed(
+                      context,
+                      ScreenRoute.bankForm.route,
+                    );
                   },
                 ),
               ],
             ),
             const SizedBox(height: 24),
             SearchBar(
-              backgroundColor: WidgetStatePropertyAll(
-                  Colors.white
-              ),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               elevation: WidgetStatePropertyAll(0),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
@@ -71,31 +75,61 @@ class DataBankScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => CustomCard(
-                  imageLeading: 'assets/images/bank_icon.png',
-                  title: 'BCA',
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('1231231231321'),
-                      Text('Jatinegara'),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.more_vert,
-                    ),
-                  ),
-                ),
-                itemCount: 3,
+              child: StreamProvider<List<Bank>>(
+                create: (context) =>
+                    context.read<FirebaseFirestoreService>().getBank(),
+                initialData: const <Bank>[],
+                catchError: (context, error) {
+                  debugPrint('Error: $error');
+                  return [];
+                },
+                builder: (context, child) {
+                  final banks = Provider.of<List<Bank>>(context);
+                  return banks.isEmpty
+                      ? const Center(
+                          child: Text('Empty List'),
+                        )
+                      : ListView.builder(
+                          itemCount: banks.length,
+                          itemBuilder: (context, index) {
+                            final bank = banks[index];
+                            return CustomCard(
+                              imageLeading: 'assets/images/bank_icon.png',
+                              title: bank.bankName,
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    bank.accountNumber.toString(),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                  Text(
+                                    bank.branch,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.more_vert,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                },
               ),
-            )
+            ),
           ],
         ),
       ),

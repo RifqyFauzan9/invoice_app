@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../../services/firebase_firestore_service.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 
@@ -12,6 +14,10 @@ class DataItemForm extends StatefulWidget {
 }
 
 class _DataItemFormState extends State<DataItemForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _itemNameController = TextEditingController();
+  final _itemCodeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     // Field label style
@@ -63,35 +69,76 @@ class _DataItemFormState extends State<DataItemForm> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Kode Item', style: fieldLabelStyle),
-              const SizedBox(height: 4),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Masukkan Kode Item',
-                  hintStyle: hintTextStyle,
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Kode Item', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _itemCodeController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Kode Item',
+                        hintStyle: hintTextStyle,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Nama Item', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _itemNameController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Nama Item',
+                        hintStyle: hintTextStyle,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _saveItem();
+                          }
+                        },
+                        child: const Text('Submit'),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text('Nama Item', style: fieldLabelStyle),
-              const SizedBox(height: 4),
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Masukkan Nama Item',
-                  hintStyle: hintTextStyle,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {},
-                  child: const Text('Submit'),
-                ),
-              ),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _saveItem() async {
+    final service = context.read<FirebaseFirestoreService>();
+    final itemName = _itemNameController.text;
+    final itemCode = _itemCodeController.text;
+    final navigator = Navigator.of(context);
+
+    try {
+      await service.saveItem(
+        itemName: itemName,
+        itemCode: itemCode,
+      );
+      debugPrint('data item berhasil disimpan!');
+      navigator.pop();
+    } catch (e) {
+      debugPrint('Error: $e');
+    }
+    _itemNameController.clear();
+    _itemCodeController.clear();
+  }
+
+  @override
+  void dispose() {
+    _itemNameController.dispose();
+    _itemCodeController.dispose();
+    super.dispose();
   }
 }

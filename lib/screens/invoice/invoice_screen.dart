@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/api/pdf_api.dart';
 import 'package:my_invoice_app/api/pdf_invoice_api.dart';
-import 'package:my_invoice_app/model/invoice.dart';
+import 'package:my_invoice_app/model/transaction/invoice.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 
 class InvoiceScreen extends StatefulWidget {
-  const InvoiceScreen({super.key});
+  final Invoice invoice;
+
+  const InvoiceScreen({super.key, required this.invoice,});
 
   @override
   State<InvoiceScreen> createState() => _InvoiceScreenState();
@@ -38,15 +40,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: getPropScreenWidth(80),
-        elevation: 4,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.black,
         title: Image.asset(
           'assets/images/ktg_logo.png',
           width: getPropScreenWidth(120),
         ),
-        centerTitle: true,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: Icon(Icons.arrow_back),
@@ -55,8 +52,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         actions: [
           IconButton(
             padding: EdgeInsets.only(right: 10),
-            onPressed: () {},
-            icon: Icon(Icons.share),
+            onPressed: () async {
+              final invoice = widget.invoice;
+
+              final pdfFile = await PdfInvoiceApi.generate(invoice);
+
+              PdfApi.openFile(pdfFile);
+            },
+            icon: Icon(Icons.download),
             color: Theme.of(context).colorScheme.primary,
           ),
         ],
@@ -85,7 +88,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          'SO-2502-00001',
+                          widget.invoice.proofNumber,
                           style: valueStyle,
                         ),
                       ],
@@ -96,7 +99,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       children: [
                         Text('TANGGAL', style: labelStyle),
                         Text(
-                          '01/02/2025',
+                          widget.invoice.dateCreated,
                           style: valueStyle,
                         ),
                       ],
@@ -109,7 +112,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           'KEPADA',
                           style: labelStyle,
                         ),
-                        Text('PT KAROMAH BAIT AL ANSOR', style: valueStyle),
+                        Text(widget.invoice.travel.travelName, style: valueStyle),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -121,7 +124,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          'Bp. Juremi',
+                          widget.invoice.travel.contactPerson,
                           style: valueStyle,
                         ),
                       ],
@@ -149,7 +152,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          '6TWQV3',
+                          widget.invoice.pnrCode,
                           style: valueStyle,
                         ),
                       ],
@@ -163,7 +166,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          'EKA',
+                          widget.invoice.travel.contactPerson,
                           style: valueStyle,
                         ),
                       ],
@@ -177,7 +180,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          'GARUDA INDONESIA',
+                          widget.invoice.airline.airline,
                           style: valueStyle,
                         ),
                       ],
@@ -203,7 +206,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '11 APR 25 | GA990 | CGK → JED | HK45 | 08:45 - 14:35\n18 APR 25 | GA991 | JED → CGK | KK45 | 16:35 - 06:55',
+                      widget.invoice.flightNotes,
                       style: valueStyle,
                     ),
                   ],
@@ -419,48 +422,49 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(30),
-        child: FilledButton(
-          onPressed: () async {
-            final date = DateTime.now();
-            final dueDate = date.add(Duration(days: 7));
-
-            final invoice = Invoice(
-              travel: Travel(
-                travelId: 'dgkhasbavbzcuihzcs',
-                travelName: 'Rihlah Wisata',
-                contactPerson: 'Eka',
-                address: 'Jalan Batubara',
-                travelPhoneNumber: 089518853275,
-                travelEmail: 'r1fqyf4uz4n@gmail.com',
-              ),
-              bank: Bank(
-                  bankName: 'Mandiri',
-                  accountNumber: 3456789876543,
-                  branch: 'Tangerang Selatan'),
-              airlines: Airlines(
-                airlineName: 'Garuda Indonesia',
-                code: 'KDX-0897',
-              ),
-              item: [
-                Item(itemCode: 'KDC-489', itemName: 'ADULT'),
-                Item(itemCode: 'KDC-489', itemName: 'CHILD'),
-                Item(itemCode: 'KDC-489', itemName: 'INFANT'),
-              ],
-              note: Note(
-                type: 'Type 2',
-                note: 'jbdasjidbaknmdacbiuzbxciahsdausdhdj',
-              ),
-            );
-
-            final pdfFile = await PdfInvoiceApi.generate(invoice);
-
-            PdfApi.openFile(pdfFile);
-          },
-          child: const Text('Download'),
-        ),
-      ),
+      // bottomNavigationBar: Padding(
+      //   padding: EdgeInsets.all(30),
+      //   child: FilledButton(
+      //     onPressed: () async {
+      //       final date = DateTime.now();
+      //       final dueDate = date.add(Duration(days: 7));
+      //
+      //       final invoice = Invoice(
+      //         travel: Travel(
+      //           travelId: 'dgkhasbavbzcuihzcs',
+      //           travelName: 'Rihlah Wisata',
+      //           contactPerson: 'Eka',
+      //           address: 'Jalan Batubara',
+      //           travelPhoneNumber: 089518853275,
+      //           travelEmail: 'r1fqyf4uz4n@gmail.com',
+      //         ),
+      //         bank: Bank(
+      //           bankName: 'Mandiri',
+      //           accountNumber: 3456789876543,
+      //           branch: 'Tangerang Selatan',
+      //         ),
+      //         airlines: Airlines(
+      //           airlineName: 'Garuda Indonesia',
+      //           code: 'KDX-0897',
+      //         ),
+      //         items: [
+      //           Item(itemCode: 'KDC-489', itemName: 'ADULT'),
+      //           Item(itemCode: 'KDC-489', itemName: 'CHILD'),
+      //           Item(itemCode: 'KDC-489', itemName: 'INFANT'),
+      //         ],
+      //         note: Note(
+      //           type: 'Type 2',
+      //           note: 'jbdasjidbaknmdacbiuzbxciahsdausdhdj',
+      //         ),
+      //       );
+      //
+      //       final pdfFile = await PdfInvoiceApi.generate(invoice);
+      //
+      //       PdfApi.openFile(pdfFile);
+      //     },
+      //     child: const Text('Download'),
+      //   ),
+      // ),
     );
   }
 }

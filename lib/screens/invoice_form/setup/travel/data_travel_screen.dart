@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../model/setup/travel.dart';
 
 class DataTravelScreen extends StatelessWidget {
   const DataTravelScreen({super.key});
@@ -48,15 +52,16 @@ class DataTravelScreen extends StatelessWidget {
                 ),
                 CustomIconButton(
                   icon: Icons.add,
-                  onPressed: () => Navigator.pushNamed(context, ScreenRoute.travelForm.route,),
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    ScreenRoute.travelForm.route,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             SearchBar(
-              backgroundColor: WidgetStatePropertyAll(
-                Colors.white
-              ),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               elevation: WidgetStatePropertyAll(0),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
@@ -69,25 +74,63 @@ class DataTravelScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => CustomCard(
-                  imageLeading: 'assets/images/travel_icon.png',
-                  title: 'RIHLAH WISATA',
-                  subtitle: Text('IBU DEDE'),
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.more_vert,
-                    ),
-                  ),
-                ),
-                itemCount: 3,
+              child: StreamProvider<List<Travel>>(
+                create: (context) =>
+                    context.read<FirebaseFirestoreService>().getTravel(),
+                initialData: const <Travel>[],
+                catchError: (context, error) {
+                  debugPrint('Error: $error');
+                  return [];
+                },
+                builder: (context, child) {
+                  final travels = Provider.of<List<Travel>>(context);
+                  return travels.isEmpty
+                      ? const Center(
+                          child: Text('Empty List'),
+                        )
+                      : ListView.builder(
+                          itemBuilder: (context, index) {
+                            final travel = travels[index];
+                            return CustomCard(
+                              imageLeading: 'assets/images/travel_icon.png',
+                              title: travel.travelName,
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    travel.contactPerson,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                  Text(
+                                    travel.address,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.more_vert,
+                                ),
+                              ),
+                            );
+                          },
+                          itemCount: travels.length,
+                        );
+                },
               ),
-            )
+            ),
           ],
         ),
       ),

@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:my_invoice_app/services/firebase_auth_service.dart';
 import 'package:my_invoice_app/static/firebase_auth_status.dart';
 
-import '../model/profile.dart';
+import '../model/common/profile.dart';
 
 class FirebaseAuthProvider extends ChangeNotifier {
   final FirebaseAuthService _service;
@@ -35,18 +35,22 @@ class FirebaseAuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future signInUser(String email, String password, BuildContext context) async {
+  Future signInUser(String email, String password) async {
     try {
       _authStatus = FirebaseAuthStatus.authenticating;
       notifyListeners();
 
       final result = await _service.signInUser(email, password);
+      final user = result.user;
 
-      _profile = Profile(
-        name: result.user?.displayName,
-        email: result.user?.email,
-        photoUrl: result.user?.photoURL,
-      );
+      if (user != null) {
+        _profile = Profile(
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoUrl: user.photoURL,
+        );
+      }
 
       _authStatus = FirebaseAuthStatus.authenticated;
       _message = 'Sign in Success';
@@ -75,11 +79,14 @@ class FirebaseAuthProvider extends ChangeNotifier {
 
   Future updateProfile(BuildContext context) async {
     final user = await _service.userChanges();
-    _profile = Profile(
-      name: user?.displayName,
-      email: user?.email,
-      photoUrl: user?.photoURL,
-    );
+    if (user != null) {
+      _profile = Profile(
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoUrl: user.photoURL,
+      );
+    }
     notifyListeners();
   }
 

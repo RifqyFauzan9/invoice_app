@@ -3,14 +3,14 @@ import 'package:my_invoice_app/static/size_config.dart';
 
 class CustomCard extends StatelessWidget {
   final String imageLeading, title;
-  final Widget? trailing, subtitle;
+  final Widget? trailing, content;
   final VoidCallback? onCardTapped;
 
   const CustomCard({
     super.key,
     required this.imageLeading,
     required this.title,
-    this.subtitle,
+    this.content,
     this.trailing,
     this.onCardTapped,
   });
@@ -21,6 +21,7 @@ class CustomCard extends StatelessWidget {
       splashColor: Colors.transparent,
       onTap: onCardTapped,
       child: Card(
+        elevation: 0,
         color: Colors.white,
         margin: EdgeInsets.symmetric(vertical: 6),
         child: Padding(
@@ -41,14 +42,15 @@ class CustomCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: getPropScreenWidth(16),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Visibility(
-                      visible: subtitle != null,
-                      child: subtitle ?? SizedBox(),
+                      visible: content != null,
+                      child: content ?? SizedBox(),
                     )
                   ],
                 ),

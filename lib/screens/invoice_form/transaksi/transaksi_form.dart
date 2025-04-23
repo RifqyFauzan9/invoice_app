@@ -1,5 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:my_invoice_app/model/setup/airline.dart';
+import 'package:my_invoice_app/model/setup/bank.dart';
+import 'package:my_invoice_app/model/setup/item.dart';
+import 'package:my_invoice_app/model/setup/note.dart';
+import 'package:my_invoice_app/model/transaction/invoice.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
+import 'package:provider/provider.dart';
+import '../../../model/setup/travel.dart';
 import '../../../widgets/main_widgets/custom_icon_button.dart';
 
 class TransaksiForm extends StatefulWidget {
@@ -12,13 +23,130 @@ class TransaksiForm extends StatefulWidget {
 class _TransaksiFormState extends State<TransaksiForm> {
   final _formKey = GlobalKey<FormState>();
 
-  // Note Types
-  String defaultNoteType = 'Type 1';
-  final List<String> _noteTypes = [
-    'Type 1',
-    'Type 2',
-    'Type 3',
-  ];
+  Travel? travel;
+  Note? note;
+  Airline? airline;
+  final _pnrController = TextEditingController();
+  final _programController = TextEditingController();
+  final _flightNoteController = TextEditingController();
+
+  List<Map<String, dynamic>> itemControllers = [];
+
+  final date = DateTime.now();
+
+  @override
+  void initState() {
+    itemControllers.add({
+      'selectedItem': 'Adult',
+      'quantity': 1,
+      'priceController': TextEditingController(),
+    });
+    super.initState();
+  }
+
+  Widget buildItemForm(int index) {
+    final itemData = itemControllers[index];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Item ${index + 1}',
+          style: GoogleFonts.montserrat(
+            color: InvoiceColor.primary.color,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: StreamProvider<List<Item>>(
+                create: (context) =>
+                    context.read<FirebaseFirestoreService>().getItem(),
+                initialData: const <Item>[],
+                catchError: (context, error) {
+                  debugPrint('Error: $error');
+                  return [];
+                },
+                builder: (context, child) {
+                  final items = Provider.of<List<Item>>(context);
+                  return items.isEmpty
+                      ? SizedBox()
+                      : DropdownButtonFormField(
+                          value: items.first.itemName,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 17,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          icon: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          items: items.map((item) {
+                            return DropdownMenuItem(
+                              value: item.itemName,
+                              child: Text(item.itemName),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            itemData['selectedItem'] = value!;
+                          },
+                        );
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 1,
+              child: DropdownButtonFormField<int>(
+                value: itemData['quantity'],
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
+                  color: InvoiceColor.primary.color,
+                ),
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: InvoiceColor.primary.color,
+                ),
+                items: List.generate(100, (index) => index + 1).map((quantity) {
+                  return DropdownMenuItem(
+                    value: quantity,
+                    child: Text(quantity.toString()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    itemControllers[index]['quantity'] = value;
+                  });
+                },
+              ),
+            )
+          ],
+        ),
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: itemData['priceController'],
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: 'Harga Per Item (IDR)',
+            hintStyle: GoogleFonts.montserrat(
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +210,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -90,29 +218,52 @@ class _TransaksiFormState extends State<TransaksiForm> {
                     children: [
                       Text('Nama Travel', style: fieldLabelStyle),
                       const SizedBox(height: 4),
-                      DropdownButtonFormField(
-                        value: 'Pilih Travel',
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 17,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        icon: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        items: ['Pilih Travel', 'Rihlah Wisata'].map((travel) {
-                          return DropdownMenuItem(
-                            value: travel,
-                            child: Text(travel),
-                          );
-                        }).toList(),
-                        onChanged: (value) {},
+                      StreamProvider<List<Travel>>(
+                        create: (context) => context
+                            .read<FirebaseFirestoreService>()
+                            .getTravel(),
+                        initialData: const <Travel>[],
+                        catchError: (context, error) {
+                          debugPrint('Error: $error');
+                          return [];
+                        },
+                        builder: (context, child) {
+                          final travels = Provider.of<List<Travel>>(context);
+                          Travel selectedTravel = travels.first;
+                          return travels.isEmpty
+                              ? SizedBox()
+                              : DropdownButtonFormField(
+                                  value: selectedTravel,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 17,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  items: travels.map((travel) {
+                                    return DropdownMenuItem(
+                                      value: travel,
+                                      child: Text(travel.travelName),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      travel = value!;
+                                    });
+                                  },
+                                );
+                        },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       Text('PNR', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
+                        controller: _pnrController,
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
                         decoration: InputDecoration(
@@ -120,113 +271,196 @@ class _TransaksiFormState extends State<TransaksiForm> {
                           hintStyle: hintTextStyle,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text('Item 1', style: fieldLabelStyle),
+                      const SizedBox(height: 8),
+                      Text('Maskapai', style: fieldLabelStyle),
                       const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: DropdownButtonFormField(
-                              value: 'Pilih Item',
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 17,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              items: ['Pilih Item', 'Adult', 'Child', 'Infant']
-                                  .map((travel) {
-                                return DropdownMenuItem(
-                                  value: travel,
-                                  child: Text(travel),
+                      StreamProvider<List<Airline>>(
+                        create: (context) => context
+                            .read<FirebaseFirestoreService>()
+                            .getAirline(),
+                        initialData: const <Airline>[],
+                        catchError: (context, error) {
+                          debugPrint('Error: $error');
+                          return [];
+                        },
+                        builder: (context, child) {
+                          final airlines = Provider.of<List<Airline>>(context);
+                          Airline selectedAirline = airlines.first;
+                          return airlines.isEmpty
+                              ? SizedBox()
+                              : DropdownButtonFormField(
+                                  value: selectedAirline,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 17,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  items: airlines.map((airline) {
+                                    return DropdownMenuItem(
+                                      value: airline,
+                                      child: Text(airline.airline),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      airline = value!;
+                                    });
+                                  },
                                 );
-                              }).toList(),
-                              onChanged: (value) {},
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 1,
-                            child: DropdownButtonFormField(
-                              value: 1,
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 17,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              items: List.generate(100, (index) => index + 1)
-                                  .map((quantity) {
-                                return DropdownMenuItem(
-                                  value: quantity,
-                                  child: Text(quantity.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (value) {},
-                            ),
-                          )
-                        ],
+                        },
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
+                      Text('Program', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
                       TextFormField(
-                        keyboardType: TextInputType.number,
+                        controller: _programController,
                         decoration: InputDecoration(
-                          hintText: 'Harga Per Item (IDR)',
+                          hintText: 'Contoh: 09 Hari',
                           hintStyle: hintTextStyle,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
+                      ...List.generate(itemControllers.length,
+                          (index) => buildItemForm(index)),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              itemControllers.add({
+                                'selectedItem': 'Adult',
+                                'quantity': 1,
+                                'priceController': TextEditingController(),
+                              });
+                            });
+                          },
                           label: Text('Tambah Item'),
                           icon: Icon(Icons.add),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       Text('Note Invoice', style: fieldLabelStyle),
                       const SizedBox(height: 4),
-                      DropdownButtonFormField(
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 17,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        items: _noteTypes.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(type),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            defaultNoteType = value!;
-                          });
+                      StreamProvider<List<Note>>(
+                        create: (context) =>
+                            context.read<FirebaseFirestoreService>().getNote(),
+                        initialData: const <Note>[],
+                        catchError: (context, error) {
+                          debugPrint('Error: $error');
+                          return [];
                         },
-                        value: defaultNoteType,
+                        builder: (context, child) {
+                          final notes = Provider.of<List<Note>>(context);
+                          Note selectedNote = notes.first;
+                          return notes.isEmpty
+                              ? SizedBox()
+                              : DropdownButtonFormField(
+                                  value: selectedNote,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 17,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                  items: notes.map((note) {
+                                    return DropdownMenuItem(
+                                      value: note,
+                                      child: Text(note.type),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      note = value!;
+                                    });
+                                  },
+                                );
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text('Catatan Penerbangan', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
+                        controller: _flightNoteController,
                         decoration: InputDecoration(
                           hintText: 'Masukkan Catatan Penerbangan',
                           hintStyle: hintTextStyle,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            final service =
+                                context.read<FirebaseFirestoreService>();
+                            if (_formKey.currentState!.validate()) {
+                              List<InvoiceItem> items =
+                                  itemControllers.map((item) {
+                                return InvoiceItem(
+                                  item: item['selectedItem'],
+                                  itemQuantity: item['quantity'],
+                                  itemPrice: int.tryParse(
+                                          item['priceController'].text) ??
+                                      0,
+                                );
+                              }).toList();
+
+                              await service.saveInvoice(
+                                invoice: Invoice(
+                                  proofNumber: generateNoBukti(0),
+                                  dateCreated: DateFormat('dd/MM/yyyy').format(date),
+                                  pnrCode: _pnrController.text,
+                                  flightNotes: _flightNoteController.text,
+                                  program: _programController.text,
+                                  travel: travel?.toJson() ?? {
+                                    'travelName': 'null',
+                                    'contactPerson': 'null',
+                                    'address': 'null',
+                                    'phoneNumber': 0,
+                                    'emailAddress': 'null',
+                                  },
+                                  bank: [
+                                    Bank(
+                                      bankName: 'percobaan',
+                                      accountNumber: 5689876543,
+                                      branch: 'Jomokerto',
+                                    ).toJson(),
+                                    Bank(
+                                      bankName: 'percobaan',
+                                      accountNumber: 5689876543,
+                                      branch: 'Jomokerto',
+                                    ).toJson(),
+                                  ],
+                                  airline: airline?.toJson() ?? {
+                                    'airline': 'null',
+                                    'code': 'null',
+                                  },
+                                  items: items.map((item) => item.toJson()).toList(),
+                                  note: note?.toJson() ?? {
+                                    'type': 'null',
+                                    'note': 'null',
+                                  },
+                                ),
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Invoice berhasil disimpan!'),
+                                ),
+                              );
+                            }
+                          },
                           child: const Text('Submit'),
                         ),
                       ),
@@ -239,5 +473,22 @@ class _TransaksiFormState extends State<TransaksiForm> {
         ),
       ),
     );
+  }
+
+  String generateNoBukti(int lastNumber) {
+    final now = date;
+    final year = now.year % 100; // ambil dua digit terakhir tahun
+    final month = now.month.toString().padLeft(2, '0'); // misal 04
+    final sequence = (lastNumber + 1).toString().padLeft(4, '0'); // misal 00001
+
+    return 'SO-$year$month-$sequence'; // hasil: SO-2504-00001
+  }
+
+  @override
+  void dispose() {
+    for (var item in itemControllers) {
+      item['priceController'].dispose();
+    }
+    super.dispose();
   }
 }

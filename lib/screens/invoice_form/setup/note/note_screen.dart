@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/model/setup/note.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
+import 'package:provider/provider.dart';
 
 class NoteScreen extends StatelessWidget {
   const NoteScreen({super.key});
@@ -48,15 +51,16 @@ class NoteScreen extends StatelessWidget {
                 ),
                 CustomIconButton(
                   icon: Icons.add,
-                  onPressed: () => Navigator.pushNamed(context, ScreenRoute.noteForm.route,),
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    ScreenRoute.noteForm.route,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             SearchBar(
-              backgroundColor: WidgetStatePropertyAll(
-                  Colors.white
-              ),
+              backgroundColor: WidgetStatePropertyAll(Colors.white),
               elevation: WidgetStatePropertyAll(0),
               shape: WidgetStatePropertyAll(
                 RoundedRectangleBorder(
@@ -69,24 +73,39 @@ class NoteScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
             ),
-            const SizedBox(height: 24),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => CustomCard(
-                  imageLeading: 'assets/images/note_icon.png',
-                  title: 'Type 1',
-                  trailing: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.more_vert,
-                    ),
-                  ),
-                ),
-                itemCount: 3,
-              ),
-            )
+                child: StreamProvider<List<Note>>(
+              create: (context) =>
+                  context.read<FirebaseFirestoreService>().getNote(),
+              initialData: const <Note>[],
+              catchError: (context, error) {
+                debugPrint('Error: $error');
+                return [];
+              },
+              builder: (context, child) {
+                final notes = Provider.of<List<Note>>(context);
+                return notes.isEmpty
+                    ? const Center(
+                        child: Text('Empty List'),
+                      )
+                    : ListView.builder(
+                        itemCount: notes.length,
+                        itemBuilder: (context, index) {
+                          final note = notes[index];
+                          return CustomCard(
+                            imageLeading: 'assets/images/note_icon.png',
+                            title: note.type,
+                            trailing: IconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.more_vert,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+              },
+            ),),
           ],
         ),
       ),
