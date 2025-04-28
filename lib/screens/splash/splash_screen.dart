@@ -73,26 +73,23 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                       const Spacer(),
                       // Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () {
-                            if (currentPage < splashData.length - 1) {
-                              setState(() {
-                                currentPage++;
-                              });
-                              _pageController.animateToPage(
-                                currentPage,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            } else {
-                              Navigator.pushNamed(
-                                  context, ScreenRoute.login.route);
-                            }
-                          },
-                          child: Text('Continue'),
-                        ),
+                      FilledButton(
+                        onPressed: () {
+                          if (currentPage < splashData.length - 1) {
+                            setState(() {
+                              currentPage++;
+                            });
+                            _pageController.animateToPage(
+                              currentPage,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            Navigator.pushNamed(
+                                context, ScreenRoute.login.route);
+                          }
+                        },
+                        child: Text('Continue'),
                       ),
                     ],
                   ),
@@ -119,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> {
             vertical: 7.5,
           ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               width: 2,
               color: Theme.of(context).colorScheme.primary,

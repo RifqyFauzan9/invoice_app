@@ -107,7 +107,7 @@ class DataTravelScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    travel.address,
+                                    travel.travelAddress,
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,

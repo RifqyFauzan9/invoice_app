@@ -9,19 +9,15 @@ class Bank {
     required this.branch,
   });
 
-  factory Bank.fromJson(Map<String, dynamic> json) {
-    return Bank(
-      bankName: json['bankName'],
-      accountNumber: json['accountNumber'],
-      branch: json['branch'],
-    );
-  }
+  factory Bank.fromJson(Map<String, dynamic> json) => Bank(
+    bankName: json["bankName"],
+    accountNumber: json["accountNumber"],
+    branch: json["branch"],
+  );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'bankName': bankName,
-      'accountNumber': accountNumber,
-      'branch': branch,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "bankName": bankName,
+    "accountNumber": accountNumber,
+    "branch": branch,
+  };
 }

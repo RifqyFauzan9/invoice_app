@@ -16,12 +16,12 @@ class CustomIconButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       icon: Icon(icon),
-      color: Theme.of(context).colorScheme.primary,
       padding: EdgeInsets.all(getPropScreenWidth(12)),
+      color: Theme.of(context).colorScheme.primary,
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(
           side: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
           ),
           borderRadius: BorderRadius.circular(16),
         ),

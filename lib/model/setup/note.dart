@@ -1,23 +1,19 @@
 class Note {
-  final String type;
   final String note;
+  final String type;
 
   Note({
-    required this.type,
     required this.note,
+    required this.type,
   });
 
-  factory Note.fromJson(Map<String, dynamic> json) {
-    return Note(
-      type: json['type'],
-      note: json['note'],
-    );
-  }
+  factory Note.fromJson(Map<String, dynamic> json) => Note(
+    note: json["note"],
+    type: json["type"],
+  );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'type': type,
-      'note': note,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "note": note,
+    "type": type,
+  };
 }

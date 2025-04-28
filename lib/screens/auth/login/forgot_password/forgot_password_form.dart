@@ -29,7 +29,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
             textInputAction: TextInputAction.done,
             controller: _emailController,
             decoration: InputDecoration(
-              hintText: 'Email',
+              hintText: 'x**x@gmail.com',
               prefixIcon: Icon(Icons.email_outlined),
             ),
             validator: (value) {
@@ -49,17 +49,14 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
                       size: 32,
                     ),
                   ),
-                _ => SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _tapToSendCode();
-                        }
-                      },
-                      child: const Text('Send Link'),
-                    ),
-                  ),
+                _ => FilledButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _tapToSendCode();
+                    }
+                  },
+                  child: const Text('Send Link'),
+                ),
               };
             },
           )

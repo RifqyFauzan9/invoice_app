@@ -1,46 +1,68 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_invoice_app/model/setup/item.dart';
+
 import '../setup/airline.dart';
 import '../setup/bank.dart';
-import '../setup/item.dart';
 import '../setup/note.dart';
 import '../setup/travel.dart';
 
 class Invoice {
-  final String proofNumber;
-  final String dateCreated;
+  final Note note;
+  final List<Bank> banks;
+  Timestamp? dateCreated;
   final String pnrCode;
-  final String flightNotes;
+  final String proofNumber;
   final String program;
-  final dynamic travel;
-  final List<dynamic> bank;
-  final dynamic airline;
-  final List<dynamic> items;
-  final dynamic note;
+  String? status;
+  final String flightNotes;
+  final Travel travel;
+  final Airline airline;
+  final List<InvoiceItem> items;
 
   Invoice({
-    required this.proofNumber,
-    required this.dateCreated,
+    required this.note,
+    required this.banks,
+    this.dateCreated,
     required this.pnrCode,
-    required this.flightNotes,
+    required this.proofNumber,
     required this.program,
+    this.status,
+    required this.flightNotes,
     required this.travel,
-    required this.bank,
     required this.airline,
     required this.items,
-    required this.note,
   });
 
+  factory Invoice.fromJson(Map<String, dynamic> json) => Invoice(
+        note: Note.fromJson(json["note"]),
+        banks: List<Bank>.from(json["banks"].map((x) => Bank.fromJson(x))),
+        dateCreated: json['dateCreated'],
+        pnrCode: json["pnrCode"],
+        proofNumber: json["proofNumber"],
+        program: json["program"],
+        status: json["status"],
+        flightNotes: json["flightNotes"],
+        travel: Travel.fromJson(json["travel"]),
+        airline: Airline.fromJson(json["airline"]),
+        items: List<InvoiceItem>.from(
+            json["items"].map((x) => InvoiceItem.fromJson(x))),
+      );
+
   Map<String, dynamic> toJson() {
+    dateCreated ??= Timestamp.now();
+    status ??= 'Pending';
     return {
-      'proofNumber': proofNumber,
-      'dateCreated': dateCreated,
-      'pnrCode': pnrCode,
-      'flightNotes': flightNotes,
-      'program': program,
-      'travel': travel is Map ? travel : (travel as Travel).toJson(),
-      'bank': bank.map((b) => b is Map ? b : (b as Bank).toJson()).toList(),
-      'airline': airline is Map ? airline : (airline as Airline).toJson(),
-      'items': items.map((i) => i is Map ? i : (i as InvoiceItem).toJson()).toList(),
-      'note': note is Map ? note : (note as Note).toJson(),
+      "note": note.toJson(),
+      "banks": List<dynamic>.from(banks.map((x) => x.toJson())),
+      "dateCreated": dateCreated,
+      "pnrCode": pnrCode,
+      "proofNumber": proofNumber,
+      "program": program,
+      "status": status,
+      "flightNotes": flightNotes,
+      "travel": travel.toJson(),
+      "airline": airline.toJson(),
+      "items": List<dynamic>.from(items.map((x) => x.toJson())),
     };
   }
 }

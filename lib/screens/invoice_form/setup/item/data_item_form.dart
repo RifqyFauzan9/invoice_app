@@ -94,16 +94,13 @@ class _DataItemFormState extends State<DataItemForm> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _saveItem();
-                          }
-                        },
-                        child: const Text('Submit'),
-                      ),
+                    FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveItem();
+                        }
+                      },
+                      child: const Text('Submit'),
                     ),
                   ],
                 ),

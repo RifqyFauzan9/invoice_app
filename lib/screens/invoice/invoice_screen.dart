@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:my_invoice_app/api/pdf_api.dart';
 import 'package:my_invoice_app/api/pdf_invoice_api.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
@@ -8,7 +9,10 @@ import 'package:my_invoice_app/static/size_config.dart';
 class InvoiceScreen extends StatefulWidget {
   final Invoice invoice;
 
-  const InvoiceScreen({super.key, required this.invoice,});
+  const InvoiceScreen({
+    super.key,
+    required this.invoice,
+  });
 
   @override
   State<InvoiceScreen> createState() => _InvoiceScreenState();
@@ -99,7 +103,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       children: [
                         Text('TANGGAL', style: labelStyle),
                         Text(
-                          widget.invoice.dateCreated,
+                          widget.invoice.dateCreated != null
+                              ? DateFormat('dd/MM/yyyy')
+                                  .format(widget.invoice.dateCreated!.toDate())
+                              : 'N/A',
                           style: valueStyle,
                         ),
                       ],
@@ -112,7 +119,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           'KEPADA',
                           style: labelStyle,
                         ),
-                        Text(widget.invoice.travel.travelName, style: valueStyle),
+                        Text(widget.invoice.travel.travelName,
+                            style: valueStyle),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -201,7 +209,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'JADWAL PENERBANGAN',
+                      'CATATAN PENERBANGAN',
                       style: labelStyle,
                     ),
                     const SizedBox(height: 2),
@@ -221,38 +229,25 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   children: [
                     Text('RINCIAN BIAYA', style: titleStyle),
                     const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Adult Ticket'.toUpperCase().toString(),
-                          style: labelStyle,
-                        ),
-                        Text('Rp 14.750.000', style: valueStyle),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Airport Tax'.toUpperCase().toString(),
-                          style: labelStyle,
-                        ),
-                        Text('Rp 100.000', style: valueStyle),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'QTY'.toUpperCase().toString(),
-                          style: labelStyle,
-                        ),
-                        Text('43', style: valueStyle),
-                      ],
-                    ),
+                    ...widget.invoice.items.map((item) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item.item.itemName.toUpperCase(),
+                            style: labelStyle,
+                          ),
+                          Text(
+                            NumberFormat.currency(
+                              locale: 'id_ID',
+                              symbol: 'RP',
+                              decimalDigits: 0,
+                            ).format(item.itemPrice),
+                            style: valueStyle,
+                          ),
+                        ],
+                      );
+                    }),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -261,7 +256,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           'Total'.toUpperCase().toString(),
                           style: labelStyle,
                         ),
-                        Text('RP 706.500.000', style: valueStyle),
+                        Text(
+                          NumberFormat.currency(
+                            locale: 'id_ID',
+                            symbol: 'RP',
+                            decimalDigits: 0,
+                          ).format(
+                            widget.invoice.items.fold<int>(
+                                0, (sum, item) => sum + item.itemPrice),
+                          ),
+                          style: valueStyle,
+                        ),
                       ],
                     ),
                   ],
@@ -320,13 +325,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Payment should be paid to:', style: labelStyle),
-                      Text('Mandiri : 006 00 1152547 8', style: valueStyle),
-                      Text('BSI : 0719 846 1387', style: valueStyle),
-                      Text('a/n pt.kamil tekno globalindo', style: valueStyle),
+                      ...widget.invoice.banks.map((bank) {
+                        return Text(
+                          '${bank.bankName}: ${formatAccountNumber(bank.accountNumber)}',
+                          style: valueStyle,
+                        );
+                      }),
+                      Text('a/n ${widget.invoice.banks.first.branch}', style: valueStyle),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 // Note
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,58 +370,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     Text(
-                      '1. Deposit Sebesar Rp.4.000.000 / Pax (45)\n2. Limit Pembayaran Deposit 1 x 24 Jam Setelah LOBC Diterima\n3. Change Name & Core Name (Sebelum Issue Ticket) 10% dari Jumlah Group\n4. Full payment time limit 30 Hari sebelum keberangkatan\n5. Insert name time limit 21 Hari sebelum keberangkatan'
+                      widget.invoice.note.note
                           .toUpperCase()
                           .toString(),
                       maxLines: noteViewAll ? null : 5,
                       overflow: noteViewAll ? null : TextOverflow.ellipsis,
-                      style: labelStyle,
-                    ),
-                  ],
-                ),
-                Divider(
-                  color: Theme.of(context).colorScheme.primary,
-                  thickness: 2,
-                ),
-                // Term Payment
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('TERM PAYMENT', style: titleStyle),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            overlayColor: Colors.transparent,
-                          ),
-                          child: Text(
-                            'View All',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w500,
-                              fontSize: getPropScreenWidth(12),
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.5),
-                            ),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              termViewAll = !termViewAll;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '1. Harga sewaktu-waktu bisa berubah tanpa pemberitahuan sebelumnya\n2. Apabila terdapat pengurangan seat dalam kurun waktu satu bulan sebelum keberangkatan maka denda yang dibebankan ke agent adalah sama dengan jumlah deposit yang sudah kami bayarkan ke airlines\n3. Deposit tidak dapat dikembalikan dan diubah ke PNR yang lain\n4. ﻿﻿Bilamana ada pembatalan dan tidak ada pelunasan dalam pemesanan 3 minggu sebelum keberangkatan maka deposit dianggap hilang / hangus'
-                          .toUpperCase()
-                          .toString(),
-                      maxLines: termViewAll ? null : 5,
-                      overflow: termViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
                     ),
                   ],
@@ -422,49 +384,24 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           ),
         ),
       ),
-      // bottomNavigationBar: Padding(
-      //   padding: EdgeInsets.all(30),
-      //   child: FilledButton(
-      //     onPressed: () async {
-      //       final date = DateTime.now();
-      //       final dueDate = date.add(Duration(days: 7));
-      //
-      //       final invoice = Invoice(
-      //         travel: Travel(
-      //           travelId: 'dgkhasbavbzcuihzcs',
-      //           travelName: 'Rihlah Wisata',
-      //           contactPerson: 'Eka',
-      //           address: 'Jalan Batubara',
-      //           travelPhoneNumber: 089518853275,
-      //           travelEmail: 'r1fqyf4uz4n@gmail.com',
-      //         ),
-      //         bank: Bank(
-      //           bankName: 'Mandiri',
-      //           accountNumber: 3456789876543,
-      //           branch: 'Tangerang Selatan',
-      //         ),
-      //         airlines: Airlines(
-      //           airlineName: 'Garuda Indonesia',
-      //           code: 'KDX-0897',
-      //         ),
-      //         items: [
-      //           Item(itemCode: 'KDC-489', itemName: 'ADULT'),
-      //           Item(itemCode: 'KDC-489', itemName: 'CHILD'),
-      //           Item(itemCode: 'KDC-489', itemName: 'INFANT'),
-      //         ],
-      //         note: Note(
-      //           type: 'Type 2',
-      //           note: 'jbdasjidbaknmdacbiuzbxciahsdausdhdj',
-      //         ),
-      //       );
-      //
-      //       final pdfFile = await PdfInvoiceApi.generate(invoice);
-      //
-      //       PdfApi.openFile(pdfFile);
-      //     },
-      //     child: const Text('Download'),
-      //   ),
-      // ),
     );
   }
+
+  String formatAccountNumber(int number) {
+    // convert num to string
+    String numberStr = number.toString();
+
+    // format
+    final buffer = StringBuffer();
+    for (int i = 0; i < numberStr.length; i++) {
+      buffer.write(numberStr[i]);
+      int nextIndex = i + 1;
+      if (nextIndex % 4 == 0 && nextIndex != numberStr.length) {
+        buffer.write(' ');
+      }
+    }
+    return buffer.toString();
+  }
+
+
 }

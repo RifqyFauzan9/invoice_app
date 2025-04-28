@@ -102,7 +102,7 @@ class _SignUpFormState extends State<SignUpForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-              hintText: 'Email',
+              hintText: 'x**x@gmail.com',
               prefixIcon: Icon(
                 Icons.email_outlined,
               ),
@@ -123,7 +123,7 @@ class _SignUpFormState extends State<SignUpForm> {
             textInputAction: TextInputAction.next,
             obscureText: isObsecure,
             decoration: InputDecoration(
-              hintText: 'Password',
+              hintText: '*****************',
               prefixIcon: Icon(
                 Icons.lock_outline,
               ),
@@ -135,8 +135,8 @@ class _SignUpFormState extends State<SignUpForm> {
                 },
                 icon: Icon(
                   isObsecure
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
+                      ? Icons.visibility
+                      : Icons.visibility_off,
                 ),
               ),
             ),
@@ -156,7 +156,7 @@ class _SignUpFormState extends State<SignUpForm> {
             textInputAction: TextInputAction.done,
             obscureText: isObsecure,
             decoration: InputDecoration(
-              hintText: 'Confirm Password',
+              hintText: '*****************',
               prefixIcon: Icon(
                 Icons.lock_outline,
               ),
@@ -168,8 +168,8 @@ class _SignUpFormState extends State<SignUpForm> {
                 },
                 icon: Icon(
                   isObsecure
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
+                      ? Icons.visibility
+                      : Icons.visibility_off,
                 ),
               ),
             ),
@@ -193,17 +193,14 @@ class _SignUpFormState extends State<SignUpForm> {
                     size: getPropScreenWidth(30),
                   ),
                 ),
-              _ => SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _tapToRegister();
-                      }
-                    },
-                    child: const Text('Sign Up'),
-                  ),
-                ),
+              _ => FilledButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _tapToRegister();
+                  }
+                },
+                child: const Text('Sign Up'),
+              ),
             };
           }),
         ],

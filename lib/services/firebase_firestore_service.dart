@@ -21,13 +21,13 @@ class FirebaseFirestoreService {
     if (doc.exists) {
       return doc.data();
     } else {
-      debugPrint('Doc does\'nt exist!');
+      debugPrint('Doc company does\'nt exist!');
       return null;
     }
   }
-
   Future<void> saveCompanyData({
     required String uid,
+    required String companyLogo,
     required String companyName,
     required String companyAddress,
     required String companyEmail,
@@ -39,6 +39,7 @@ class FirebaseFirestoreService {
     timeStamp ??= Timestamp.now();
 
     await _firebaseFirestore.collection('companies').doc(uid).set({
+      'companyLogo': companyLogo,
       'companyName': companyName,
       'companyAddress': companyAddress,
       'companyEmail': companyEmail,
@@ -207,5 +208,20 @@ class FirebaseFirestoreService {
     await FirebaseFirestore.instance
         .collection('invoices')
         .add(invoice.toJson());
+  }
+
+  Stream<List<Invoice>> getInvoice() {
+    return _firebaseFirestore
+        .collection('invoices')
+        .orderBy('dateCreated', descending: true)
+        .snapshots()
+        .map((event) {
+      return event.docs.map(
+        (e) {
+          final data = Invoice.fromJson(e.data());
+          return data;
+        },
+      ).toList();
+    });
   }
 }

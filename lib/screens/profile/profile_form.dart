@@ -1,232 +1,323 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../../provider/firebase_auth_provider.dart';
-import '../../services/firebase_firestore_service.dart';
+import '../../static/size_config.dart';
+import '../../style/colors/invoice_color.dart';
+import '../../widgets/main_widgets/custom_icon_button.dart';
 
-class ProfileForm extends StatefulWidget {
-  const ProfileForm({super.key});
+class ProfileFormScreen extends StatefulWidget {
+  const ProfileFormScreen({super.key});
 
   @override
-  State<ProfileForm> createState() => _ProfileFormState();
+  State<ProfileFormScreen> createState() => _ProfileFormState();
 }
 
-class _ProfileFormState extends State<ProfileForm> {
-  // Text Controllers
-  final _companyNameController = TextEditingController();
-  final _companyAddressController = TextEditingController();
-  final _companyEmailController = TextEditingController();
-  final _companyWebsiteController = TextEditingController();
-  final _companyPhoneController = TextEditingController();
-  final _companyPicController = TextEditingController();
-
-  // Form Key
+class _ProfileFormState extends State<ProfileFormScreen> {
+  File? imageFile;
+  String? base64String;
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      _loadData();
-    });
-  }
+  final _travelNameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _websiteController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _picController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    // Field label style
-    TextStyle fieldLabelStyle = GoogleFonts.montserrat(
-      color: Theme.of(context).colorScheme.primary,
-      fontSize: 17,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0,
-    );
-
-    // Hint Text Style
-    TextStyle hintTextStyle = GoogleFonts.montserrat(
-      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0,
-    );
-
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Nama Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyNameController,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              hintText: 'Masukkan Nama Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 30,
+            vertical: 50,
           ),
-          const SizedBox(height: 8),
-          Text('Alamat Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyAddressController,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              hintText: 'Masukkan Alamat Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 8),
-          Text('Email Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyEmailController,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              hintText: 'Masukkan Email Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 8),
-          Text('Website Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyWebsiteController,
-            keyboardType: TextInputType.url,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              hintText: 'Masukkan Website Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 8),
-          Text('Nomor Telepon Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyPhoneController,
-            keyboardType: TextInputType.phone,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              hintText: 'Masukkan Nomor Telepon Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 8),
-          Text('PIC Perusahaan', style: fieldLabelStyle),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: _companyPicController,
-            keyboardType: TextInputType.text,
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              hintText: 'Masukkan PIC Perusahaan',
-              hintStyle: hintTextStyle,
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Silahkan isi formnya dengan benar!';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
+          child: SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _saveData();
-                }
-              },
-              child: const Text('Save'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CustomIconButton(
+                      icon: Icons.arrow_back,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    SizedBox(width: getPropScreenWidth(40)),
+                    Text(
+                      'Data Perusahaan',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.bold,
+                        fontSize: getPropScreenWidth(18),
+                        letterSpacing: 0,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.center,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        height: getPropScreenWidth(110),
+                        width: getPropScreenWidth(110),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: imageFile != null
+                                ? FileImage(imageFile!)
+                                : AssetImage('assets/images/profile.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: -10,
+                        bottom: -10,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                          style: IconButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () => _chooseImage(),
+                          icon: Icon(Icons.edit_outlined),
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          iconSize: getPropScreenWidth(16),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTravelField(_travelNameController),
+                      const SizedBox(height: 8),
+                      _buildAddressField(_addressController),
+                      const SizedBox(height: 8),
+                      _buildEmailField(_emailController),
+                      const SizedBox(height: 8),
+                      _buildWebsiteField(_websiteController),
+                      const SizedBox(height: 8),
+                      _buildPhoneNumberField(_phoneNumberController),
+                      const SizedBox(height: 8),
+                      _buildPicField(_picController),
+                      const SizedBox(height: 24),
+                      FilledButton(
+                        onPressed: _formKey.currentState!.validate() ? () {} : null,
+                        child: Text('Save'),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Future<void> _loadData() async {
-    final profile = context.read<FirebaseAuthProvider>().profile;
-    if (profile == null || profile.uid == null) return;
-    final uid = profile.uid;
-    final service = context.read<FirebaseFirestoreService>();
-    final data = await service.getCompanyData(uid!);
-
-    if (data != null) {
-      _companyNameController.text = data['companyName'] ?? '';
-      _companyAddressController.text = data['companyAddress'] ?? '';
-      _companyEmailController.text = data['companyEmail'] ?? '';
-      _companyWebsiteController.text = data['companyWebsite'] ?? '';
-      _companyPhoneController.text = data['companyPhone'].toString();
-      _companyPicController.text = data['companyPic'] ?? '';
-    } else {
-      debugPrint('Data null!');
-    }
-  }
-
-  Future<void> _saveData() async {
-    final service = context.read<FirebaseFirestoreService>();
-    final uid = context.read<FirebaseAuthProvider>().profile?.uid;
-    final companyName = _companyNameController.text.trim();
-    final companyAddress = _companyAddressController.text.trim();
-    final companyEmail = _companyEmailController.text.trim();
-    final companyWebsite = _companyWebsiteController.text.trim();
-    final companyPhone = int.tryParse(_companyPhoneController.text.trim())!;
-    final companyPic = _companyPicController.text.trim();
-
-    await service.saveCompanyData(
-      uid: uid!,
-      companyName: companyName,
-      companyAddress: companyAddress,
-      companyEmail: companyEmail,
-      companyWebsite: companyWebsite,
-      companyPhone: companyPhone,
-      companyPic: companyPic,
+  Widget _buildTravelField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Nama Travel',
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.primary,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan nama travel',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
     );
   }
 
-  @override
-  void dispose() {
-    _companyNameController.dispose();
-    _companyAddressController.dispose();
-    _companyEmailController.dispose();
-    _companyWebsiteController.dispose();
-    _companyPhoneController.dispose();
-    _companyPicController.dispose();
-    super.dispose();
+  Widget _buildAddressField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Alamat Travel',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0,
+            )
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan alamat travel',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildEmailField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Email Travel',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0,
+            )
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan email travel',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildWebsiteField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Website Travel',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0,
+            )
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan website travel',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildPhoneNumberField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Nomor Telepon',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0,
+            )
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan nomor telepon',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildPicField(TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PIC',
+            style: GoogleFonts.montserrat(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 0,
+            )
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: 'Masukkan PIC',
+            hintStyle: GoogleFonts.montserrat(
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: InvoiceColor.primary.color.withOpacity(0.3),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  void _chooseImage() async {
+    final getImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (getImage != null) {
+      setState(() {
+        imageFile = File(getImage.path);
+      });
+
+      List<int> imageBytes = File(getImage.path).readAsBytesSync();
+      base64String = base64Encode(imageBytes);
+    } else {
+      debugPrint('getImage null!');
+    }
   }
 }

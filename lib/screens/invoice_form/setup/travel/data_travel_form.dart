@@ -168,16 +168,13 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         },
                       ),
                       const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _saveTravel();
-                            }
-                          },
-                          child: const Text('Submit'),
-                        ),
+                      FilledButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _saveTravel();
+                          }
+                        },
+                        child: const Text('Submit'),
                       ),
                     ],
                   ),

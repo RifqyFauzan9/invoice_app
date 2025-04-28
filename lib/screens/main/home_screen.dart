@@ -2,15 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
-import '../../model/setup/airline.dart';
-import '../../model/setup/bank.dart';
-import '../../model/setup/item.dart';
-import '../../model/setup/note.dart';
-import '../../model/setup/travel.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/main_widgets/custom_icon_button.dart';
 import '../../widgets/main_widgets/custom_card.dart';
 import '../../widgets/main_widgets/invoice_status_card.dart';
@@ -36,6 +32,7 @@ class HomeScreen extends StatelessWidget {
       status: 'Cancel',
     ),
   ];
+
   final date = DateTime.now();
 
   @override
@@ -96,78 +93,62 @@ class HomeScreen extends StatelessWidget {
                 ScreenRoute.listInvoice.route,
               ),
             ),
-            SizedBox(height: getPropScreenWidth(16)),
+            const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return CustomCard(
-                    imageLeading: 'assets/images/travel_icon.png',
-                    title: 'Rihlah Wisata',
-                    content: Text('IBU DEDE'),
-                    trailing: Icon(
-                      Icons.query_stats,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 30,
-                    ),
-                    onCardTapped: () => Navigator.pushNamed(
-                      context,
-                      ScreenRoute.invoiceScreen.route,
-                      arguments: Invoice(
-                        program: '20 Hari',
-                        flightNotes: 'CGK-JDH',
-                        pnrCode: 'FGBN19',
-                        dateCreated: DateFormat('dd/MM/yyyy').format(date),
-                        proofNumber: generateNoBukti(0),
-                        travel: Travel(
-                          travelName: 'Rihlah Wisata',
-                          contactPerson: 'Eka',
-                          address: 'Jalan Batubara',
-                          phoneNumber: 089518853275,
-                          emailAddress: 'r1fqyf4uz4n@gmail.com',
-                        ),
-                        bank: [
-                          Bank(
-                            bankName: 'BCA',
-                            accountNumber: 875323456789,
-                            branch: 'Asahan',
-                          ),
-                          Bank(
-                            bankName: 'Mandiri',
-                            accountNumber: 3456789876543,
-                            branch: 'Tangerang Selatan',
-                          ),
-                        ],
-                        airline: Airline(
-                          airline: 'Garuda Indonesia',
-                          code: 'KDX-0897',
-                        ),
-                        items: [
-                          InvoiceItem(
-                            item: 'Infant',
-                            itemQuantity: 10,
-                            itemPrice: 400000,
-                          ),
-                          InvoiceItem(
-                            item: 'Child',
-                            itemQuantity: 10,
-                            itemPrice: 400000,
-                          ),
-                          InvoiceItem(
-                            item: 'Adult',
-                            itemQuantity: 10,
-                            itemPrice: 400000,
-                          ),
-                        ],
-                        note: Note(
-                          type: 'Type 2',
-                          note: 'jbdasjidbaknmdacbiuzbxciahsdausdhdj',
-                        ),
-                      ),
-                    ),
-                  );
+              child: StreamProvider<List<Invoice>>(
+                create: (context) =>
+                    context.read<FirebaseFirestoreService>().getInvoice(),
+                initialData: const <Invoice>[],
+                catchError: (context, error) {
+                  debugPrint('Error: $error');
+                  return [];
                 },
+                child: Builder(
+                  builder: (context) {
+                    final invoices = context.watch<List<Invoice>>();
+                    final recentInvoice = invoices.take(5).toList();
+                    return recentInvoice.isEmpty
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(height: SizeConfig.screenHeight * 0.05),
+                              Image.asset('assets/images/empty.png'),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Ayo mulai buat Invoice!',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: recentInvoice.length,
+                            itemBuilder: (context, index) {
+                              final invoice = recentInvoice[index];
+                              return CustomCard(
+                                imageLeading: 'assets/images/travel_icon.png',
+                                title: invoice.travel.travelName,
+                                content: Text(invoice.travel.contactPerson),
+                                trailing: Icon(
+                                  Icons.query_stats,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 30,
+                                ),
+                                onCardTapped: () => Navigator.pushNamed(
+                                  context,
+                                  ScreenRoute.invoiceScreen.route,
+                                  arguments: invoice,
+                                ),
+                              );
+                            },
+                          );
+                  },
+                ),
               ),
             )
           ],
@@ -242,7 +223,7 @@ class HomeScreen extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 DropdownButtonFormField(
                   value: 'Bulan Ini',
                   icon: Icon(Icons.keyboard_arrow_down_outlined),
@@ -264,19 +245,23 @@ class HomeScreen extends StatelessWidget {
                       size: 14,
                     ),
                     prefixIconConstraints: BoxConstraints(minWidth: 40),
-                    filled: true,
-                    fillColor: Color(0xFF2F6F91).withOpacity(0.2),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
                   items:

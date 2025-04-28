@@ -84,16 +84,13 @@ class _NoteFormState extends State<NoteForm> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _saveNote();
-                            }
-                          },
-                          child: const Text('Submit'),
-                        ),
+                      FilledButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            _saveNote();
+                          }
+                        },
+                        child: const Text('Submit'),
                       ),
                     ],
                   ),

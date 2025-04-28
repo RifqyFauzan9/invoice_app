@@ -128,16 +128,13 @@ class _DataBankFormState extends State<DataBankForm> {
                       },
                     ),
                     const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _saveBank();
-                          }
-                        },
-                        child: const Text('Submit'),
-                      ),
+                    FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveBank();
+                        }
+                      },
+                      child: const Text('Submit'),
                     ),
                   ],
                 ),

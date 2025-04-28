@@ -94,16 +94,13 @@ class _DataAirlinesFormState extends State<DataAirlinesForm> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _saveAirline();
-                          }
-                        },
-                        child: const Text('Submit'),
-                      ),
+                    FilledButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _saveAirline();
+                        }
+                      },
+                      child: const Text('Submit'),
                     ),
                   ],
                 ),

@@ -1,23 +1,19 @@
 class Airline {
-  final String airline;
   final String code;
+  final String airline;
 
   Airline({
-    required this.airline,
     required this.code,
+    required this.airline,
   });
 
-  factory Airline.fromJson(Map<String, dynamic> json) {
-    return Airline(
-      airline: json['airline'],
-      code: json['code'],
-    );
-  }
+  factory Airline.fromJson(Map<String, dynamic> json) => Airline(
+    code: json["code"],
+    airline: json["airline"],
+  );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'airline': airline,
-      'code': code,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    "code": code,
+    "airline": airline,
+  };
 }

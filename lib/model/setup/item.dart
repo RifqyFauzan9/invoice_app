@@ -1,44 +1,43 @@
-class Item {
-  final String itemCode;
-  final String itemName;
-
-  Item({
-    required this.itemCode,
-    required this.itemName,
-  });
-
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
-      itemCode: json['itemCode'],
-      itemName: json['itemName'],
-    );
-  }
-}
-
 class InvoiceItem {
-  final String item;
-  final int itemQuantity;
+  final Item item;
+  final int quantity;
   final int itemPrice;
 
   InvoiceItem({
     required this.item,
-    required this.itemQuantity,
+    required this.quantity,
     required this.itemPrice,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'itemName': item,
-      'quantity': itemQuantity,
-      'itemPrice': itemPrice,
-    };
-  }
+  factory InvoiceItem.fromJson(Map<String, dynamic> json) => InvoiceItem(
+    item: Item.fromJson(json["item"]),
+    quantity: json["quantity"],
+    itemPrice: json["itemPrice"],
+  );
 
-  factory InvoiceItem.fromJson(Map<String, dynamic> json) {
-    return InvoiceItem(
-      item: json['itemName'],
-      itemQuantity: json['quantity'],
-      itemPrice: json['itemPrice'],
-    );
-  }
+  Map<String, dynamic> toJson() => {
+    "item": item.toJson(),
+    "quantity": quantity,
+    "itemPrice": itemPrice,
+  };
+}
+
+class Item {
+  final String itemName;
+  final String itemCode;
+
+  Item({
+    required this.itemName,
+    required this.itemCode,
+  });
+
+  factory Item.fromJson(Map<String, dynamic> json) => Item(
+    itemName: json["itemName"],
+    itemCode: json["itemCode"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "itemName": itemName,
+    "itemCode": itemCode,
+  };
 }

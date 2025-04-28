@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
-
-import '../../model/setup/airline.dart';
-import '../../model/setup/bank.dart';
-import '../../model/setup/item.dart';
-import '../../model/setup/note.dart';
-import '../../model/setup/travel.dart';
+import 'package:provider/provider.dart';
 import '../../model/transaction/invoice.dart';
 
 class ListInvoiceScreen extends StatelessWidget {
@@ -37,13 +33,13 @@ class ListInvoiceScreen extends StatelessWidget {
                     icon: Icons.arrow_back,
                     onPressed: () => Navigator.pop(context),
                   ),
-                  SizedBox(width: getPropScreenWidth(75)),
+                  SizedBox(width: getPropScreenWidth(70)),
                   Text(
                     'Invoices',
-                    style: TextStyle(
-                      fontSize: getPropScreenWidth(20),
-                      color: Theme.of(context).colorScheme.primary,
+                    style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.bold,
+                      fontSize: getPropScreenWidth(20),
+                      letterSpacing: 0,
                     ),
                   ),
                 ],
@@ -90,75 +86,64 @@ class ListInvoiceScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return CustomCard(
-                      imageLeading: 'assets/images/travel_icon.png',
-                      title: 'Rihlah Wisata',
-                      content: Text('IBU DEDE'),
-                      trailing: Icon(
-                        Icons.query_stats,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 30,
-                      ),
-                      onCardTapped: () => Navigator.pushNamed(
-                        context,
-                        ScreenRoute.invoiceScreen.route,
-                        arguments: Invoice(
-                          program: '20 Hari',
-                          flightNotes: 'Dari jeddah ke memek',
-                          pnrCode: 'kontol capebnaget gua anjning',
-                          dateCreated: DateFormat('dd/MM/yyyy').format(date),
-                          proofNumber: generateNoBukti(0),
-                          travel: Travel(
-                            travelName: 'Rihlah Wisata',
-                            contactPerson: 'Eka',
-                            address: 'Jalan Batubara',
-                            phoneNumber: 089518853275,
-                            emailAddress: 'r1fqyf4uz4n@gmail.com',
-                          ),
-                          bank: [
-                            Bank(
-                              bankName: 'BCA',
-                              accountNumber: 567896545678,
-                              branch: 'Asahan',
+                child: StreamProvider<List<Invoice>>(
+                  create: (context) =>
+                      context.read<FirebaseFirestoreService>().getInvoice(),
+                  initialData: const <Invoice>[],
+                  catchError: (context, error) {
+                    debugPrint('Error: $error');
+                    return [];
+                  },
+                  builder: (context, child) {
+                    final invoices = Provider.of<List<Invoice>>(context);
+                    return invoices.isEmpty
+                        ? SizedBox(
+                            width: double.infinity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(height: SizeConfig.screenHeight * 0.2),
+                                Image.asset('assets/images/empty.png'),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Ayo mulai buat Invoice!',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
-                            Bank(
-                              bankName: 'Mandiri',
-                              accountNumber: 3456789876543,
-                              branch: 'Tangerang Selatan',
-                            ),
-                          ],
-                          airline: Airline(
-                            airline: 'Garuda Indonesia',
-                            code: 'KDX-0897',
-                          ),
-                          items: [
-                            InvoiceItem(
-                              item: 'Child',
-                              itemPrice: 100000,
-                              itemQuantity: 50,
-                            ),
-                            InvoiceItem(
-                              item: 'Adult',
-                              itemPrice: 100000,
-                              itemQuantity: 50,
-                            ),
-                          ],
-                          note: Note(
-                            type: 'Type 2',
-                            note: 'jbdasjidbaknmdacbiuzbxciahsdausdhdj',
-                          ),
-                        ),
-                      ),
-                    );
+                          )
+                        : ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: invoices.length,
+                            itemBuilder: (context, index) {
+                              final invoice = invoices[index];
+                              return CustomCard(
+                                imageLeading: 'assets/images/travel_icon.png',
+                                title: invoice.travel.travelName,
+                                content: Text(invoice.travel.contactPerson),
+                                trailing: Icon(
+                                  Icons.query_stats,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 30,
+                                ),
+                                onCardTapped: () => Navigator.pushNamed(
+                                  context,
+                                  ScreenRoute.invoiceScreen.route,
+                                  arguments: invoice,
+                                ),
+                              );
+                            },
+                          );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),

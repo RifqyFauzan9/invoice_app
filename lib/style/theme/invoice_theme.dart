@@ -350,14 +350,12 @@ class InvoiceTheme {
         canvasColor: colorScheme.surface,
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
+            minimumSize: Size(double.infinity, 50),
             backgroundColor: colorScheme.primary,
             textStyle: GoogleFonts.montserrat(
               color: colorScheme.onPrimary,
               fontSize: getPropScreenWidth(14),
               fontWeight: FontWeight.bold,
-            ),
-            padding: EdgeInsets.symmetric(
-              vertical: getPropScreenWidth(15),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -385,14 +383,14 @@ class InvoiceTheme {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: colorScheme.primary.withOpacity(0.3),
+              color: colorScheme.onSurface.withOpacity(0.3),
               width: 2,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
-              color: colorScheme.primary,
+              color: colorScheme.onSurface,
               width: 2,
             ),
           ),
@@ -401,6 +399,11 @@ class InvoiceTheme {
             borderSide: BorderSide(width: 2),
           ),
         ),
+    cardTheme: CardTheme(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    )
       );
 
   List<ExtendedColor> get extendedColors => [];

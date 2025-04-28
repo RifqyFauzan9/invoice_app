@@ -99,7 +99,7 @@ class _LoginFormState extends State<LoginForm> {
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               prefixIcon: Icon(Icons.email_outlined),
-              hintText: 'Email',
+              hintText: 'x**x@gmail.com',
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -114,7 +114,7 @@ class _LoginFormState extends State<LoginForm> {
             textInputAction: TextInputAction.done,
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-              hintText: 'Password',
+              hintText: '*****************',
               prefixIcon: Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 onPressed: () {
@@ -124,8 +124,8 @@ class _LoginFormState extends State<LoginForm> {
                 },
                 icon: Icon(
                   isObsecure
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
+                      ? Icons.visibility
+                      : Icons.visibility_off,
                 ),
               ),
             ),
@@ -181,17 +181,14 @@ class _LoginFormState extends State<LoginForm> {
                       size: 32,
                     ),
                   ),
-                _ => SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _tapToLogin();
-                        }
-                      },
-                      child: const Text('Sign In'),
-                    ),
-                  ),
+                _ => FilledButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _tapToLogin();
+                    }
+                  },
+                  child: const Text('Sign In'),
+                ),
               };
             },
           ),

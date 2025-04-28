@@ -33,7 +33,7 @@ class CustomCard extends StatelessWidget {
                 imageLeading,
                 width: getPropScreenWidth(60),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 20),
               Expanded(
                 flex: 2,
                 child: Column(
