@@ -25,6 +25,7 @@ class FirebaseFirestoreService {
       return null;
     }
   }
+
   Future<void> saveCompanyData({
     required String uid,
     required String companyLogo,
@@ -102,11 +103,13 @@ class FirebaseFirestoreService {
     required String bankName,
     required int accountNumber,
     required String branch,
+    required String accountHolder,
   }) async {
     await _firebaseFirestore.collection('banks').add({
       'bankName': bankName,
       'accountNumber': accountNumber,
       'branch': branch,
+      'accountHolder': accountHolder,
     });
   }
 
@@ -222,6 +225,23 @@ class FirebaseFirestoreService {
           return data;
         },
       ).toList();
+    });
+  }
+
+  Future<int> generateLastNumberOfInvoicesFromFirestore() async {
+    final counterRef =
+        _firebaseFirestore.collection('counters').doc('invoices');
+
+    return _firebaseFirestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(counterRef);
+
+      int lastNumber = snapshot.exists ? snapshot.get('last') ?? 0 : 0;
+      int nextNumber = lastNumber + 1;
+
+      // Update counter
+      transaction.set(counterRef, {'last': nextNumber});
+
+      return lastNumber;
     });
   }
 }

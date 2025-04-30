@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/splash/splash_content.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
@@ -37,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               currentPage == 0
                   ? buildSkipButton(context)
-                  : SizedBox(height: 42),
+                  : SizedBox(height: 40),
               SizedBox(height: getPropScreenWidth(60)),
               Expanded(
                 flex: 11,
@@ -112,8 +111,8 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: 30,
-            vertical: 7.5,
+            horizontal: 28,
+            vertical: 6,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
@@ -124,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
           child: Text(
             'Skip',
-            style: GoogleFonts.montserrat(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.primary,

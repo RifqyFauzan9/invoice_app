@@ -18,6 +18,7 @@ class Invoice {
   final Travel travel;
   final Airline airline;
   final List<InvoiceItem> items;
+  final String invoiceNumber;
 
   Invoice({
     required this.note,
@@ -31,9 +32,11 @@ class Invoice {
     required this.travel,
     required this.airline,
     required this.items,
+    required this.invoiceNumber,
   });
 
   factory Invoice.fromJson(Map<String, dynamic> json) => Invoice(
+    invoiceNumber: json['invoiceNumber'],
         note: Note.fromJson(json["note"]),
         banks: List<Bank>.from(json["banks"].map((x) => Bank.fromJson(x))),
         dateCreated: json['dateCreated'],
@@ -52,6 +55,7 @@ class Invoice {
     dateCreated ??= Timestamp.now();
     status ??= 'Pending';
     return {
+      "invoiceNumber": invoiceNumber,
       "note": note.toJson(),
       "banks": List<dynamic>.from(banks.map((x) => x.toJson())),
       "dateCreated": dateCreated,

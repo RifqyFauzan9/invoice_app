@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/services/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
@@ -42,7 +41,7 @@ class DataAirlinesScreen extends StatelessWidget {
                   ),
                   child: Text(
                     'Data Maskapai',
-                    style: GoogleFonts.montserrat(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                       color: Theme.of(context).colorScheme.primary,

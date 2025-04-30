@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class PriceQuantityInput extends StatefulWidget {
   const PriceQuantityInput({
@@ -52,7 +51,7 @@ class _PriceQuantityInputState extends State<PriceQuantityInput> {
   @override
   Widget build(BuildContext context) {
     // Hint Text Style
-    TextStyle hintTextStyle = GoogleFonts.montserrat(
+    TextStyle hintTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
       fontSize: 16,
       fontWeight: FontWeight.w600,

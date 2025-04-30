@@ -1,3 +1,4 @@
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -24,21 +25,21 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle titleStyle = GoogleFonts.montserrat(
+    final TextStyle titleStyle = TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 16,
-      color: Theme.of(context).colorScheme.primary,
+      color: Colors.black,
     );
 
-    final TextStyle labelStyle = GoogleFonts.montserrat(
-      fontWeight: FontWeight.normal,
-      color: Theme.of(context).colorScheme.primary,
+    final TextStyle labelStyle = TextStyle(
+      fontWeight: FontWeight.w500,
+      color: Colors.black.withOpacity(0.7),
       fontSize: 12,
     );
 
-    final TextStyle valueStyle = GoogleFonts.montserrat(
+    final TextStyle valueStyle = TextStyle(
       fontWeight: FontWeight.bold,
-      color: Theme.of(context).colorScheme.primary,
+      color: Colors.black,
       fontSize: 12,
     );
 
@@ -83,12 +84,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       'INFORMASI PERUSAHAAN',
                       style: titleStyle,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'NO. BUKTI',
+                          'No. Bukti',
                           style: labelStyle,
                         ),
                         Text(
@@ -101,7 +102,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('TANGGAL', style: labelStyle),
+                        Text('Tanggal', style: labelStyle),
                         Text(
                           widget.invoice.dateCreated != null
                               ? DateFormat('dd/MM/yyyy')
@@ -116,7 +117,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'KEPADA',
+                          'Kepada',
                           style: labelStyle,
                         ),
                         Text(widget.invoice.travel.travelName,
@@ -128,7 +129,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'PENERIMA',
+                          'Penerima',
                           style: labelStyle,
                         ),
                         Text(
@@ -140,8 +141,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   ],
                 ),
                 Divider(
-                  thickness: 2,
-                  color: Theme.of(context).colorScheme.primary,
+                  thickness: 1,
+                  color: Colors.black.withOpacity(0.1),
                 ),
                 // Detail Pemesanan
                 Column(
@@ -151,16 +152,16 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       'DETAIL PEMESANAN',
                       style: titleStyle,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'KODE BOOKING (PNR)',
+                          'kode Booking (PNR)',
                           style: labelStyle,
                         ),
                         Text(
-                          widget.invoice.pnrCode,
+                          widget.invoice.pnrCode.toUpperCase(),
                           style: valueStyle,
                         ),
                       ],
@@ -184,7 +185,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'MASKAPAI',
+                          'Maskapai',
                           style: labelStyle,
                         ),
                         Text(
@@ -198,30 +199,30 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'PROGRAM',
+                          'Program',
                           style: labelStyle,
                         ),
                         Text(
-                          '9 HARI',
+                          widget.invoice.program,
                           style: valueStyle,
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'CATATAN PENERBANGAN',
+                      'Catatan Penerbangan',
                       style: labelStyle,
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      widget.invoice.flightNotes,
+                      widget.invoice.flightNotes.toUpperCase(),
                       style: valueStyle,
                     ),
                   ],
                 ),
                 Divider(
-                  thickness: 2,
-                  color: Theme.of(context).colorScheme.primary,
+                  thickness: 1,
+                  color: Colors.black.withOpacity(0.1),
                 ),
                 // Rincian Biaya
                 Column(
@@ -234,13 +235,13 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            item.item.itemName.toUpperCase(),
+                            item.item.itemName,
                             style: labelStyle,
                           ),
                           Text(
                             NumberFormat.currency(
                               locale: 'id_ID',
-                              symbol: 'RP',
+                              symbol: 'RP ',
                               decimalDigits: 0,
                             ).format(item.itemPrice),
                             style: valueStyle,
@@ -248,12 +249,28 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         ],
                       );
                     }),
-                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DottedLine(
+                            dashColor: Colors.black.withOpacity(0.4),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '+',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.black.withOpacity(0.4),
+                          ),
+                        ),
+                      ],
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Total'.toUpperCase().toString(),
+                          'Total',
                           style: labelStyle,
                         ),
                         Text(
@@ -272,8 +289,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   ],
                 ),
                 Divider(
-                  color: Theme.of(context).colorScheme.primary,
-                  thickness: 2,
+                  thickness: 1,
+                  color: Colors.black.withOpacity(0.1),
                 ),
                 // Status Pembayaran
                 Column(
@@ -284,39 +301,23 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('TANGGAL PEMBAYARAN', style: labelStyle),
-                        Text('JUMLAH DIBAYAR', style: labelStyle),
+                        Text('Tanggal Pembayaran', style: labelStyle),
+                        Text('Jumlah Dibayar', style: labelStyle),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('01-Feb-25', style: valueStyle),
-                        Text('-Rp 180.000.000', style: valueStyle),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('07-Mar-25', style: valueStyle),
-                        Text('-Rp 522.000.000', style: valueStyle),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('KEKURANGAN', style: labelStyle),
-                        Text('Rp 0 (LUNAS)', style: valueStyle),
+                        Text('Kekurangan', style: labelStyle),
+                        Text('Rp 0 (Lunas)', style: valueStyle),
                       ],
                     ),
                   ],
                 ),
                 Divider(
-                  color: Theme.of(context).colorScheme.primary,
-                  thickness: 2,
+                  thickness: 1,
+                  color: Colors.black.withOpacity(0.1),
                 ),
                 // Payment should be paid to
                 Align(
@@ -326,12 +327,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     children: [
                       Text('Payment should be paid to:', style: labelStyle),
                       ...widget.invoice.banks.map((bank) {
-                        return Text(
-                          '${bank.bankName}: ${formatAccountNumber(bank.accountNumber)}',
-                          style: valueStyle,
+                        return Container(
+                          margin: EdgeInsets.symmetric(vertical: 1),
+                          child: Text(
+                            '${bank.bankName}: ${formatAccountNumber(bank.accountNumber)}\na/n ${bank.accountHolder}',
+                            style: valueStyle,
+                          ),
                         );
                       }),
-                      Text('a/n ${widget.invoice.banks.first.branch}', style: valueStyle),
                     ],
                   ),
                 ),
@@ -360,21 +363,59 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w500,
                               fontSize: getPropScreenWidth(12),
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.5),
+                              color: Colors.black,
                             ),
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      widget.invoice.note.note
-                          .toUpperCase()
-                          .toString(),
+                      widget.invoice.note.note.toUpperCase().toString(),
                       maxLines: noteViewAll ? null : 5,
                       overflow: noteViewAll ? null : TextOverflow.ellipsis,
+                      style: labelStyle,
+                    ),
+                  ],
+                ),
+                Divider(
+                  thickness: 1,
+                  color: Colors.black.withOpacity(0.1),
+                ),
+                // Terms of payment
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('TERM PAYMENT', style: titleStyle),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            overlayColor: Colors.transparent,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              termViewAll = !termViewAll;
+                            });
+                          },
+                          child: Text(
+                            'View All',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w500,
+                              fontSize: getPropScreenWidth(12),
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '1. Harga sewaktu-waktu bisa berubah tanpa pemberitahuan sebelumnya\n2. Apabila terdapat pengurangan seat dalam kurun waktu satu bulan sebelum keberangkatan maka denda yang dibebankan ke agent adalah sama dengan jumlah deposit yang sudah kami bayarkan ke airlines\n 3. Deposit tidak dapat dikembalikan dan diubah ke PNR yang lain\n 4. Bilamana ada pembatalan dan tidak ada pelunasan dalam pemesanan 3 minggu sebelum keberangkatan maka deposit dianggap hilang / hangus'
+                          .toUpperCase(),
+                      maxLines: termViewAll ? null : 5,
+                      overflow: termViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
                     ),
                   ],
@@ -402,6 +443,4 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     }
     return buffer.toString();
   }
-
-
 }

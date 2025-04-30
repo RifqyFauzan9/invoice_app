@@ -27,7 +27,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
   final _formKey = GlobalKey<FormState>();
   final _pnrController = TextEditingController();
   final _programController = TextEditingController();
-  final _priceController = TextEditingController();
   final _flightNotesController = TextEditingController();
 
   Future<List<T>> getDocumentsOnce<T>({
@@ -50,6 +49,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
   List<Travel> availableTravels = [];
   List<Airline> availableAirlines = [];
   List<Note> availableNotes = [];
+  List<Bank> listBank = [];
 
   @override
   void initState() {
@@ -61,6 +61,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
       if (travels.isNotEmpty) {
         setState(() {
           availableTravels = travels;
+          selectedTravel = travels.first;
         });
       } else {
         debugPrint('List travel empty!');
@@ -75,6 +76,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
       if (airlines.isNotEmpty) {
         setState(() {
           availableAirlines = airlines;
+          selectedAirline = airlines.first;
         });
       } else {
         debugPrint('List airline empty!');
@@ -103,9 +105,24 @@ class _TransaksiFormState extends State<TransaksiForm> {
       if (notes.isNotEmpty) {
         setState(() {
           availableNotes = notes;
+          selectedNote = notes.first;
         });
       } else {
         debugPrint('List note empty!');
+      }
+    });
+
+    // Get Banks
+    getDocumentsOnce(
+      collectionPath: 'banks',
+      fromJson: Bank.fromJson,
+    ).then((banks) {
+      if (banks.isNotEmpty) {
+        setState(() {
+          listBank = banks;
+        });
+      } else {
+        debugPrint('List bank empty!');
       }
     });
     super.initState();
@@ -114,7 +131,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
   @override
   Widget build(BuildContext context) {
     // Field label style
-    TextStyle fieldLabelStyle = GoogleFonts.montserrat(
+    TextStyle fieldLabelStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary,
       fontSize: 17,
       fontWeight: FontWeight.w600,
@@ -122,7 +139,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
     );
 
     // Hint Text Style
-    TextStyle hintTextStyle = GoogleFonts.montserrat(
+    TextStyle hintTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
       fontSize: 16,
       fontWeight: FontWeight.w600,
@@ -228,7 +245,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
                             itemController.add({
                               'item': availableItems.first,
                               'quantity': quantities.first,
-                              'priceController': _priceController,
+                              'priceController': TextEditingController(),
                             });
                           });
                         },
@@ -277,6 +294,8 @@ class _TransaksiFormState extends State<TransaksiForm> {
 
   Future<void> _submitForm() async {
     final service = context.read<FirebaseFirestoreService>();
+    final lastNumber =
+        await service.generateLastNumberOfInvoicesFromFirestore();
     final navigator = Navigator.of(context);
     if (_formKey.currentState!.validate()) {
       List<InvoiceItem> items = itemController.map((item) {
@@ -315,26 +334,17 @@ class _TransaksiFormState extends State<TransaksiForm> {
 
       await service.saveInvoice(
         invoice: Invoice(
+          invoiceNumber:
+              'INV-${generateNoBukti(lastNumber)}',
           flightNotes: _flightNotesController.text,
           pnrCode: _pnrController.text,
           program: _programController.text,
-          proofNumber: generateNoBukti(0),
+          proofNumber: generateNoBukti(lastNumber),
           airline: selectedAirline!,
           items: items,
           note: selectedNote!,
           travel: selectedTravel!,
-          banks: [
-            Bank(
-              bankName: 'Mandiri',
-              accountNumber: 123456789,
-              branch: 'Jomokerto',
-            ),
-            Bank(
-              bankName: 'BSI',
-              accountNumber: 987654321,
-              branch: 'Otrekomoj',
-            ),
-          ],
+          banks: listBank,
         ),
       );
       navigator.pushReplacementNamed(ScreenRoute.main.route);
@@ -430,7 +440,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
     _programController.dispose();
     _pnrController.dispose();
     _flightNotesController.dispose();
-    _priceController.dispose();
     for (var item in itemController) {
       item['priceController'].dispose();
     }

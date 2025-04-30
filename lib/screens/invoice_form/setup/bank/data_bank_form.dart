@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../services/firebase_firestore_service.dart';
@@ -18,18 +17,19 @@ class _DataBankFormState extends State<DataBankForm> {
   final _bankNameController = TextEditingController();
   final _accountNumberController = TextEditingController();
   final _branchController = TextEditingController();
+  final _accountHolderController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     // Field label style
-    TextStyle fieldLabelStyle = GoogleFonts.montserrat(
+    TextStyle fieldLabelStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary,
       fontSize: 17,
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
     );
     // Hint Text Style
-    TextStyle hintTextStyle = GoogleFonts.montserrat(
+    TextStyle hintTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
       fontSize: 16,
       fontWeight: FontWeight.w600,
@@ -127,6 +127,24 @@ class _DataBankFormState extends State<DataBankForm> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 8),
+                    Text('Atas Nama', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _accountHolderController,
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Nama Pemegang Akun',
+                        hintStyle: hintTextStyle,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Mohon isi form dengan benar.';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 32),
                     FilledButton(
                       onPressed: () {
@@ -151,6 +169,7 @@ class _DataBankFormState extends State<DataBankForm> {
     final bankName = _bankNameController.text;
     final accountNumber = int.tryParse(_accountNumberController.text);
     final branch = _branchController.text;
+    final accountHolder = _accountHolderController.text;
     final navigator = Navigator.of(context);
 
     try {
@@ -158,6 +177,7 @@ class _DataBankFormState extends State<DataBankForm> {
         bankName: bankName,
         accountNumber: accountNumber ?? 0,
         branch: branch,
+        accountHolder: accountHolder,
       );
       debugPrint('data bank berhasil disimpan!');
       navigator.pop();

@@ -53,7 +53,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Forgot Password?',
-                              style: GoogleFonts.montserrat(
+                              style: TextStyle(
                                 fontSize: getPropScreenWidth(24),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0,
@@ -62,7 +62,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                             const SizedBox(height: 7),
                             Text(
                                 'Enter your email, and we\'ll send you a magic link to bring you back to your account!',
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0,

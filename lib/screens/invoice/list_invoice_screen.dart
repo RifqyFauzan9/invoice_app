@@ -36,7 +36,7 @@ class ListInvoiceScreen extends StatelessWidget {
                   SizedBox(width: getPropScreenWidth(70)),
                   Text(
                     'Invoices',
-                    style: GoogleFonts.montserrat(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: getPropScreenWidth(20),
                       letterSpacing: 0,

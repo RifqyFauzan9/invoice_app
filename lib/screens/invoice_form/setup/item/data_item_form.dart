@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../services/firebase_firestore_service.dart';
@@ -21,7 +20,7 @@ class _DataItemFormState extends State<DataItemForm> {
   @override
   Widget build(BuildContext context) {
     // Field label style
-    TextStyle fieldLabelStyle = GoogleFonts.montserrat(
+    TextStyle fieldLabelStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary,
       fontSize: 17,
       fontWeight: FontWeight.w600,
@@ -29,7 +28,7 @@ class _DataItemFormState extends State<DataItemForm> {
     );
 
     // Hint Text Style
-    TextStyle hintTextStyle = GoogleFonts.montserrat(
+    TextStyle hintTextStyle = TextStyle(
       color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
       fontSize: 16,
       fontWeight: FontWeight.w600,

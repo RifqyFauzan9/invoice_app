@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
@@ -62,7 +61,7 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
             Text(
               'Login Success',
               textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(
                 fontSize: getPropScreenWidth(33),
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0,
@@ -72,7 +71,7 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
             Text(
               'Anda berhasil masuk ke akun Anda. Selamat menggunakan layanan kami! Tekan ‘Continue‘ untuk melanjutkan ke beranda.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(
                 fontSize: getPropScreenWidth(13),
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0,

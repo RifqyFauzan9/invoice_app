@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
     InvoiceStatusCard(
       icon: 'assets/images/cancel_icon.png',
       total: 250,
-      status: 'Cancel',
+      status: 'Issued',
     ),
   ];
 
@@ -133,11 +133,17 @@ class HomeScreen extends StatelessWidget {
                               return CustomCard(
                                 imageLeading: 'assets/images/travel_icon.png',
                                 title: invoice.travel.travelName,
-                                content: Text(invoice.travel.contactPerson),
+                                content: Text(
+                                  invoice.travel.contactPerson,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                  ),
+                                ),
                                 trailing: Icon(
-                                  Icons.query_stats,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 30,
+                                  Icons.more_vert,
+                                  color: Colors.black,
+                                  size: 24,
                                 ),
                                 onCardTapped: () => Navigator.pushNamed(
                                   context,
@@ -167,12 +173,11 @@ class HomeScreen extends StatelessWidget {
             fontSize: getPropScreenWidth(32),
             fontWeight: FontWeight.bold,
             letterSpacing: 0,
-            height: 1,
           ),
         ),
         Text(
           'Welcome to InvoTek!',
-          style: GoogleFonts.montserrat(
+          style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: getPropScreenWidth(16),
             letterSpacing: 0,
@@ -209,7 +214,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'Total Invoice Created',
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),

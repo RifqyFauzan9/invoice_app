@@ -7,7 +7,7 @@ List<Map<String, String>> splashData = [
   {
     'title': 'Cepat, Aman, dan Otomatis',
     'subtitle':
-        'Invotek membantu anda mengatur tagihan, mengirim faktur, dan melacak pembayaran dengan aman.',
+        'Invotek memudahkan tagihan, pengiriman faktur, dan pelacakan pembayaran secara aman.',
     'image': 'assets/svgs/splash_image_2.svg',
   },
   {

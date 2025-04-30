@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/signup/sign_up_form.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import '../../../static/screen_route.dart';
@@ -53,7 +52,7 @@ class SignUpScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Hello,',
-                              style: GoogleFonts.montserrat(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0,
@@ -66,7 +65,7 @@ class SignUpScreen extends StatelessWidget {
                             const SizedBox(height: 7),
                             Text(
                               'Please Sign Up',
-                              style: GoogleFonts.montserrat(
+                              style: TextStyle(
                                 fontSize: getPropScreenWidth(24),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0,
@@ -77,7 +76,7 @@ class SignUpScreen extends StatelessWidget {
                             SizedBox(height: getPropScreenWidth(14)),
                             Center(
                               child: Text.rich(
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(
                                   fontSize: 14,
                                   letterSpacing: 0,
                                   fontWeight: FontWeight.normal,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/screens/auth/login/login_form.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Text(
                                 'Hello,',
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0,
@@ -91,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 7),
                               Text(
                                 'Let\'s Sign in',
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(
                                   fontSize: getPropScreenWidth(24),
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0,
@@ -102,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 16),
                               Text.rich(
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.montserrat(
+                                style: TextStyle(
                                   fontSize: 14,
                                   letterSpacing: 0,
                                   fontWeight: FontWeight.normal,

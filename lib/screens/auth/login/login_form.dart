@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
@@ -148,7 +147,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),
                 child: Text(
                   'Sign Up',
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.primary,
@@ -162,7 +161,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),
                 child: Text(
                   'Forgot Password?',
-                  style: GoogleFonts.montserrat(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.primary,

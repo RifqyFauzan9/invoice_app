@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../static/size_config.dart';
 import '../../style/colors/invoice_color.dart';
-import '../../widgets/main_widgets/custom_icon_button.dart';
 
 class ProfileFormScreen extends StatefulWidget {
   const ProfileFormScreen({super.key});
@@ -30,37 +29,22 @@ class _ProfileFormState extends State<ProfileFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Data Perusahaan'),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 30,
-            vertical: 50,
-          ),
+          padding: EdgeInsets.all(30),
           child: SizedBox(
             width: double.infinity,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      icon: Icons.arrow_back,
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    SizedBox(width: getPropScreenWidth(40)),
-                    Text(
-                      'Data Perusahaan',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.bold,
-                        fontSize: getPropScreenWidth(18),
-                        letterSpacing: 0,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
                 Align(
                   alignment: Alignment.center,
                   child: Stack(
@@ -117,7 +101,7 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                       _buildPicField(_picController),
                       const SizedBox(height: 24),
                       FilledButton(
-                        onPressed: _formKey.currentState!.validate() ? () {} : null,
+                        onPressed: () {},
                         child: Text('Save'),
                       ),
                     ],
@@ -164,15 +148,13 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Alamat Travel',
+        Text('Alamat Travel',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 0,
-            )
-        ),
+            )),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
@@ -193,15 +175,13 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Email Travel',
+        Text('Email Travel',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 0,
-            )
-        ),
+            )),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
@@ -222,15 +202,13 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Website Travel',
+        Text('Website Travel',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 0,
-            )
-        ),
+            )),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
@@ -251,15 +229,13 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Nomor Telepon',
+        Text('Nomor Telepon',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 0,
-            )
-        ),
+            )),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
@@ -280,15 +256,13 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'PIC',
+        Text('PIC',
             style: GoogleFonts.montserrat(
               fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Theme.of(context).colorScheme.primary,
               letterSpacing: 0,
-            )
-        ),
+            )),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,

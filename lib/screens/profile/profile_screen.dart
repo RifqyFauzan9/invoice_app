@@ -4,7 +4,6 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/size_config.dart';
-import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/firebase_auth_provider.dart';
@@ -25,33 +24,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('My Profile'),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(30, 50, 30, 60),
+          padding: EdgeInsets.all(30),
           child: SizedBox(
             width: double.infinity,
             child: Column(
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      icon: Icons.arrow_back,
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    SizedBox(width: getPropScreenWidth(65)),
-                    Text(
-                      'My Profile',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.bold,
-                        fontSize: getPropScreenWidth(18),
-                        letterSpacing: 0,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
                 Container(
                   height: getPropScreenWidth(120),
                   width: getPropScreenWidth(120),

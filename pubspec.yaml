@@ -90,14 +90,7 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: SFProDisplay
-      fonts:
-        - asset: assets/fonts/sf_pro_display/SFProDisplayRegular.otf
-        - asset: assets/fonts/sf_pro_display/SFProDisplayBold.otf
-          weight: 700
-        - asset: assets/fonts/sf_pro_display/SFProDisplayMedium.otf
-          weight: 500
+
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

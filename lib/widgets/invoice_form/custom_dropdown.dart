@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CustomDropdown<T> extends StatelessWidget {
   final List<T> items;
@@ -22,7 +21,7 @@ class CustomDropdown<T> extends StatelessWidget {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
 
-    final hintTextStyle = GoogleFonts.montserrat(
+    final hintTextStyle = TextStyle(
       color: primary.withOpacity(0.3),
       fontSize: 16,
       fontWeight: FontWeight.w600,

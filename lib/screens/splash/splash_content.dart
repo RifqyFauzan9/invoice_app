@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 
 class SplashContent extends StatelessWidget {
@@ -19,14 +18,14 @@ class SplashContent extends StatelessWidget {
       children: [
         SvgPicture.asset(
           image,
-          width: getPropScreenWidth(290),
+          width: getPropScreenWidth(280),
         ),
         SizedBox(height: getPropScreenWidth(48)),
         Text(
           title,
-          style: GoogleFonts.montserrat(
-            fontSize: getPropScreenWidth(25),
-            fontWeight: FontWeight.w700,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
             letterSpacing: 0,
           ),
           textAlign: TextAlign.center,
@@ -34,9 +33,10 @@ class SplashContent extends StatelessWidget {
         SizedBox(height: getPropScreenWidth(10)),
         Text(
           subtitle,
-          style: GoogleFonts.montserrat(
-            fontSize: getPropScreenWidth(14),
-            fontWeight: FontWeight.normal,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
           ),
           textAlign: TextAlign.center,
         ),

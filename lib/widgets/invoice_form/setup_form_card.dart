@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SetUpFormCard extends StatelessWidget {
   final String image, text;
@@ -37,7 +36,7 @@ class SetUpFormCard extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               text,
-              style: GoogleFonts.montserrat(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
