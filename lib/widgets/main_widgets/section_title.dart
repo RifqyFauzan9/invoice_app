@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class SectionTitle extends StatelessWidget {
   final String title;
@@ -21,7 +22,7 @@ class SectionTitle extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: getPropScreenWidth(18),
             fontWeight: FontWeight.bold,
             letterSpacing: 0,
           ),
@@ -32,9 +33,9 @@ class SectionTitle extends StatelessWidget {
                 child: Text(
                   'View All',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: getPropScreenWidth(14),
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    color: Colors.black.withOpacity(0.5),
                   ),
                 ))
             : const SizedBox(),

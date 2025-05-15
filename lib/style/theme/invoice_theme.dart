@@ -337,102 +337,107 @@ class InvoiceTheme {
   }
 
   ThemeData theme(ColorScheme colorScheme) => ThemeData(
-    fontFamily: GoogleFonts.montserrat().fontFamily,
-      useMaterial3: true,
-      brightness: colorScheme.brightness,
-      colorScheme: colorScheme,
-      textTheme: GoogleFonts.montserratTextTheme(
-        textTheme.apply(
-          bodyColor: colorScheme.onSurface,
-          displayColor: colorScheme.onSurface,
-        ),
-      ),
-      scaffoldBackgroundColor: colorScheme.surface,
-      canvasColor: colorScheme.surface,
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: Size(double.infinity, 50),
-          backgroundColor: colorScheme.primary,
-          textStyle: GoogleFonts.montserrat(
-            color: colorScheme.onPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+        fontFamily: GoogleFonts.montserrat().fontFamily,
+        useMaterial3: true,
+        brightness: colorScheme.brightness,
+        colorScheme: colorScheme,
+        textTheme: GoogleFonts.montserratTextTheme(
+          textTheme.apply(
+            bodyColor: colorScheme.onSurface,
+            displayColor: colorScheme.onSurface,
           ),
         ),
-      ),
-      appBarTheme: AppBarTheme(
-        centerTitle: true,
-        toolbarHeight: 75,
-        elevation: 1,
-        backgroundColor: Colors.white,
-        shadowColor: colorScheme.primary.withOpacity(0.5),
-        titleTextStyle: GoogleFonts.montserrat(
-          fontWeight: FontWeight.bold,
-          color: colorScheme.primary,
-          fontSize: 20,
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        contentPadding: EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 24,
-        ),
-        hintStyle: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0,
-          color: colorScheme.onSurface.withOpacity(0.5),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: colorScheme.onSurface.withOpacity(0.3),
-            width: 2,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: colorScheme.onSurface,
-            width: 2,
-          ),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2),
-        ),
-      ),
-      searchBarTheme: SearchBarThemeData(
-        elevation: WidgetStatePropertyAll(0),
-        backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: colorScheme.onSurface.withOpacity(0.3),
-              width: 2,
+        scaffoldBackgroundColor: colorScheme.surface,
+        canvasColor: colorScheme.surface,
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            minimumSize: Size(double.infinity, 50),
+            backgroundColor: colorScheme.primary,
+            textStyle: GoogleFonts.montserrat(
+              color: colorScheme.onPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
-        hintStyle: WidgetStatePropertyAll(
-          GoogleFonts.montserrat(
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-            color: Colors.black.withOpacity(0.6),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          toolbarHeight: 75,
+          elevation: 1,
+          backgroundColor: Colors.white,
+          shadowColor: colorScheme.primary.withOpacity(0.5),
+          titleTextStyle: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+            fontSize: 20,
           ),
         ),
-        padding: WidgetStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 18),
+        inputDecorationTheme: InputDecorationTheme(
+          contentPadding: EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 24,
+          ),
+          hintStyle: GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0,
+            color: colorScheme.onSurface.withOpacity(0.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: colorScheme.primary.withOpacity(0.3),
+              width: 2,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+              color: colorScheme.primary,
+              width: 2,
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(width: 2),
+          ),
         ),
-      ),
-      cardTheme: CardTheme(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        searchBarTheme: SearchBarThemeData(
+          elevation: WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(
+                color: colorScheme.primary.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+          ),
+          textCapitalization: TextCapitalization.sentences,
+          hintStyle: WidgetStatePropertyAll(
+            GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0,
+              color: colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
+          padding: WidgetStatePropertyAll(
+            EdgeInsets.symmetric(
+              horizontal: 24
+            ),
+          ),
         ),
-      ),);
+        cardTheme: CardTheme(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      );
 
   List<ExtendedColor> get extendedColors => [];
 }

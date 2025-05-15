@@ -80,7 +80,7 @@ class ChooseFormCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: getPropScreenWidth(7)),
               Text(
                 text,
                 style: GoogleFonts.montserrat(

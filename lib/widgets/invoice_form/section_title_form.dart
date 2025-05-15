@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 
 class SectionTitleForm extends StatelessWidget {
   final String text;
@@ -24,7 +25,7 @@ class SectionTitleForm extends StatelessWidget {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontSize: 20,
+          fontSize: getPropScreenWidth(18),
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.primary,
         ),

@@ -12,7 +12,7 @@ class Travel {
     required this.phoneNumber,
     required this.travelId,
     required this.travelName,
-    required this.contactPerson,
+    required this.contactPerson
   });
 
   factory Travel.fromJson(Map<String, dynamic> json) => Travel(

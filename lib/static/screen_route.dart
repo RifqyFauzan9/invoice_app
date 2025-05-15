@@ -24,7 +24,8 @@ enum ScreenRoute {
   note('note'),
   noteForm('noteForm'),
   report('report'),
-  profileForm('profileForm');
+  profileForm('profileForm'),
+  statusScreen('statusScreen');
 
   final String route;
   const ScreenRoute(this.route);

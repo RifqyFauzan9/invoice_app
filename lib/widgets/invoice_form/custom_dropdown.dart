@@ -43,6 +43,12 @@ class CustomDropdown<T> extends StatelessWidget {
             );
           }).toList(),
           onChanged: items.isEmpty ? null : onChanged,
+          validator: (value) {
+            if (value == null) {
+              return 'Mohon pilih item terlebih dahulu.';
+            }
+            return null;
+          },
         ),
       ],
     );

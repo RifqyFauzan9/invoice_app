@@ -1,11 +1,16 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
-import 'package:my_invoice_app/style/colors/invoice_color.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../style/colors/invoice_color.dart';
 
 class LoginSuccessScreen extends StatefulWidget {
-  const LoginSuccessScreen({super.key});
+  const LoginSuccessScreen({super.key, required this.uid});
+
+  final String? uid;
 
   @override
   State<LoginSuccessScreen> createState() => _LoginSuccessScreenState();
@@ -57,7 +62,7 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
               size: getPropScreenWidth(230),
               color: InvoiceColor.primary.color,
             ),
-            const SizedBox(height: 48),
+            SizedBox(height: SizeConfig.screenHeight * 0.03),
             Text(
               'Login Success',
               textAlign: TextAlign.center,
@@ -67,13 +72,14 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
                 letterSpacing: 0,
               ),
             ),
-            SizedBox(height: getPropScreenWidth(16)),
+            SizedBox(height: SizeConfig.screenHeight * 0.01),
             Text(
               'Anda berhasil masuk ke akun Anda. Selamat menggunakan layanan kami! Tekan ‘Continue‘ untuk melanjutkan ke beranda.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: getPropScreenWidth(13),
                 fontWeight: FontWeight.w500,
+                color: Colors.black,
                 letterSpacing: 0,
               ),
             ),
@@ -82,6 +88,7 @@ class _LoginSuccessScreenState extends State<LoginSuccessScreen> {
               onPressed: () => Navigator.pushNamed(
                 context,
                 ScreenRoute.main.route,
+                arguments: context.read<FirebaseAuthProvider>().profile!.uid,
               ),
               child: const Text('Continue'),
             ),

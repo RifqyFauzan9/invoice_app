@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/airline.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/airline_service.dart';
+import 'package:my_invoice_app/static/form_mode.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../provider/firebase_auth_provider.dart';
+import '../../../../static/size_config.dart';
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 import '../../../../widgets/main_widgets/custom_card.dart';
 
@@ -14,9 +18,9 @@ class DataAirlinesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
+        padding: EdgeInsets.symmetric(
+          horizontal: getPropScreenWidth(25),
+          vertical: getPropScreenWidth(60),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,30 +59,36 @@ class DataAirlinesScreen extends StatelessWidget {
                     Navigator.pushNamed(
                       context,
                       ScreenRoute.airlinesForm.route,
+                      arguments: {
+                        'mode': FormMode.add,
+                        'oldAirline': null,
+                      },
                     );
                   },
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            SearchBar(
-              backgroundColor: WidgetStatePropertyAll(Colors.white),
-              elevation: WidgetStatePropertyAll(0),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              leading: Icon(Icons.search, size: 32, color: Colors.grey),
-              hintText: 'Search...',
-              padding: WidgetStatePropertyAll(
-                const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
+            const SizedBox(height: 16),
+            // SearchBar(
+            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
+            //   elevation: WidgetStatePropertyAll(0),
+            //   shape: WidgetStatePropertyAll(
+            //     RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(16),
+            //     ),
+            //   ),
+            //   textCapitalization: TextCapitalization.sentences,
+            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
+            //   hintText: 'Search...',
+            //   padding: WidgetStatePropertyAll(
+            //     const EdgeInsets.symmetric(horizontal: 16),
+            //   ),
+            // ),
             Expanded(
               child: StreamProvider<List<Airline>>(
-                create: (context) =>
-                    context.read<FirebaseFirestoreService>().getAirline(),
+                create: (context) => context.read<AirlineService>().getAirline(
+                      context.read<FirebaseAuthProvider>().profile!.uid!,
+                    ),
                 initialData: const <Airline>[],
                 catchError: (context, error) {
                   debugPrint('Error: $error');
@@ -95,22 +105,77 @@ class DataAirlinesScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final airline = airlines[index];
                             return CustomCard(
-                              imageLeading: 'assets/images/airlines_icon.png',
-                              title: airline.airline,
-                              content: Text(
-                                airline.code,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[800],
+                                imageLeading: 'assets/images/airlines_icon.png',
+                                title: airline.airlineName,
+                                content: Text(
+                                  airline.airlineCode,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[800],
+                                  ),
                                 ),
-                              ),
-                              trailing: IconButton(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.more_vert,
-                                ),
-                              ),
-                            );
+                                trailing: PopupMenuButton(
+                                  iconColor: InvoiceColor.primary.color,
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        Navigator.pushNamed(context, ScreenRoute.airlinesForm.route, arguments: {
+                                          'mode': FormMode.edit,
+                                          'oldAirline': airline,
+                                        });
+                                      },
+                                      child: Text('Edit Data'),
+                                    ),
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text(
+                                                'Hapus ${airline.airlineName}?',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontSize:
+                                                    getPropScreenWidth(18)),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<AirlineService>()
+                                                        .deleteAirline(
+                                                        uid: context
+                                                            .read<
+                                                            FirebaseAuthProvider>()
+                                                            .profile!
+                                                            .uid!,
+                                                        airlineId:
+                                                        airline.airlineId);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text(
+                                                    'Hapus',
+                                                    style: TextStyle(
+                                                      color: InvoiceColor
+                                                          .error.color,
+                                                    ),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: Text('Tidak'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Text('Hapus Data'),
+                                    ),
+                                  ],
+                                ));
                           },
                         );
                 },

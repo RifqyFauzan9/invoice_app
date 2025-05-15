@@ -13,9 +13,9 @@ class ChooseFormScreen extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 30,
-            vertical: 60,
+          padding: EdgeInsets.symmetric(
+            horizontal: getPropScreenWidth(25),
+            vertical: getPropScreenWidth(60),
           ),
           child: SizedBox(
             width: double.infinity,
@@ -29,7 +29,7 @@ class ChooseFormScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.05),
+                SizedBox(height: SizeConfig.screenHeight * 0.07),
                 ChooseFormCard(
                   icon: Icons.settings,
                   onPressed: () => Navigator.pushNamed(
@@ -38,7 +38,7 @@ class ChooseFormScreen extends StatelessWidget {
                   ),
                   text: 'Set Up',
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.02),
+                SizedBox(height: SizeConfig.screenHeight * 0.01),
                 ChooseFormCard(
                   icon: Icons.credit_card,
                   onPressed: () => Navigator.pushNamed(
@@ -47,7 +47,7 @@ class ChooseFormScreen extends StatelessWidget {
                   ),
                   text: 'Transaksi',
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.02),
+                SizedBox(height: SizeConfig.screenHeight * 0.01),
                 ChooseFormCard(
                   icon: Icons.bar_chart,
                   onPressed: () => Navigator.pushNamed(

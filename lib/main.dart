@@ -4,11 +4,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_invoice_app/firebase_options.dart';
+import 'package:my_invoice_app/provider/company_provider.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
-import 'package:my_invoice_app/services/firebase_auth_service.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
-import 'package:my_invoice_app/services/shared_preferences_service.dart';
+import 'package:my_invoice_app/services/airline_service.dart';
+import 'package:my_invoice_app/services/app_service/firebase_auth_service.dart';
+import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/app_service/shared_preferences_service.dart';
+import 'package:my_invoice_app/services/bank_service.dart';
+import 'package:my_invoice_app/services/company_service.dart';
+import 'package:my_invoice_app/services/invoice_service.dart';
+import 'package:my_invoice_app/services/item_service.dart';
+import 'package:my_invoice_app/services/note_service.dart';
+import 'package:my_invoice_app/services/travel_service.dart';
 import 'package:my_invoice_app/static/routes.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
@@ -41,6 +49,30 @@ void main() async {
         Provider(
           create: (context) => FirebaseFirestoreService(firebaseFirestore),
         ),
+        Provider(
+          create: (context) => AirlineService(firebaseFirestore),
+        ),
+        Provider(
+          create: (context) => BankService(firebaseFirestore),
+        ),
+        Provider(
+          create: (context) => CompanyService(firebaseFirestore),
+        ),
+        Provider(
+          create: (context) => InvoiceService(firebaseFirestore),
+        ),
+        Provider(
+          create: (context) => ItemService(firebaseFirestore),
+        ),
+        Provider(
+          create: (context) => NoteService(
+            firebaseFirestore,
+            context.read<FirebaseFirestoreService>(),
+          ),
+        ),
+        Provider(
+          create: (context) => TravelService(firebaseFirestore),
+        ),
         ChangeNotifierProvider(
           create: (context) => SharedPreferencesProvider(
             context.read<SharedPreferencesService>(),
@@ -50,6 +82,9 @@ void main() async {
           create: (context) => FirebaseAuthProvider(
             context.read<FirebaseAuthService>(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CompanyProvider(),
         ),
       ],
       child: const MyApp(),
@@ -79,7 +114,7 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       title: 'InvoTek',
-      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
+      theme: theme.light(),
       initialRoute: ScreenRoute.realSplash.route,
       routes: routes,
     );

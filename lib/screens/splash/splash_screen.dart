@@ -26,9 +26,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
+        padding: EdgeInsets.symmetric(
+          horizontal: getPropScreenWidth(25),
+          vertical: getPropScreenWidth(60),
         ),
         child: SizedBox(
           width: double.infinity,
@@ -36,8 +36,8 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               currentPage == 0
                   ? buildSkipButton(context)
-                  : SizedBox(height: 40),
-              SizedBox(height: getPropScreenWidth(60)),
+                  : SizedBox(height: SizeConfig.screenHeight * 0.043),
+              SizedBox(height: SizeConfig.screenHeight * 0.09),
               Expanded(
                 flex: 11,
                 child: PageView.builder(

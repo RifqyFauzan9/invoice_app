@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:my_invoice_app/services/shared_preferences_service.dart';
+import 'package:my_invoice_app/services/app_service/shared_preferences_service.dart';
 
 class SharedPreferencesProvider extends ChangeNotifier {
   final SharedPreferencesService _service;

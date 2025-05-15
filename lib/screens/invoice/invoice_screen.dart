@@ -1,3 +1,5 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,7 +7,15 @@ import 'package:intl/intl.dart';
 import 'package:my_invoice_app/api/pdf_api.dart';
 import 'package:my_invoice_app/api/pdf_invoice_api.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
+import 'package:my_invoice_app/provider/company_provider.dart';
+import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
+import 'package:my_invoice_app/services/invoice_service.dart';
 import 'package:my_invoice_app/static/size_config.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
+import 'package:provider/provider.dart';
+
+import '../../model/common/company.dart';
+import '../../model/setup/item.dart';
 
 class InvoiceScreen extends StatefulWidget {
   final Invoice invoice;
@@ -22,6 +32,17 @@ class InvoiceScreen extends StatefulWidget {
 class _InvoiceScreenState extends State<InvoiceScreen> {
   bool noteViewAll = false;
   bool termViewAll = false;
+  String? selectedStatus;
+  final _paymentController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  Company? company;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    company = context.read<CompanyProvider>().company;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +64,16 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       fontSize: 12,
     );
 
+    final outstandingAmount = calculateOutstandingAmount(
+      items: widget.invoice.items,
+      paymentHistory: widget.invoice.paymentHistory ?? [],
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset(
-          'assets/images/ktg_logo.png',
-          width: getPropScreenWidth(120),
+        title: Text(
+          widget.invoice.id,
+          overflow: TextOverflow.ellipsis,
         ),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -55,23 +81,243 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           color: Theme.of(context).colorScheme.primary,
         ),
         actions: [
-          IconButton(
-            padding: EdgeInsets.only(right: 10),
-            onPressed: () async {
-              final invoice = widget.invoice;
+          PopupMenuButton(
+            iconColor: InvoiceColor.primary.color,
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: viewInvoicePdf,
+                child: Text('View Invoice Pdf'),
+              ),
+              PopupMenuItem(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'Update Pembayaran',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: getPropScreenWidth(17),
+                            color: Colors.black,
+                          ),
+                        ),
+                        content: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Update Status',
+                                style: GoogleFonts.montserrat(
+                                  color: InvoiceColor.primary.color,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: getPropScreenWidth(14),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              DropdownButtonFormField(
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down_outlined,
+                                  color: InvoiceColor.primary.color,
+                                ),
+                                style: GoogleFonts.montserrat(
+                                  fontSize: getPropScreenWidth(11),
+                                  fontWeight: FontWeight.w500,
+                                  color: InvoiceColor.primary.color,
+                                ),
+                                hint: Text(
+                                  'Pilih Status',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: getPropScreenWidth(11),
+                                    fontWeight: FontWeight.w500,
+                                    color: InvoiceColor.primary.color
+                                        .withOpacity(0.5),
+                                  ),
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 10,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color
+                                          .withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    selectedStatus = widget.invoice.status;
+                                  }
+                                  return null;
+                                },
+                                items: [
+                                  'Booking',
+                                  'Processed',
+                                  'Issued',
+                                  'Cancel'
+                                ].map((status) {
+                                  return DropdownMenuItem(
+                                    value: status,
+                                    child: Text(status),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      selectedStatus = value;
+                                    });
+                                  }
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Harga di Bayar',
+                                style: GoogleFonts.montserrat(
+                                  color: InvoiceColor.primary.color,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: getPropScreenWidth(14),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              TextFormField(
+                                readOnly: outstandingAmount == 0,
+                                onTap: () {
+                                  if (outstandingAmount == 0) {
+                                    _showFlushbar(
+                                      'Harga sudah lunas.',
+                                      InvoiceColor.info.color,
+                                      Icons.info_outline,
+                                    );
+                                  }
+                                },
+                                keyboardType: TextInputType.number,
+                                controller: _paymentController,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: getPropScreenWidth(11),
+                                  fontWeight: FontWeight.w500,
+                                  color: InvoiceColor.primary.color,
+                                ),
+                                validator: (value) {
+                                  if (outstandingAmount == 0 ||
+                                      value == null ||
+                                      value.isEmpty) {
+                                    return null;
+                                  }
+                                  if (int.tryParse(value) == null) {
+                                    return 'Harga harus berupa angka';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color
+                                          .withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: InvoiceColor.primary.color,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  hintText: 'Tanpa titik (IDR)',
+                                  hintStyle: GoogleFonts.montserrat(
+                                    fontSize: getPropScreenWidth(11),
+                                    fontWeight: FontWeight.w500,
+                                    color: InvoiceColor.primary.color
+                                        .withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton(
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    final invoiceId = widget.invoice.id;
+                                    final amountPaid = int.tryParse(
+                                        _paymentController.text) ??
+                                        0;
+                                    final service = context
+                                        .read<InvoiceService>();
+                                    final uid = context
+                                        .read<FirebaseAuthProvider>()
+                                        .profile!
+                                        .uid;
+                                    final navigator = Navigator.of(context);
 
-              final pdfFile = await PdfInvoiceApi.generate(invoice);
+                                    try {
+                                      await service.updateInvoice(
+                                        uid: uid!,
+                                        invoiceId: invoiceId,
+                                        amountPaid: amountPaid,
+                                        selectedStatus: selectedStatus,
+                                      );
 
-              PdfApi.openFile(pdfFile);
-            },
-            icon: Icon(Icons.download),
-            color: Theme.of(context).colorScheme.primary,
+                                      debugPrint(
+                                          'Berhasil update pembayaran!');
+                                    } on Exception catch (e) {
+                                      debugPrint(e.toString());
+                                    } finally {
+                                      navigator.pop();
+                                    }
+                                  }
+                                },
+                                child: Text('Update Pembayaran'),
+                              )
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Text('Update Payment'),
+              ),
+            ],
           ),
         ],
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(30),
+          padding: EdgeInsets.all(getPropScreenWidth(25)),
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -80,6 +326,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text('Status: ${widget.invoice.status}'),
+                    const SizedBox(height: 4),
                     Text(
                       'INFORMASI PERUSAHAAN',
                       style: titleStyle,
@@ -93,7 +341,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          widget.invoice.proofNumber,
+                          widget.invoice.id,
                           style: valueStyle,
                         ),
                       ],
@@ -104,10 +352,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       children: [
                         Text('Tanggal', style: labelStyle),
                         Text(
-                          widget.invoice.dateCreated != null
-                              ? DateFormat('dd/MM/yyyy')
-                                  .format(widget.invoice.dateCreated!.toDate())
-                              : 'N/A',
+                          DateFormat('dd/MM/yyyy')
+                              .format(widget.invoice.dateCreated!.toDate()),
                           style: valueStyle,
                         ),
                       ],
@@ -189,7 +435,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          widget.invoice.airline.airline,
+                          widget.invoice.airline.airlineName,
                           style: valueStyle,
                         ),
                       ],
@@ -210,7 +456,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Catatan Penerbangan',
+                      'Detail Penerbangan',
                       style: labelStyle,
                     ),
                     const SizedBox(height: 2),
@@ -235,15 +481,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            item.item.itemName,
+                            '${item.item.itemName}   X   ${item.quantity}',
                             style: labelStyle,
                           ),
                           Text(
                             NumberFormat.currency(
                               locale: 'id_ID',
-                              symbol: 'RP ',
+                              symbol: 'RP',
                               decimalDigits: 0,
-                            ).format(item.itemPrice),
+                            ).format(item.itemPrice * item.quantity),
                             style: valueStyle,
                           ),
                         ],
@@ -280,7 +526,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             decimalDigits: 0,
                           ).format(
                             widget.invoice.items.fold<int>(
-                                0, (sum, item) => sum + item.itemPrice),
+                                0,
+                                (sum, item) =>
+                                    sum + (item.itemPrice * item.quantity)),
                           ),
                           style: valueStyle,
                         ),
@@ -306,11 +554,49 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    if (widget.invoice.paymentHistory != null)
+                      ...widget.invoice.paymentHistory!.map((payment) {
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy').format(
+                                    (payment['last_payment_date'] as Timestamp)
+                                        .toDate(),
+                                  ),
+                                  style: valueStyle,
+                                ),
+                                Text(
+                                  NumberFormat.currency(
+                                    decimalDigits: 0,
+                                    symbol: 'RP',
+                                    locale: 'id_ID',
+                                  ).format(payment['last_payment']),
+                                  style: valueStyle,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                          ],
+                        );
+                      }),
+                    const SizedBox(height: 2),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Kekurangan', style: labelStyle),
-                        Text('Rp 0 (Lunas)', style: valueStyle),
+                        Text(
+                          outstandingAmount == 0
+                              ? 'Rp0 (Lunas)'
+                              : NumberFormat.currency(
+                                      locale: 'id_ID',
+                                      symbol: 'RP',
+                                      decimalDigits: 0)
+                                  .format(outstandingAmount),
+                          style: valueStyle,
+                        ),
                       ],
                     ),
                   ],
@@ -326,7 +612,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Payment should be paid to:', style: labelStyle),
-                      ...widget.invoice.banks.map((bank) {
+                      ...widget.invoice.banks.take(2).map((bank) {
                         return Container(
                           margin: EdgeInsets.symmetric(vertical: 1),
                           child: Text(
@@ -359,8 +645,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             });
                           },
                           child: Text(
-                            'View All',
-                            style: GoogleFonts.poppins(
+                            noteViewAll ? 'Show Less' : 'View All',
+                            style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: getPropScreenWidth(12),
                               color: Colors.black,
@@ -370,7 +656,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     Text(
-                      widget.invoice.note.note.toUpperCase().toString(),
+                      widget.invoice.note.content.toUpperCase().toString(),
                       maxLines: noteViewAll ? null : 5,
                       overflow: noteViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
@@ -401,8 +687,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             });
                           },
                           child: Text(
-                            'View All',
-                            style: GoogleFonts.poppins(
+                            termViewAll ? 'Show Less' : 'View All',
+                            style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: getPropScreenWidth(12),
                               color: Colors.black,
@@ -412,7 +698,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     Text(
-                      '1. Harga sewaktu-waktu bisa berubah tanpa pemberitahuan sebelumnya\n2. Apabila terdapat pengurangan seat dalam kurun waktu satu bulan sebelum keberangkatan maka denda yang dibebankan ke agent adalah sama dengan jumlah deposit yang sudah kami bayarkan ke airlines\n 3. Deposit tidak dapat dikembalikan dan diubah ke PNR yang lain\n 4. Bilamana ada pembatalan dan tidak ada pelunasan dalam pemesanan 3 minggu sebelum keberangkatan maka deposit dianggap hilang / hangus'
+                      widget.invoice.note.termPayment
                           .toUpperCase(),
                       maxLines: termViewAll ? null : 5,
                       overflow: termViewAll ? null : TextOverflow.ellipsis,
@@ -426,6 +712,31 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         ),
       ),
     );
+  }
+
+  void viewInvoicePdf() async {
+    final invoice = widget.invoice;
+    final pdfFile = await PdfInvoiceApi.generate(invoice, company);
+    PdfApi.openFile(pdfFile);
+  }
+
+  int calculateOutstandingAmount({
+    required List<InvoiceItem> items,
+    required List<Map<String, dynamic>> paymentHistory,
+  }) {
+    final totalInvoiceAmount = items.fold<int>(
+      0,
+      (sum, item) => sum + (item.itemPrice * item.quantity),
+    );
+
+    final totalPaid = paymentHistory.fold<int>(
+      0,
+      (sum, payment) => sum + (payment['last_payment'] as int),
+    );
+
+    final kekurangan = totalInvoiceAmount - totalPaid;
+
+    return kekurangan < 0 ? 0 : kekurangan; // prevent negative
   }
 
   String formatAccountNumber(int number) {
@@ -442,5 +753,30 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       }
     }
     return buffer.toString();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _paymentController.dispose();
+  }
+
+  void _showFlushbar(String message, Color bgColor, IconData icon) {
+    Flushbar(
+      message: message,
+      messageColor: Theme.of(context).colorScheme.onPrimary,
+      messageSize: 12,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(20),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: bgColor,
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      icon: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    ).show(context);
   }
 }

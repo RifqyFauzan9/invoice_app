@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'package:my_invoice_app/services/firebase_auth_service.dart';
 import 'package:my_invoice_app/static/firebase_auth_status.dart';
 
 import '../model/common/profile.dart';
+import '../services/app_service/firebase_auth_service.dart';
 
 class FirebaseAuthProvider extends ChangeNotifier {
   final FirebaseAuthService _service;
@@ -76,6 +76,14 @@ class FirebaseAuthProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void reset() {
+    _profile = null;
+    _authStatus = FirebaseAuthStatus.unauthenticated;
+    _message = null;
+    notifyListeners();
+  }
+
 
   Future updateProfile(BuildContext context) async {
     final user = await _service.userChanges();

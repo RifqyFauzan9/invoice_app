@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/bank.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/bank_service.dart';
+import 'package:my_invoice_app/static/form_mode.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../provider/firebase_auth_provider.dart';
+import '../../../../static/size_config.dart';
 
 class DataBankScreen extends StatelessWidget {
   const DataBankScreen({super.key});
@@ -13,9 +18,9 @@ class DataBankScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
+        padding: EdgeInsets.symmetric(
+          horizontal: getPropScreenWidth(25),
+          vertical: getPropScreenWidth(60),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,30 +59,35 @@ class DataBankScreen extends StatelessWidget {
                     Navigator.pushNamed(
                       context,
                       ScreenRoute.bankForm.route,
+                      arguments: {
+                        'mode': FormMode.add,
+                        'oldBank': null,
+                      },
                     );
                   },
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            SearchBar(
-              backgroundColor: WidgetStatePropertyAll(Colors.white),
-              elevation: WidgetStatePropertyAll(0),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              leading: Icon(Icons.search, size: 32, color: Colors.grey),
-              hintText: 'Search...',
-              padding: WidgetStatePropertyAll(
-                const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
+            const SizedBox(height: 16),
+            // SearchBar(
+            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
+            //   elevation: WidgetStatePropertyAll(0),
+            //   shape: WidgetStatePropertyAll(
+            //     RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(16),
+            //     ),
+            //   ),
+            //   textCapitalization: TextCapitalization.sentences,
+            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
+            //   hintText: 'Search...',
+            //   padding: WidgetStatePropertyAll(
+            //     const EdgeInsets.symmetric(horizontal: 16),
+            //   ),
+            // ),
             Expanded(
               child: StreamProvider<List<Bank>>(
-                create: (context) =>
-                    context.read<FirebaseFirestoreService>().getBank(),
+                create: (context) => context.read<BankService>().getBank(
+                    context.read<FirebaseAuthProvider>().profile!.uid!),
                 initialData: const <Bank>[],
                 catchError: (context, error) {
                   debugPrint('Error: $error');
@@ -94,46 +104,107 @@ class DataBankScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             final bank = banks[index];
                             return CustomCard(
-                              imageLeading: 'assets/images/bank_icon.png',
-                              title: bank.bankName,
-                              content: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    bank.accountNumber.toString(),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[800],
+                                imageLeading: 'assets/images/bank_icon.png',
+                                title: bank.bankName,
+                                content: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      bank.accountNumber.toString(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[800],
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    bank.branch,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[600],
+                                    Text(
+                                      bank.branch,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.grey[600],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                  Text(
-                                    bank.accountHolder,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.grey[600],
+                                    Text(
+                                      bank.accountHolder,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[600],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              trailing: IconButton(
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.more_vert,
+                                  ],
                                 ),
-                              ),
-                            );
+                                trailing: PopupMenuButton(
+                                  iconColor: InvoiceColor.primary.color,
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          ScreenRoute.bankForm.route,
+                                          arguments: {
+                                            'mode': FormMode.edit,
+                                            'oldBank': bank,
+                                          },
+                                        );
+                                      },
+                                      child: Text('Edit Data'),
+                                    ),
+                                    PopupMenuItem(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text(
+                                                'Hapus bank ${bank.bankName}?',
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        getPropScreenWidth(18)),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<BankService>()
+                                                        .deleteBank(
+                                                            uid: context
+                                                                .read<
+                                                                    FirebaseAuthProvider>()
+                                                                .profile!
+                                                                .uid!,
+                                                            bankId:
+                                                                bank.bankId);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text(
+                                                    'Hapus',
+                                                    style: TextStyle(
+                                                      color: InvoiceColor
+                                                          .error.color,
+                                                    ),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(context),
+                                                  child: Text('Tidak'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      child: Text('Hapus Data'),
+                                    ),
+                                  ],
+                                ));
                           },
                         );
                 },

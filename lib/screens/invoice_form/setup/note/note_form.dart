@@ -1,21 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:my_invoice_app/model/setup/note.dart';
+import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/note_service.dart';
+import 'package:my_invoice_app/static/form_mode.dart';
+import 'package:my_invoice_app/static/size_config.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../services/firebase_firestore_service.dart';
+import '../../../../provider/firebase_auth_provider.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 
 class NoteForm extends StatefulWidget {
-  const NoteForm({super.key});
+  const NoteForm({
+    super.key,
+    required this.mode,
+    this.oldNote,
+  });
+
+  final FormMode mode;
+  final Note? oldNote;
 
   @override
   State<NoteForm> createState() => _NoteFormState();
 }
 
 class _NoteFormState extends State<NoteForm> {
+  @override
+  void initState() {
+    if (widget.mode == FormMode.edit && widget.oldNote != null) {
+      _noteController.text = widget.oldNote!.content;
+      _termController.text = widget.oldNote!.termPayment;
+    }
+    super.initState();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _noteController = TextEditingController();
+  final _termController = TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +61,12 @@ class _NoteFormState extends State<NoteForm> {
     );
 
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
-        ),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: getPropScreenWidth(25),
+            vertical: getPropScreenWidth(60),
+          ),
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -57,7 +82,7 @@ class _NoteFormState extends State<NoteForm> {
                     ),
                     CustomIconButton(
                       icon: Icons.sync,
-                      onPressed: () {},
+                      onPressed: () => _resetForm(),
                     ),
                   ],
                 ),
@@ -77,21 +102,48 @@ class _NoteFormState extends State<NoteForm> {
                       Text('Masukkan Note', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        textCapitalization: TextCapitalization.sentences,
+                        minLines: 1,
+                        maxLines: 5,
                         controller: _noteController,
                         decoration: InputDecoration(
                           hintText: 'Masukkan Note',
                           hintStyle: hintTextStyle,
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      FilledButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _saveNote();
-                          }
-                        },
-                        child: const Text('Submit'),
+                      const SizedBox(height: 12),
+                      Text('Masukkan Term Payment', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        textCapitalization: TextCapitalization.sentences,
+                        minLines: 1,
+                        maxLines: 5,
+                        controller: _termController,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Term Payment',
+                          hintStyle: hintTextStyle,
+                        ),
                       ),
+                      SizedBox(height: 24),
+                      isLoading
+                          ? Center(
+                              child: LoadingAnimationWidget.fourRotatingDots(
+                                color: InvoiceColor.primary.color,
+                                size: getPropScreenWidth(30),
+                              ),
+                            )
+                          : FilledButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  _saveNote();
+                                }
+                              },
+                              child: const Text('Submit'),
+                            ),
                     ],
                   ),
                 )
@@ -104,23 +156,55 @@ class _NoteFormState extends State<NoteForm> {
   }
 
   void _saveNote() async {
-    final service = context.read<FirebaseFirestoreService>();
+    final service = context.read<NoteService>();
+    final firestoreService = context.read<FirebaseFirestoreService>();
     final note = _noteController.text;
+    final termPayment = _termController.text;
     final navigator = Navigator.of(context);
+    final noteId = widget.mode == FormMode.edit && widget.oldNote != null
+        ? widget.oldNote!.type
+        : await firestoreService.generateAutoIncrementType(
+            uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+            docType: 'notes',
+            prefix: 'Type',
+            padding: 0,
+            returnType: AutoIncrementReturnType.formattedString,
+          );
+
+    setState(() {
+      isLoading = true;
+    });
 
     try {
-      await service.saveNote(content: note);
+      await service.saveNote(
+        noteId: noteId,
+        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        content: note,
+        termPayment: termPayment,
+      );
       debugPrint('data note berhasil disimpan!');
       navigator.pop();
     } catch (e) {
       debugPrint('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
+    _noteController.clear();
+  }
+
+  void _resetForm() {
+    _formKey.currentState?.reset();
     _noteController.clear();
   }
 
   @override
   void dispose() {
     _noteController.dispose();
+    _termController.dispose();
     super.dispose();
   }
 }

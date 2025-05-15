@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:provider/provider.dart';
 
 import '../../../provider/firebase_auth_provider.dart';
@@ -62,7 +63,7 @@ class _SignUpFormState extends State<SignUpForm> {
             duration: const Duration(seconds: 3),
             margin: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(10),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: InvoiceColor.error.color,
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
             icon: Icon(
@@ -80,7 +81,7 @@ class _SignUpFormState extends State<SignUpForm> {
         duration: const Duration(seconds: 3),
         margin: const EdgeInsets.all(20),
         borderRadius: BorderRadius.circular(10),
-        backgroundColor: Theme.of(context).colorScheme.error,
+        backgroundColor: InvoiceColor.error.color,
         flushbarPosition: FlushbarPosition.TOP,
         flushbarStyle: FlushbarStyle.FLOATING,
         icon: Icon(

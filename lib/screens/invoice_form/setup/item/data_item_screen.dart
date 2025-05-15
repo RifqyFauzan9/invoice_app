@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/item.dart';
-import 'package:my_invoice_app/services/firebase_firestore_service.dart';
+import 'package:my_invoice_app/services/item_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../provider/firebase_auth_provider.dart';
+import '../../../../static/form_mode.dart';
+import '../../../../static/size_config.dart';
+import '../../../../style/colors/invoice_color.dart';
 import '../../../../widgets/main_widgets/custom_icon_button.dart';
 import '../../../../widgets/main_widgets/custom_card.dart';
 
@@ -14,9 +18,9 @@ class DataItemScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
+        padding: EdgeInsets.symmetric(
+          horizontal: getPropScreenWidth(25),
+          vertical: getPropScreenWidth(60),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -52,33 +56,36 @@ class DataItemScreen extends StatelessWidget {
                 CustomIconButton(
                   icon: Icons.add,
                   onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      ScreenRoute.itemForm.route,
-                    );
+                    Navigator.pushNamed(context, ScreenRoute.itemForm.route,
+                        arguments: {
+                          'mode': FormMode.add,
+                          'oldItem': null,
+                        });
                   },
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            SearchBar(
-              backgroundColor: WidgetStatePropertyAll(Colors.white),
-              elevation: WidgetStatePropertyAll(0),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              leading: Icon(Icons.search, size: 32, color: Colors.grey),
-              hintText: 'Search...',
-              padding: WidgetStatePropertyAll(
-                const EdgeInsets.symmetric(horizontal: 16),
-              ),
-            ),
+            const SizedBox(height: 16),
+            // SearchBar(
+            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
+            //   elevation: WidgetStatePropertyAll(0),
+            //   textCapitalization: TextCapitalization.sentences,
+            //   shape: WidgetStatePropertyAll(
+            //     RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(16),
+            //     ),
+            //   ),
+            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
+            //   hintText: 'Search...',
+            //   padding: WidgetStatePropertyAll(
+            //     const EdgeInsets.symmetric(horizontal: 16),
+            //   ),
+            // ),
             Expanded(
                 child: StreamProvider<List<Item>>(
-              create: (context) =>
-                  context.read<FirebaseFirestoreService>().getItem(),
+              create: (context) => context
+                  .read<ItemService>()
+                  .getItem(context.read<FirebaseAuthProvider>().profile!.uid!),
               initialData: const <Item>[],
               catchError: (context, error) {
                 debugPrint('Error: $error');
@@ -95,17 +102,74 @@ class DataItemScreen extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final item = items[index];
                           return CustomCard(
-                            imageLeading: 'assets/images/item_icon.png',
-                            title: item.itemName,
-                            content: Text(item.itemCode),
-                            trailing: IconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.more_vert,
-                                size: 32,
-                              ),
-                            ),
-                          );
+                              imageLeading: 'assets/images/item_icon.png',
+                              title: item.itemName,
+                              content: Text(item.itemCode),
+                              trailing: PopupMenuButton(
+                                iconColor: InvoiceColor.primary.color,
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, ScreenRoute.itemForm.route,
+                                          arguments: {
+                                            'mode': FormMode.edit,
+                                            'oldItem': item,
+                                          });
+                                    },
+                                    child: Text('Edit Data'),
+                                  ),
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text(
+                                              'Hapus ${item.itemName}?',
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize:
+                                                    getPropScreenWidth(18),
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  context
+                                                      .read<ItemService>()
+                                                      .deleteItem(
+                                                        uid: context
+                                                            .read<
+                                                                FirebaseAuthProvider>()
+                                                            .profile!
+                                                            .uid!,
+                                                        itemId: item.itemId,
+                                                      );
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text(
+                                                  'Hapus',
+                                                  style: TextStyle(
+                                                    color: InvoiceColor
+                                                        .error.color,
+                                                  ),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text('Tidak'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text('Hapus Data'),
+                                  ),
+                                ],
+                              ));
                         },
                       );
               },

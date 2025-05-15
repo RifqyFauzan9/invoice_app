@@ -21,24 +21,29 @@ class SignUpScreen extends StatelessWidget {
                   Positioned(
                     left: 0,
                     right: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
-                      child: SvgPicture.asset('assets/svgs/sign_up.svg'),
+                    child: Positioned(
+                      top: SizeConfig.screenHeight * 0.02,
+                      left: 0,
+                      right: 0,
+                      child: SvgPicture.asset(
+                        'assets/svgs/sign_up.svg',
+                        width: SizeConfig.screenWidth * 0.9,
+                      ),
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     child: Container(
                       constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.65,
+                        maxHeight: SizeConfig.screenHeight * 0.65,
                       ),
-                      width: MediaQuery.of(context).size.width,
+                      width: SizeConfig.screenWidth,
                       padding: EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 50,
+                        horizontal: getPropScreenWidth(25),
+                        vertical: getPropScreenWidth(60),
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: Colors.white,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20),

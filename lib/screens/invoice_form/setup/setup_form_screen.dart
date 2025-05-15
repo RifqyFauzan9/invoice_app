@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
+import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
 
@@ -54,8 +55,8 @@ class SetupFormScreen extends StatelessWidget {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: 30,
-          vertical: 60,
+          horizontal: getPropScreenWidth(25),
+          vertical: getPropScreenWidth(60),
         ),
         child: SizedBox(
           width: double.infinity,
@@ -66,7 +67,7 @@ class SetupFormScreen extends StatelessWidget {
                 icon: Icons.arrow_back,
                 onPressed: () => Navigator.pop(context),
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+              SizedBox(height: SizeConfig.screenHeight * 0.04),
               Expanded(
                 child: ListView(
                   children: formCardList.map((card) {

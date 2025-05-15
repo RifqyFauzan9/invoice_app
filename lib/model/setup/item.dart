@@ -1,3 +1,4 @@
+
 class InvoiceItem {
   final Item item;
   final int quantity;
@@ -23,15 +24,18 @@ class InvoiceItem {
 }
 
 class Item {
+  final String itemId;
   final String itemName;
   final String itemCode;
 
   Item({
+    required this.itemId,
     required this.itemName,
     required this.itemCode,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
+    itemId: json["itemId"],
     itemName: json["itemName"],
     itemCode: json["itemCode"],
   );
@@ -39,5 +43,6 @@ class Item {
   Map<String, dynamic> toJson() => {
     "itemName": itemName,
     "itemCode": itemCode,
+    'itemId': itemId,
   };
 }

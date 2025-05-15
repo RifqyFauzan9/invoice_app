@@ -20,21 +20,21 @@ class SplashContent extends StatelessWidget {
           image,
           width: getPropScreenWidth(280),
         ),
-        SizedBox(height: getPropScreenWidth(48)),
+        SizedBox(height: SizeConfig.screenHeight * 0.05),
         Text(
           title,
           style: TextStyle(
-            fontSize: 28,
+            fontSize: getPropScreenWidth(26),
             fontWeight: FontWeight.bold,
             letterSpacing: 0,
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: getPropScreenWidth(10)),
+        SizedBox(height: SizeConfig.screenHeight * 0.01),
         Text(
           subtitle,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: getPropScreenWidth(15),
             fontWeight: FontWeight.w500,
             letterSpacing: 0,
           ),

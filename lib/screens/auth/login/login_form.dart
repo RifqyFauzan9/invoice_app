@@ -1,10 +1,13 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:my_invoice_app/provider/company_provider.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/provider/shared_preferences_provider.dart';
+import 'package:my_invoice_app/services/company_service.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
+import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:provider/provider.dart';
 
 import '../../../static/firebase_auth_status.dart';
@@ -27,6 +30,8 @@ class _LoginFormState extends State<LoginForm> {
   void _tapToLogin() async {
     final email = _emailController.text;
     final password = _passwordController.text;
+    final companyProvider = context.read<CompanyProvider>();
+    final companyService = context.read<CompanyService>();
 
     if (email.isNotEmpty && password.isNotEmpty) {
       final sharedPreferenceProvider =
@@ -38,7 +43,17 @@ class _LoginFormState extends State<LoginForm> {
       switch (firebaseAuthProvider.authStatus) {
         case FirebaseAuthStatus.authenticated:
           await sharedPreferenceProvider.login();
-          navigator.pushReplacementNamed(ScreenRoute.logSuccess.route);
+          final company = await companyService.getCompanyData(
+              context.read<FirebaseAuthProvider>().profile!.uid!);
+          if (company != null) {
+            companyProvider.setCompany(company);
+          } else {
+            debugPrint('Company data null!');
+          }
+          navigator.pushReplacementNamed(
+            ScreenRoute.logSuccess.route,
+            arguments: context.read<FirebaseAuthProvider>().profile!.uid,
+          );
 
         case _:
           Flushbar(
@@ -48,7 +63,7 @@ class _LoginFormState extends State<LoginForm> {
             duration: const Duration(seconds: 3),
             margin: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(10),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            backgroundColor: InvoiceColor.error.color,
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.FLOATING,
             icon: Icon(
@@ -67,7 +82,7 @@ class _LoginFormState extends State<LoginForm> {
         duration: const Duration(seconds: 3),
         margin: const EdgeInsets.all(20),
         borderRadius: BorderRadius.circular(10),
-        backgroundColor: Theme.of(context).colorScheme.error,
+        backgroundColor: InvoiceColor.error.color,
         flushbarPosition: FlushbarPosition.TOP,
         flushbarStyle: FlushbarStyle.FLOATING,
         icon: Icon(
@@ -107,7 +122,9 @@ class _LoginFormState extends State<LoginForm> {
               return null;
             },
           ),
-          SizedBox(height: getPropScreenWidth(16),),
+          SizedBox(
+            height: getPropScreenWidth(16),
+          ),
           TextFormField(
             controller: _passwordController,
             textInputAction: TextInputAction.done,
@@ -122,9 +139,7 @@ class _LoginFormState extends State<LoginForm> {
                   });
                 },
                 icon: Icon(
-                  isObsecure
-                      ? Icons.visibility
-                      : Icons.visibility_off,
+                  isObsecure ? Icons.visibility : Icons.visibility_off,
                 ),
               ),
             ),
@@ -177,17 +192,17 @@ class _LoginFormState extends State<LoginForm> {
                 FirebaseAuthStatus.authenticating => Center(
                     child: LoadingAnimationWidget.fourRotatingDots(
                       color: Theme.of(context).colorScheme.primary,
-                      size: 32,
+                      size: getPropScreenWidth(30),
                     ),
                   ),
                 _ => FilledButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _tapToLogin();
-                    }
-                  },
-                  child: const Text('Sign In'),
-                ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _tapToLogin();
+                      }
+                    },
+                    child: const Text('Sign In'),
+                  ),
               };
             },
           ),
