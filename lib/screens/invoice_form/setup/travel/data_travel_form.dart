@@ -208,9 +208,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                             )
                           : FilledButton(
                               onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  _saveTravel();
-                                }
+                                _saveTravel();
                               },
                               child: const Text('Submit'),
                             ),
@@ -230,13 +228,15 @@ class _DataTravelFormState extends State<DataTravelForm> {
     final travelName = _nameController.text;
     final contactPerson = _contactPersonController.text;
     final address = _addressController.text;
-    final phone = int.tryParse(_phoneController.text);
+    final phone = _phoneController.text;
     final email = _emailController.text;
     final navigator = Navigator.of(context);
     final travelId = widget.oldTravel != null && widget.mode == FormMode.edit
         ? widget.oldTravel!['travelId']
         : await service.generateTravelIdFromFirestore(
             context.read<FirebaseAuthProvider>().profile!.uid!);
+
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       isLoading = true;
@@ -249,7 +249,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
         travelName: travelName,
         contactPerson: contactPerson,
         travelAddress: address,
-        phoneNumber: phone ?? 08,
+        phoneNumber: phone,
         emailAddress: email,
       );
       debugPrint('data travel berhasil disimpan!');

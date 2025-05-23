@@ -100,30 +100,32 @@ class StatusInvoiceScreen extends StatelessWidget {
 
   Widget actualInvoiceList(List<Invoice> invoices) {
     if (invoices.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: SizeConfig.screenHeight * 0.2),
-          SvgPicture.asset(
-            'assets/svgs/empty_invoice.svg',
-            width: SizeConfig.screenWidth * 0.55,
-          ),
-          SizedBox(height: getPropScreenWidth(10)),
-          Text(
-            'No Invoice',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: getPropScreenWidth(20),
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: SizeConfig.screenHeight * 0.2),
+            SvgPicture.asset(
+              'assets/svgs/empty_invoice.svg',
+              width: SizeConfig.screenWidth * 0.55,
             ),
-          ),
-          Text(
-            'You don\'t have any ${status.toLowerCase()} invoice yet.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
+            SizedBox(height: getPropScreenWidth(10)),
+            Text(
+              'No Invoice',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: getPropScreenWidth(20),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            Text(
+              'You don\'t have any ${status.toLowerCase()} invoice yet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       );
     }
 

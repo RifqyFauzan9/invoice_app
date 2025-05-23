@@ -7,7 +7,6 @@ enum ScreenRoute {
   main('main'),
   invoiceScreen('invoiceScreen'),
   listInvoice('listInvoice'),
-  invoiceForm('invoiceForm'),
   profile('profile'),
   chooseForm('chooseForm'),
   setup('setup'),
@@ -25,7 +24,8 @@ enum ScreenRoute {
   noteForm('noteForm'),
   report('report'),
   profileForm('profileForm'),
-  statusScreen('statusScreen');
+  statusScreen('statusScreen'),
+  updateInvoice('updateInvoice');
 
   final String route;
   const ScreenRoute(this.route);

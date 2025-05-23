@@ -35,7 +35,7 @@ class TravelService {
     required String travelName,
     required String contactPerson,
     required String travelAddress,
-    required int phoneNumber,
+    required String phoneNumber,
     required String emailAddress,
   }) async {
     final travelRefs = _firebaseFirestore

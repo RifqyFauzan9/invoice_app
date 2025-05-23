@@ -72,7 +72,7 @@ class _RealSplashScreenState extends State<RealSplashScreen> {
               ),
             ),
             Text(
-              'Bantu hari harimu lebih mudah!',
+              'Make Your Business To Easier!',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 color: Color(0xFFB0D0E3),

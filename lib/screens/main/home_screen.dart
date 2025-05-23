@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Invoice>>(
-      stream: context.read<InvoiceService>().getInvoice(widget.uid!),
+      stream: context.read<InvoiceService>().getAllInvoices(widget.uid!),
       initialData: const <Invoice>[],
       builder: (context, snapshot) {
         final invoices = snapshot.data ?? [];
@@ -363,9 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
         int getTotalInvoice(String period) {
           final now = DateTime.now();
           final filtered = invoices.where((invoice) {
-            final date = invoice.dateCreated?.toDate();
-            if (date == null) return false;
-
+            final date = invoice.dateCreated.toDate();
             if (period == 'Bulan Ini') {
               return date.month == now.month && date.year == now.year;
             } else if (period == 'Bulan Lalu') {

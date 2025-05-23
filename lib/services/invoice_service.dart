@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:my_invoice_app/model/setup/item.dart';
 
+import '../model/setup/airline.dart';
 import '../model/transaction/invoice.dart';
 
 class InvoiceService {
@@ -10,6 +12,7 @@ class InvoiceService {
     FirebaseFirestore? firebaseFirestore,
   ) : _firebaseFirestore = firebaseFirestore ??= FirebaseFirestore.instance;
 
+  // Report Function
   Stream<List<Invoice>> getFilteredInvoices({
     required String uid,
     String? status,
@@ -17,12 +20,13 @@ class InvoiceService {
     String? airline,
     String? item,
     String? searchQuery,
+    DateTime? departure,
   }) {
     Query query = _firebaseFirestore
         .collection('invoices')
         .doc(uid)
         .collection('invoices')
-        .orderBy('dateCreated', descending: true);
+        .orderBy('invoiceNumber', descending: false);
 
     if (status != null && status != 'All Status') {
       query = query.where('status', isEqualTo: status);
@@ -34,6 +38,13 @@ class InvoiceService {
               isGreaterThanOrEqualTo: Timestamp.fromDate(period.start))
           .where('dateCreated',
               isLessThanOrEqualTo: Timestamp.fromDate(period.end));
+    }
+
+    if (departure != null) {
+      query = query.where(
+        'departure',
+        isEqualTo: Timestamp.fromDate(departure),
+      );
     }
 
     if (airline != null && airline != 'All Maskapai') {
@@ -67,12 +78,12 @@ class InvoiceService {
     });
   }
 
-  Stream<List<Invoice>> getInvoiceByStatus(String status, String? uid) {
+  Stream<List<Invoice>> getInvoiceByStatus(String status, String uid) {
     return _firebaseFirestore
         .collection('invoices')
         .doc(uid)
         .collection('invoices')
-        .orderBy('dateCreated', descending: true)
+        .orderBy('invoiceNumber', descending: true)
         .where('status', isEqualTo: status)
         .snapshots()
         .map((event) {
@@ -106,11 +117,12 @@ class InvoiceService {
         .set(invoice.toJson());
   }
 
-  Future<void> updateInvoice({
+  Future<void> updateInvoicePayment({
     required String uid,
     required String invoiceId,
     required selectedStatus,
     required int amountPaid,
+    required Timestamp paidDate,
   }) async {
     final invoiceRef = _firebaseFirestore
         .collection('invoices')
@@ -121,7 +133,7 @@ class InvoiceService {
     if (amountPaid > 0) {
       final paymentEntry = {
         'last_payment': amountPaid,
-        'last_payment_date': Timestamp.now(),
+        'last_payment_date': paidDate,
       };
 
       await invoiceRef.update({
@@ -133,12 +145,12 @@ class InvoiceService {
     }
   }
 
-  Stream<List<Invoice>> getInvoice(String uid) {
+  Stream<List<Invoice>> getAllInvoices(String uid) {
     return _firebaseFirestore
         .collection('invoices')
         .doc(uid)
         .collection('invoices')
-        .orderBy('dateCreated', descending: true)
+        .orderBy('invoiceNumber', descending: true)
         .snapshots()
         .map((event) {
       return event.docs.map(
@@ -148,5 +160,31 @@ class InvoiceService {
         },
       ).toList();
     });
+  }
+
+  Future<void> updateInvoice({
+    required String uid,
+    required String invoiceId,
+    required String pnrCode,
+    required Airline airline,
+    required String program,
+    required String flightNotes,
+    required List<InvoiceItem> items,
+  }) async {
+    final invoiceRef = _firebaseFirestore
+        .collection('invoices')
+        .doc(uid)
+        .collection('invoices')
+        .doc(invoiceId);
+
+    final data = {
+      'pnrCode': pnrCode,
+      'airline': airline.toJson(),
+      'program': program,
+      'flightNotes': flightNotes,
+      'items': items.map((item) => item.toJson()).toList(),
+    };
+
+    await invoiceRef.update(data);
   }
 }

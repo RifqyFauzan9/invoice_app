@@ -29,8 +29,6 @@ class ProfileFormScreen extends StatefulWidget {
 }
 
 class _ProfileFormState extends State<ProfileFormScreen> {
-  File? imageFile;
-  String? base64String;
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final _travelNameController = TextEditingController();
@@ -40,6 +38,11 @@ class _ProfileFormState extends State<ProfileFormScreen> {
   final _phoneNumberController = TextEditingController();
   final _picController = TextEditingController();
   Uint8List? _companyLogoBytes;
+  Uint8List? _companySignatureBytes;
+  File? companyLogoFile;
+  File? companySignatureFile;
+  String? logoBase64String;
+  String? signatureBase64String;
 
   @override
   void initState() {
@@ -58,12 +61,20 @@ class _ProfileFormState extends State<ProfileFormScreen> {
       _phoneNumberController.text = company.companyPhone.toString();
       _picController.text = company.companyPic;
 
-      base64String = company.companyLogo;
-      if (base64String != null) {
+      logoBase64String = company.companyLogo;
+      signatureBase64String = company.companySignature;
+      if (logoBase64String != null) {
         try {
-          _companyLogoBytes = base64Decode(base64String!);
+          _companyLogoBytes = base64Decode(logoBase64String!);
         } catch (e) {
           debugPrint('Failed to decode logo: $e');
+        }
+      }
+      if (signatureBase64String != null) {
+        try {
+          _companySignatureBytes = base64Decode(signatureBase64String!);
+        } on Exception catch (e) {
+          debugPrint('Failed to decode signature: $e');
         }
       }
     }
@@ -112,32 +123,32 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                       Card(
                         color: Colors.white,
                         child: Container(
-                          height: SizeConfig.screenHeight * 0.1,
-                          width: SizeConfig.screenWidth * 0.65,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            image:
-                                imageFile != null || _companyLogoBytes != null
-                                    ? DecorationImage(
-                                        image: imageFile != null
-                                            ? FileImage(imageFile!)
-                                            : MemoryImage(_companyLogoBytes!),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.all(getPropScreenWidth(8)),
+                            height: SizeConfig.screenHeight * 0.1,
+                            width: SizeConfig.screenWidth * 0.65,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: companyLogoFile != null
+                                ? Image.file(
+                                    companyLogoFile!,
+                                    fit: BoxFit.contain,
+                                  )
+                                : _companyLogoBytes != null
+                                    ? Image.memory(
+                                        _companyLogoBytes!,
+                                        fit: BoxFit.contain,
                                       )
-                                    : null,
-                          ),
-                          child: imageFile == null && _companyLogoBytes == null
-                              ? Center(
-                                  child: Text(
-                                    'Landscape Logo',
-                                    style: GoogleFonts.montserrat(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: getPropScreenWidth(18),
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                        ),
+                                    : Text(
+                                        'Choose image',
+                                        style: GoogleFonts.montserrat(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: getPropScreenWidth(15),
+                                          color: InvoiceColor.primary.color
+                                              .withOpacity(0.5),
+                                        ),
+                                      )),
                       ),
                       Positioned(
                         right: -5,
@@ -155,11 +166,11 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                               builder: (context) {
                                 return AlertDialog(
                                   content: Text(
-                                      'For better appearance, use a landscape logo with background removed'),
+                                      'For better appearance, choose a photo without a background with a size of less than 1mb'),
                                 );
                               },
                             );
-                            _chooseImage();
+                            _chooseCompanyLogo();
                           },
                           icon: Icon(Icons.edit_outlined),
                           color: Theme.of(context).colorScheme.onPrimary,
@@ -186,6 +197,65 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                       _buildPhoneNumberField(_phoneNumberController),
                       const SizedBox(height: 8),
                       _buildPicField(_picController),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tanda Tangan Digital',
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      GestureDetector(
+                        onTap: () async {
+                          await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text(
+                                  'For better appearance, choose a photo without a background with a size of less than 1mb',
+                                ),
+                              );
+                            },
+                          );
+                          _chooseDigitalSignature();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(getPropScreenWidth(8)),
+                          height: SizeConfig.screenHeight * 0.1,
+                          width: SizeConfig.screenWidth,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 2,
+                              color:
+                                  InvoiceColor.primary.color.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: companySignatureFile != null
+                              ? Image.file(
+                                  companySignatureFile!,
+                                  fit: BoxFit.contain,
+                                )
+                              : _companySignatureBytes != null
+                                  ? Image.memory(
+                                      _companySignatureBytes!,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Text(
+                                      'Tap to choose image',
+                                      style: GoogleFonts.montserrat(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16,
+                                        color: InvoiceColor.primary.color
+                                            .withOpacity(0.3),
+                                      ),
+                                    ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       isLoading
                           ? Center(
@@ -231,15 +301,19 @@ class _ProfileFormState extends State<ProfileFormScreen> {
 
       try {
         final newCompany = Company(
-          base64String ??
+          logoBase64String ??
               (_companyLogoBytes != null
                   ? base64Encode(_companyLogoBytes!)
+                  : null),
+          signatureBase64String ??
+              (_companySignatureBytes != null
+                  ? base64Encode(_companySignatureBytes!)
                   : null),
           companyName: _travelNameController.text,
           companyAddress: _addressController.text,
           companyEmail: _emailController.text,
           companyWebsite: _websiteController.text,
-          companyPhone: int.tryParse(_phoneNumberController.text) ?? 0,
+          companyPhone: _phoneNumberController.text,
           companyPic: _picController.text,
         );
 
@@ -249,7 +323,7 @@ class _ProfileFormState extends State<ProfileFormScreen> {
         );
         context.read<CompanyProvider>().setCompany(newCompany);
         debugPrint('Data company berhasil disimpan!');
-        navigator.pop(newCompany);
+        navigator.pop();
       } catch (e) {
         debugPrint('Error saving company data: $e');
       } finally {
@@ -314,8 +388,10 @@ class _ProfileFormState extends State<ProfileFormScreen> {
         const SizedBox(height: 4),
         TextFormField(
           textCapitalization: TextCapitalization.sentences,
-          keyboardType: TextInputType.streetAddress,
-          textInputAction: TextInputAction.next,
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.newline,
+          minLines: 1,
+          maxLines: 2,
           controller: controller,
           decoration: InputDecoration(
             hintText: 'Masukkan alamat travel',
@@ -479,19 +555,34 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     );
   }
 
-  void _chooseImage() async {
+  void _chooseDigitalSignature() async {
     final getImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
     if (getImage != null) {
       setState(() {
-        imageFile = File(getImage.path);
+        companySignatureFile = File(getImage.path);
+      });
+      List<int> imageBytes = File(getImage.path).readAsBytesSync();
+      signatureBase64String = base64Encode(imageBytes);
+    } else {
+      debugPrint('digital signature null!');
+    }
+  }
+
+  void _chooseCompanyLogo() async {
+    final getImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    if (getImage != null) {
+      setState(() {
+        companyLogoFile = File(getImage.path);
       });
 
       List<int> imageBytes = File(getImage.path).readAsBytesSync();
-      base64String = base64Encode(imageBytes);
+      logoBase64String = base64Encode(imageBytes);
     } else {
-      debugPrint('getImage null!');
+      debugPrint('company logo null!');
     }
   }
 }

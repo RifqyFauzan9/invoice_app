@@ -34,8 +34,10 @@ class _ReportScreenState extends State<ReportScreen> {
   final _fromDateController = TextEditingController();
   final _toDateController = TextEditingController();
   final _searchController = TextEditingController();
+  final _departureController = TextEditingController();
   DateTime? _fromDate;
   DateTime? _toDate;
+  DateTime? _departure;
   Stream<List<Invoice>>? filteredInvoices;
   List<Invoice>? invoices;
 
@@ -86,6 +88,10 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   void dispose() {
+    _fromDateController.dispose();
+    _toDateController.dispose();
+    _searchController.dispose();
+    _departureController.dispose();
     verticalScroll.dispose();
     verticalScrollForNo.dispose();
     horizontalScroll.dispose();
@@ -111,7 +117,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
     sheet.setColumnWidth(0, 20);
     sheet.setColumnWidth(1, 20);
-    sheet.setColumnWidth(2, 22);
+    sheet.setColumnWidth(2, 30);
     sheet.setColumnWidth(3, 15);
     sheet.setColumnWidth(4, 15);
     sheet.setColumnWidth(5, 17);
@@ -135,7 +141,7 @@ class _ReportScreenState extends State<ReportScreen> {
           .cell(exc.CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i + 1))
           .value = exc.TextCellValue(DateFormat(
               'dd/MM/yyyy H:mm')
-          .format(invoice.dateCreated!.toDate()));
+          .format(invoice.dateCreated.toDate()));
       sheet
           .cell(exc.CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: i + 1))
           .value = exc.TextCellValue(invoice.travel.travelName.toUpperCase());
@@ -167,7 +173,7 @@ class _ReportScreenState extends State<ReportScreen> {
     // Simpan file
     final fileBytes = excel.save();
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = path.join(directory.path, 'output_file.xlsx');
+    final filePath = path.join(directory.path, 'Sales_Invoice.xlsx');
 
     File(filePath)
       ..createSync(recursive: true)
@@ -199,14 +205,15 @@ class _ReportScreenState extends State<ReportScreen> {
         period: getSelectedPeriod(),
         item: selectedItem,
         searchQuery: searchQuery,
+        departure: _departure,
       );
     });
   }
 
   List<String> statusItems = [
     'All Status',
-    'booking',
-    'Processed',
+    'Booking',
+    'Lunas',
     'Cancel',
     'Issued',
   ];
@@ -387,8 +394,9 @@ class _ReportScreenState extends State<ReportScreen> {
                                   onTap: () async {
                                     final pickedDate = await showDatePicker(
                                       context: context,
+                                      initialDate: DateTime.now(),
                                       firstDate: DateTime(2020),
-                                      lastDate: DateTime(2030),
+                                      lastDate: DateTime(2050),
                                     );
                                     if (pickedDate != null) {
                                       _fromDateController.text =
@@ -408,7 +416,8 @@ class _ReportScreenState extends State<ReportScreen> {
                                   onTap: () async {
                                     final pickedDate = await showDatePicker(
                                       context: context,
-                                      firstDate: DateTime.now(),
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2020),
                                       lastDate: DateTime(2050),
                                     );
                                     if (pickedDate != null) {
@@ -425,6 +434,34 @@ class _ReportScreenState extends State<ReportScreen> {
                         ],
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: getPropScreenWidth(6)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Departure', style: fieldLabelStyle),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _departureController,
+                      decoration: InputDecoration(
+                        hintText: 'All Departure',
+                      ),
+                      readOnly: true,
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2050),
+                        );
+                        if (pickedDate != null) {
+                          _departureController.text =
+                              DateFormat('d MMMM yyyy').format(pickedDate);
+                          _departure = pickedDate;
+                        }
+                      },
+                    )
                   ],
                 ),
                 SizedBox(height: getPropScreenWidth(6)),
@@ -509,7 +546,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   child: const Text('Search'),
                 ),
                 SizedBox(
-                  height: SizeConfig.screenHeight * 0.35,
+                  height: SizeConfig.screenHeight * 0.24,
                   child: filteredInvoices == null
                       ? Center(child: Text('Tekan tombol Search'))
                       : StreamBuilder<List<Invoice>>(
@@ -543,7 +580,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                             children: [
                                               _buildCell(invoice.id),
                                               _buildCell(DateFormat('M/d/yyyy')
-                                                  .format(invoice.dateCreated!
+                                                  .format(invoice.dateCreated
                                                       .toDate())),
                                               _buildCell(
                                                   invoice.travel.travelName),

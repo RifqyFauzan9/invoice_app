@@ -1,6 +1,6 @@
 class Bank {
   final String bankName;
-  final int accountNumber;
+  final String accountNumber;
   final String branch;
   final String accountHolder;
   final String bankId;

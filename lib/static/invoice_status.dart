@@ -1,12 +1,12 @@
-enum InvoiceStatus { booking, processed, issued, cancel }
+enum InvoiceStatus { booking, lunas, issued, cancel }
 
 extension InvoiceStatusExt on InvoiceStatus {
   String get label {
     switch (this) {
       case InvoiceStatus.booking:
         return 'Booking';
-      case InvoiceStatus.processed:
-        return 'Processed';
+      case InvoiceStatus.lunas:
+        return 'Lunas';
       case InvoiceStatus.issued:
         return 'Issued';
       case InvoiceStatus.cancel:
@@ -18,7 +18,7 @@ extension InvoiceStatusExt on InvoiceStatus {
     switch (this) {
       case InvoiceStatus.booking:
         return 'assets/images/pending_icon.png';
-      case InvoiceStatus.processed:
+      case InvoiceStatus.lunas:
         return 'assets/images/lunas_icon.png';
       case InvoiceStatus.issued:
         return 'assets/images/hangus_icon.png';

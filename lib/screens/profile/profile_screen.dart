@@ -7,8 +7,6 @@ import 'package:my_invoice_app/provider/company_provider.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:provider/provider.dart';
-
-import '../../model/common/company.dart';
 import '../../provider/firebase_auth_provider.dart';
 import '../../provider/shared_preferences_provider.dart';
 import '../../static/firebase_auth_status.dart';
@@ -23,16 +21,9 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late Company? company;
-
-  @override
-  void initState() {
-    company = context.read<CompanyProvider>().company;
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final company = context.watch<CompanyProvider>().company;
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -68,18 +59,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Card(
                   color: Colors.white,
                   child: Container(
-                      alignment: Alignment.center,
-                      height: SizeConfig.screenHeight * 0.1,
-                      width: SizeConfig.screenWidth * 0.7,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: company?.companyLogo != null
-                            ? DecorationImage(
-                                image: MemoryImage(
-                                    base64Decode(company!.companyLogo!)),
-                              )
-                            : null,
-                      ),
+                    padding: EdgeInsets.all(getPropScreenWidth(8)),
+                    alignment: Alignment.center,
+                    height: SizeConfig.screenHeight * 0.1,
+                    width: SizeConfig.screenWidth * 0.7,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: company?.companyLogo != null
+                        ? Image.memory(
+                            base64Decode(company!.companyLogo!),
+                            fit: BoxFit.contain,
+                          )
+                        : Text(
+                            'No company logo',
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.w700,
+                              fontSize: getPropScreenWidth(18),
+                              color:
+                                  InvoiceColor.primary.color.withOpacity(0.5),
+                            ),
+                          ),
                   ),
                 ),
                 SizedBox(height: getPropScreenWidth(12)),
@@ -118,13 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       context,
                       ScreenRoute.profileForm.route,
                       arguments: company,
-                    ).then((result) {
-                      if (result is Company) {
-                        setState(() {
-                          company = result;
-                        });
-                      }
-                    });
+                    );
                   },
                   Icons.person_2_outlined,
                 ),

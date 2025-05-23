@@ -11,6 +11,7 @@ import 'package:my_invoice_app/screens/invoice/invoice_screen.dart';
 import 'package:my_invoice_app/screens/invoice/list_invoice_screen.dart';
 import 'package:my_invoice_app/screens/invoice/status_invoice_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/choose_form_screen.dart';
+import 'package:my_invoice_app/screens/invoice_form/transaksi/update_invoice.dart';
 import 'package:my_invoice_app/screens/profile/profile_form.dart';
 import 'package:my_invoice_app/screens/report/report_screen.dart';
 import 'package:my_invoice_app/screens/invoice_form/setup/airlines/data_airlines_form.dart';
@@ -53,7 +54,7 @@ final Map<String, WidgetBuilder> routes = {
         invoices: ModalRoute.of(context)?.settings.arguments as List<Invoice>,
       ),
   ScreenRoute.invoiceScreen.route: (context) => InvoiceScreen(
-        invoice: ModalRoute.of(context)!.settings.arguments as Invoice,
+        invoice: ModalRoute.of(context)?.settings.arguments as Invoice,
       ),
   ScreenRoute.profile.route: (context) => ProfileScreen(),
   ScreenRoute.travel.route: (context) => DataTravelScreen(),
@@ -80,7 +81,7 @@ final Map<String, WidgetBuilder> routes = {
   },
   ScreenRoute.airlinesForm.route: (context) {
     final args =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
     return DataAirlinesForm(
       mode: args['mode'] as FormMode,
@@ -89,7 +90,7 @@ final Map<String, WidgetBuilder> routes = {
   },
   ScreenRoute.itemForm.route: (context) {
     final args =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
     return DataItemForm(
       mode: args['mode'] as FormMode,
@@ -100,7 +101,7 @@ final Map<String, WidgetBuilder> routes = {
   ScreenRoute.note.route: (context) => NoteScreen(),
   ScreenRoute.noteForm.route: (context) {
     final args =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
     return NoteForm(
       mode: args['mode'] as FormMode,
@@ -113,5 +114,8 @@ final Map<String, WidgetBuilder> routes = {
       ),
   ScreenRoute.statusScreen.route: (context) => StatusInvoiceScreen(
         status: ModalRoute.of(context)?.settings.arguments as String,
+      ),
+  ScreenRoute.updateInvoice.route: (context) => UpdateInvoice(
+        oldInvoice: ModalRoute.of(context)?.settings.arguments as Invoice,
       ),
 };

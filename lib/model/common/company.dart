@@ -4,11 +4,12 @@ class Company {
   final String companyAddress;
   final String companyEmail;
   final String companyWebsite;
-  final int companyPhone;
+  final String companyPhone;
   final String companyPic;
+  final String? companySignature;
 
   Company(
-    this.companyLogo, {
+    this.companyLogo, this.companySignature, {
     required this.companyName,
     required this.companyAddress,
     required this.companyEmail,
@@ -19,7 +20,7 @@ class Company {
 
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
-      json['companyLogo'],
+      json['companyLogo'], json['companySignature'],
       companyName: json['companyName'],
       companyAddress: json['companyAddress'],
       companyEmail: json['companyEmail'],
@@ -38,6 +39,7 @@ class Company {
       'companyWebsite': companyWebsite,
       'companyPhone': companyPhone,
       'companyPic': companyPic,
+      'companySignature': companySignature,
     };
   }
 }

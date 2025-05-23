@@ -13,7 +13,7 @@ class BankService {
     required String uid,
     required String bankId,
     required String bankName,
-    required int accountNumber,
+    required String accountNumber,
     required String branch,
     required String accountHolder,
   }) async {

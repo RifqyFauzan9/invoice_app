@@ -1,7 +1,7 @@
 class Travel {
   final String travelAddress;
   final String emailAddress;
-  final int phoneNumber;
+  final String phoneNumber;
   final String travelId;
   final String travelName;
   final String contactPerson;

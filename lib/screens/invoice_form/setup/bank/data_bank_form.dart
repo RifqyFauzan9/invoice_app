@@ -203,7 +203,7 @@ class _DataBankFormState extends State<DataBankForm> {
   void _saveBank() async {
     final service = context.read<BankService>();
     final bankName = _bankNameController.text;
-    final accountNumber = int.tryParse(_accountNumberController.text);
+    final accountNumber = _accountNumberController.text;
     final branch = _branchController.text;
     final accountHolder = _accountHolderController.text;
     final navigator = Navigator.of(context);
@@ -219,7 +219,7 @@ class _DataBankFormState extends State<DataBankForm> {
         bankId: bankId,
         uid: context.read<FirebaseAuthProvider>().profile!.uid!,
         bankName: bankName,
-        accountNumber: accountNumber ?? 0,
+        accountNumber: accountNumber,
         branch: branch,
         accountHolder: accountHolder,
       );

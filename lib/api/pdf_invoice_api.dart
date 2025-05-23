@@ -16,18 +16,28 @@ class PdfInvoiceApi {
   static Future<File> generate(Invoice invoice, Company? company) async {
     final pdf = Document();
 
-    final fontData =
+    final poppinsRegular =
         await rootBundle.load('assets/fonts/poppins/Poppins-Regular.ttf');
-    final poppinsFont = Font.ttf(fontData);
+    final regularPoppins = Font.ttf(poppinsRegular);
+    final poppinsBold =
+        await rootBundle.load('assets/fonts/poppins/Poppins-Bold.ttf');
+    final boldPoppins = Font.ttf(poppinsBold);
+    final poppinsMedium =
+        await rootBundle.load('assets/fonts/poppins/Poppins-Medium.ttf');
+    final mediumPoppins = Font.ttf(poppinsMedium);
+    final poppinsSemiBold =
+        await rootBundle.load('assets/fonts/poppins/Poppins-SemiBold.ttf');
+    final semiBoldPoppins = Font.ttf(poppinsSemiBold);
 
     pdf.addPage(
       MultiPage(
-        pageFormat: PdfPageFormat.a4,
+        pageFormat: PdfPageFormat.a3,
+        maxPages: 2,
         build: (context) => [
-          // Build header
-          buildPdfHeader(company, poppinsFont),
+          buildPdfHeader(
+              company, boldPoppins, mediumPoppins, semiBoldPoppins),
           // Build LOBC container
-          buildLobc(poppinsFont),
+          buildLobc(semiBoldPoppins),
           // Build bottom container line
           Container(
             height: 2,
@@ -35,30 +45,29 @@ class PdfInvoiceApi {
           ),
           SizedBox(height: PdfPageFormat.mm * 3),
           // Sub Header
-          buildSubHeader(invoice, poppinsFont),
-          SizedBox(height: PdfPageFormat.cm * 0.5),
+          buildSubHeader(invoice, semiBoldPoppins, company),
+          SizedBox(height: PdfPageFormat.cm * 1),
           // Build Item Table
-          buildItemTable(invoice, poppinsFont),
-          SizedBox(height: 6),
+          buildItemTable(invoice, semiBoldPoppins, mediumPoppins),
+          SizedBox(height: getPropScreenWidth(6)),
           // Black width 2 line
           Container(
             height: 2,
             color: PdfColors.black,
           ),
           SizedBox(height: getPropScreenWidth(8)),
-          buildPaymentSummary(poppinsFont, invoice),
+          buildPaymentSummary(semiBoldPoppins, regularPoppins, invoice),
           SizedBox(height: PdfPageFormat.cm * 1),
-          buildFinancialSection(company, poppinsFont),
-          SizedBox(height: PdfPageFormat.cm * 1),
-          buildNote(invoice, poppinsFont),
+          buildFinancialSection(company, semiBoldPoppins),
+          buildNote(invoice, regularPoppins),
           SizedBox(height: PdfPageFormat.cm * 0.6),
           // Term Payment
-          buildTermPayment(poppinsFont, invoice),
+          buildTermPayment(regularPoppins, invoice),
         ],
       ),
     );
 
-    return PdfApi.saveDocument(name: '${invoice.id}.pdf', pdf: pdf);
+    return PdfApi.saveDocument(name: 'INV-${invoice.id}.pdf', pdf: pdf);
   }
 
   static Column buildNote(Invoice invoice, Font poppinsFont) {
@@ -96,17 +105,26 @@ class PdfInvoiceApi {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Person In Charge',
-                  style: TextStyle(
-                    font: poppinsFont,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Person in Charge',
+                  style: TextStyle(font: poppinsFont),
                 ),
-                SizedBox(height: PdfPageFormat.cm * 1.5),
+                ...[
+                  if (company?.companySignature != null) ...[
+                    SizedBox(height: PdfPageFormat.mm * 3),
+                    Image(
+                      // company.companysignature
+                      MemoryImage(base64Decode(company!.companySignature!)),
+                      width: PdfPageFormat.cm * 5,
+                      height: PdfPageFormat.cm * 2,
+                      fit: BoxFit.fill,
+                    ),
+                    SizedBox(height: PdfPageFormat.mm * 4),
+                  ] else
+                    SizedBox(height: PdfPageFormat.cm * 2),
+                ],
                 Text(
                   company?.companyPic ?? '-',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, font: poppinsFont),
+                  style: TextStyle(font: poppinsFont),
                 ),
                 Container(
                   height: 2,
@@ -120,7 +138,8 @@ class PdfInvoiceApi {
     );
   }
 
-  static Row buildPaymentSummary(Font poppinsFont, Invoice invoice) {
+  static Row buildPaymentSummary(
+      Font poppinsFont, Font regularPoppins, Invoice invoice) {
     int calculateOutstandingAmount({
       required List<InvoiceItem> items,
       required List<Map<String, dynamic>> paymentHistory,
@@ -158,23 +177,20 @@ class PdfInvoiceApi {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Payment should be paid to:',
-                style: TextStyle(font: poppinsFont),
+                style: TextStyle(font: regularPoppins),
               ),
-              ...invoice.banks.take(2).map((bank) {
+              ...invoice.banks.map((bank) {
                 return Container(
                   margin: EdgeInsets.symmetric(vertical: 1),
                   child: Text(
                     '${bank.bankName}: ${bank.accountNumber}\na/n ${bank.accountHolder}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                 );
               }),
@@ -191,17 +207,11 @@ class PdfInvoiceApi {
                 children: [
                   Text(
                     'Biaya lain: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                   Text(
                     '0',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                 ],
               ),
@@ -210,10 +220,7 @@ class PdfInvoiceApi {
                 children: [
                   Text(
                     'Total: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                   Text(
                     NumberFormat.currency(
@@ -226,19 +233,13 @@ class PdfInvoiceApi {
                           (sum, item) =>
                               sum + (item.itemPrice * item.quantity)),
                     ),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                 ],
               ),
               Text(
                 'Uang Muka/Dibayar: ',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppinsFont,
-                ),
+                style: TextStyle(font: poppinsFont),
               ),
               ...history.map((payment) {
                 final timestamp = payment['last_payment_date'];
@@ -264,17 +265,11 @@ class PdfInvoiceApi {
                     children: [
                       Text(
                         formattedDate,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          font: poppinsFont,
-                        ),
+                        style: TextStyle(font: poppinsFont),
                       ),
                       Text(
                         formattedAmount,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          font: poppinsFont,
-                        ),
+                        style: TextStyle(font: poppinsFont),
                       ),
                     ],
                   ),
@@ -285,21 +280,20 @@ class PdfInvoiceApi {
                 children: [
                   Text(
                     'Kekurangan: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                   Text(
                     NumberFormat.currency(
                             locale: 'id_ID', symbol: '', decimalDigits: 0)
                         .format(outstandingAmount),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      font: poppinsFont,
-                    ),
+                    style: TextStyle(font: poppinsFont),
                   ),
                 ],
+              ),
+              SizedBox(height: PdfPageFormat.mm * 1),
+              Container(
+                height: 2,
+                color: PdfColors.black,
               ),
             ],
           ),
@@ -308,8 +302,15 @@ class PdfInvoiceApi {
     );
   }
 
-  static Table buildItemTable(Invoice invoice, Font poppins) {
+  static Table buildItemTable(
+      Invoice invoice, Font semiBoldPoppins, Font mediumPoppins) {
     return Table(
+      columnWidths: {
+        0: FlexColumnWidth(3),
+        1: FlexColumnWidth(1),
+        2: FlexColumnWidth(2),
+        3: FlexColumnWidth(2),
+      },
       children: [
         // Table Header
         TableRow(
@@ -324,37 +325,25 @@ class PdfInvoiceApi {
             Center(
               child: Text(
                 'Deskripsi',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: semiBoldPoppins),
               ),
             ),
             Center(
               child: Text(
                 'Qty',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: semiBoldPoppins),
               ),
             ),
             Center(
               child: Text(
                 'Harga',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: semiBoldPoppins),
               ),
             ),
             Center(
               child: Text(
                 'Sub Total',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: semiBoldPoppins),
               ),
             ),
           ],
@@ -371,46 +360,28 @@ class PdfInvoiceApi {
         // PNR CODE
         TableRow(
           children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                invoice.pnrCode,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
-              ),
+            Text(
+              invoice.pnrCode,
+              style: TextStyle(font: semiBoldPoppins),
             ),
-            Expanded(flex: 1, child: SizedBox()),
-            Expanded(flex: 1, child: SizedBox()),
-            Expanded(flex: 1, child: SizedBox()),
           ],
         ),
         // Flight Notes
         TableRow(
           children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                invoice.flightNotes,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
-              ),
+            Text(
+              invoice.flightNotes,
+              style: TextStyle(font: semiBoldPoppins),
             ),
-            Expanded(flex: 1, child: SizedBox()),
-            Expanded(flex: 1, child: SizedBox()),
-            Expanded(flex: 1, child: SizedBox()),
           ],
         ),
         // Table Spacer between Flight Notes and Items
         TableRow(
           children: [
-            SizedBox(height: getPropScreenWidth(4)),
-            SizedBox(height: getPropScreenWidth(4)),
-            SizedBox(height: getPropScreenWidth(4)),
-            SizedBox(height: getPropScreenWidth(4)),
+            SizedBox(height: PdfPageFormat.mm * 3),
+            SizedBox(height: PdfPageFormat.mm * 3),
+            SizedBox(height: PdfPageFormat.mm * 3),
+            SizedBox(height: PdfPageFormat.mm * 3),
           ],
         ),
         ...invoice.items.map((item) {
@@ -424,27 +395,27 @@ class PdfInvoiceApi {
                         .toUpperCase(),
                     style: TextStyle(
                       color: PdfColors.grey700,
-                      font: poppins,
+                      font: mediumPoppins,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  SizedBox(height: PdfPageFormat.mm * 1),
                 ],
               ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     '${item.quantity} Pcs',
                     style: TextStyle(
                       color: PdfColors.grey700,
-                      font: poppins,
+                      font: mediumPoppins,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  SizedBox(height: PdfPageFormat.mm * 1),
                 ],
               ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     NumberFormat.currency(
@@ -454,14 +425,14 @@ class PdfInvoiceApi {
                     ).format(item.itemPrice),
                     style: TextStyle(
                       color: PdfColors.grey700,
-                      font: poppins,
+                      font: mediumPoppins,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  SizedBox(height: PdfPageFormat.mm * 1),
                 ],
               ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     NumberFormat.currency(
@@ -471,10 +442,10 @@ class PdfInvoiceApi {
                     ).format(item.itemPrice * item.quantity),
                     style: TextStyle(
                       color: PdfColors.grey700,
-                      font: poppins,
+                      font: mediumPoppins,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  SizedBox(height: PdfPageFormat.mm * 1),
                 ],
               ),
             ],
@@ -507,7 +478,7 @@ class PdfInvoiceApi {
     );
   }
 
-  static Row buildSubHeader(Invoice invoice, Font poppins) {
+  static Row buildSubHeader(Invoice invoice, Font poppins, Company? company) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -518,36 +489,24 @@ class PdfInvoiceApi {
             children: [
               Text(
                 'No Bukti: ${invoice.id}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
               Text(
                 'Tanggal: ${DateFormat('dd/MM/yyyy').format(
-                  invoice.dateCreated!.toDate(),
+                  invoice.dateCreated.toDate(),
                 )}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
               Text(
                 'Kepada: ${invoice.travel.travelName}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
               Text(
                 'Alamat: ${invoice.travel.travelAddress}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: poppins),
               ),
             ],
           ),
@@ -559,27 +518,18 @@ class PdfInvoiceApi {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'PIC: ${invoice.travel.contactPerson}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                'PIC: ${company?.companyPic ?? '-'}',
+                style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
               Text(
                 'Maskapai: ${invoice.airline.airlineName}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  font: poppins,
-                ),
+                style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
               Text(
                 'Program: ${invoice.program}',
-                style: TextStyle(
-                  font: poppins,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(font: poppins),
               ),
             ],
           ),
@@ -603,15 +553,16 @@ class PdfInvoiceApi {
           'LOBC',
           style: TextStyle(
             color: PdfColors.white,
-            fontWeight: FontWeight.bold,
             font: poppins,
+            fontSize: getPropScreenWidth(20),
           ),
         ),
       ),
     );
   }
 
-  static Row buildPdfHeader(Company? company, Font poppins) {
+  static Row buildPdfHeader(Company? company, Font poppinsBold,
+      Font mediumPoppins, Font semiBoldPoppins) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -619,9 +570,10 @@ class PdfInvoiceApi {
         Expanded(
           child: company?.companyLogo != null
               ? Image(
+                  // company.companyLogo
                   MemoryImage(base64Decode(company!.companyLogo!)),
-                  width: getPropScreenWidth(150),
-                  height: getPropScreenWidth(70),
+                  width: getPropScreenWidth(200),
+                  height: getPropScreenWidth(90),
                   fit: BoxFit.contain,
                 )
               : SizedBox(),
@@ -631,12 +583,12 @@ class PdfInvoiceApi {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                company?.companyName ?? 'No Company Name',
+                company?.companyName.toUpperCase() ?? 'No Company Name',
+                textAlign: TextAlign.end,
                 style: TextStyle(
-                  font: poppins,
-                  fontSize: 16,
+                  font: poppinsBold,
+                  fontSize: getPropScreenWidth(20),
                   color: PdfColors.black,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
@@ -644,17 +596,29 @@ class PdfInvoiceApi {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: PdfColors.black,
-                  font: poppins,
-                  fontWeight: FontWeight.bold,
+                  font: semiBoldPoppins,
+                  fontSize: getPropScreenWidth(13),
                 ),
               ),
               Text(
                 'Email: ${company?.companyEmail ?? 'No Company Email'}',
-                style: TextStyle(color: PdfColors.black, font: poppins),
+                style: TextStyle(
+                  color: PdfColors.black,
+                  font: mediumPoppins,
+                  fontSize: getPropScreenWidth(13),
+                ),
               ),
-              Text(
-                company?.companyWebsite ?? 'https://',
-                style: TextStyle(color: PdfColors.lightBlue, font: poppins),
+              UrlLink(
+                child: Text(
+                  company?.companyWebsite ?? 'https://',
+                  style: TextStyle(
+                    color: PdfColors.lightBlue,
+                    font: mediumPoppins,
+                    decoration: TextDecoration.underline,
+                    fontSize: getPropScreenWidth(13),
+                  ),
+                ),
+                destination: company?.companyWebsite ?? 'https://',
               ),
             ],
           ),
