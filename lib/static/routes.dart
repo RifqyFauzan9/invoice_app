@@ -4,6 +4,7 @@ import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/model/setup/bank.dart';
 import 'package:my_invoice_app/model/setup/item.dart';
 import 'package:my_invoice_app/model/setup/note.dart';
+import 'package:my_invoice_app/model/setup/travel.dart';
 import 'package:my_invoice_app/screens/auth/login/forgot_password/forgot_password_screen.dart';
 import 'package:my_invoice_app/screens/auth/login/login_screen.dart';
 import 'package:my_invoice_app/screens/auth/signup/sign_up_screen.dart';
@@ -67,7 +68,7 @@ final Map<String, WidgetBuilder> routes = {
 
     return DataTravelForm(
       mode: args['mode'] as FormMode,
-      oldTravel: args['oldTravel'] as dynamic,
+      oldTravel: args['oldTravel'] as Travel?,
     );
   },
   ScreenRoute.bankForm.route: (context) {

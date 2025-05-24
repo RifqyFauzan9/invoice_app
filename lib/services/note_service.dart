@@ -15,6 +15,7 @@ class NoteService {
     required String noteId,
     required String uid,
     required String termPayment,
+    required String noteName,
     required String content,
   }) async {
     final noteRefs = _firebaseFirestore
@@ -26,7 +27,8 @@ class NoteService {
     final noteSnapshot = await noteRefs.get();
 
     final data = {
-      'type': noteId,
+      'noteId': noteId,
+      'name': noteName,
       'content': content,
       'term_payment': termPayment,
       'dateCreated': Timestamp.now(),

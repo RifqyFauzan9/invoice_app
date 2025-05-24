@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/model/setup/note.dart';
-import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
 import 'package:my_invoice_app/services/note_service.dart';
 import 'package:my_invoice_app/static/form_mode.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../provider/firebase_auth_provider.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
@@ -33,6 +33,7 @@ class _NoteFormState extends State<NoteForm> {
     if (widget.mode == FormMode.edit && widget.oldNote != null) {
       _noteController.text = widget.oldNote!.content;
       _termController.text = widget.oldNote!.termPayment;
+      _noteNameController.text = widget.oldNote!.noteName;
     }
     super.initState();
   }
@@ -40,6 +41,7 @@ class _NoteFormState extends State<NoteForm> {
   final _formKey = GlobalKey<FormState>();
   final _noteController = TextEditingController();
   final _termController = TextEditingController();
+  final _noteNameController = TextEditingController();
   bool isLoading = false;
 
   @override
@@ -90,7 +92,9 @@ class _NoteFormState extends State<NoteForm> {
                 Align(
                   alignment: Alignment.center,
                   child: SectionTitleForm(
-                    text: 'Add Note Data',
+                    text: widget.mode == FormMode.add
+                        ? 'Add Note Data'
+                        : 'Edit Note Data',
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -99,7 +103,20 @@ class _NoteFormState extends State<NoteForm> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Masukkan Note', style: fieldLabelStyle),
+                      Text('Judul Note', style: fieldLabelStyle),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: _noteNameController,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Judul Note',
+                          hintStyle: hintTextStyle,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text('Note', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
                         keyboardType: TextInputType.multiline,
@@ -114,7 +131,7 @@ class _NoteFormState extends State<NoteForm> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text('Masukkan Term Payment', style: fieldLabelStyle),
+                      Text('Term Payment', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
                         keyboardType: TextInputType.multiline,
@@ -157,19 +174,13 @@ class _NoteFormState extends State<NoteForm> {
 
   void _saveNote() async {
     final service = context.read<NoteService>();
-    final firestoreService = context.read<FirebaseFirestoreService>();
     final note = _noteController.text;
     final termPayment = _termController.text;
+    final noteName = _noteNameController.text;
     final navigator = Navigator.of(context);
     final noteId = widget.mode == FormMode.edit && widget.oldNote != null
-        ? widget.oldNote!.type
-        : await firestoreService.generateAutoIncrementType(
-            uid: context.read<FirebaseAuthProvider>().profile!.uid!,
-            docType: 'notes',
-            prefix: 'Type',
-            padding: 0,
-            returnType: AutoIncrementReturnType.formattedString,
-          );
+        ? widget.oldNote!.noteId
+        : Uuid().v4();
 
     setState(() {
       isLoading = true;
@@ -179,6 +190,7 @@ class _NoteFormState extends State<NoteForm> {
       await service.saveNote(
         noteId: noteId,
         uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        noteName: noteName,
         content: note,
         termPayment: termPayment,
       );

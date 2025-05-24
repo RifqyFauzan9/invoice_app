@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     for (var invoice in invoices) {
-      final status = InvoiceStatusExt.fromString(invoice.status!);
+      final status = InvoiceStatusExt.fromString(invoice.status);
       statusCounts[status] = (statusCounts[status] ?? 0) + 1;
     }
 
@@ -202,6 +202,60 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.w500,
               fontSize: 14,
             ),
+          ),
+          trailing: PopupMenuButton(
+            iconColor: InvoiceColor.primary.color,
+            itemBuilder: (context) => [
+              if (invoice.status == 'Booking' || invoice.status == 'Lunas')
+                PopupMenuItem(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      ScreenRoute.updateInvoice.route,
+                      arguments: invoice,
+                    );
+                  },
+                  child: Text('Edit Invoice'),
+                ),
+              PopupMenuItem(
+                  onTap: () async {
+                    final service = context.read<InvoiceService>();
+                    final navigator = Navigator.of(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Hapus ${invoice.id}?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                await service.deleteInvoice(
+                                  uid: widget.uid!,
+                                  invoiceId: invoice.id,
+                                );
+                                navigator.pop();
+                              },
+                              child: Text(
+                                'Hapus',
+                                style:
+                                    TextStyle(color: InvoiceColor.error.color),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => navigator.pop(),
+                              child: Text(
+                                'Batal',
+                                style: TextStyle(
+                                    color: InvoiceColor.primary.color),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text('Hapus Invoice')),
+            ],
           ),
           onCardTapped: () => Navigator.pushNamed(
             context,

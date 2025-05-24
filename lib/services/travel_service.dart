@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_invoice_app/model/setup/travel.dart';
 
 class TravelService {
   final FirebaseFirestore _firebaseFirestore;
@@ -75,12 +76,19 @@ class TravelService {
         .delete();
   }
 
-  Future<QuerySnapshot> getTravel(String uid) {
+  Stream<List<Travel>> getTravel(String uid) {
     return _firebaseFirestore
         .collection('travels')
         .doc(uid)
         .collection('travels')
-        .orderBy('dateCreated', descending: true)
-        .get();
+        .snapshots()
+        .map(
+          (event) => event.docs.map(
+            (e) {
+              final data = Travel.fromJson(e.data());
+              return data;
+            },
+          ).toList(),
+        );
   }
 }

@@ -1,17 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:my_invoice_app/static/screen_route.dart';
-import 'package:my_invoice_app/static/size_config.dart';
-import 'package:my_invoice_app/style/colors/invoice_color.dart';
-import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
-import 'package:my_invoice_app/widgets/main_widgets/custom_card.dart';
-import '../../model/transaction/invoice.dart';
+import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
+import 'package:provider/provider.dart';
 
-class ListInvoiceScreen extends StatelessWidget {
+import '../../model/transaction/invoice.dart';
+import '../../services/invoice_service.dart';
+import '../../static/screen_route.dart';
+import '../../static/size_config.dart';
+import '../../style/colors/invoice_color.dart';
+import '../../widgets/main_widgets/custom_card.dart';
+import '../../widgets/main_widgets/custom_icon_button.dart';
+
+class ListInvoiceScreen extends StatefulWidget {
   const ListInvoiceScreen({super.key, required this.invoices});
 
   final List<Invoice> invoices;
+
+  @override
+  State<ListInvoiceScreen> createState() => _ListInvoiceScreenState();
+}
+
+class _ListInvoiceScreenState extends State<ListInvoiceScreen> {
+  List<Invoice> filteredInvoices = [];
+  String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    filteredInvoices = widget.invoices;
+  }
+
+  void onSearch(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase();
+      filteredInvoices = widget.invoices.where((invoice) {
+        final invoiceNumber = invoice.id.toLowerCase();
+        final travelName = invoice.travel.travelName.toLowerCase();
+        return invoiceNumber.contains(searchQuery) ||
+            travelName.contains(searchQuery);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +69,6 @@ class ListInvoiceScreen extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w700,
                       fontSize: getPropScreenWidth(20),
-                      letterSpacing: 0,
                       color: InvoiceColor.primary.color,
                     ),
                   ),
@@ -47,56 +76,30 @@ class ListInvoiceScreen extends StatelessWidget {
               ),
               SizedBox(height: getPropScreenWidth(24)),
               SearchBar(
-                backgroundColor: WidgetStatePropertyAll(Colors.white),
-                elevation: WidgetStatePropertyAll(0),
+                backgroundColor: const WidgetStatePropertyAll(Colors.white),
+                elevation: const WidgetStatePropertyAll(0),
                 shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 textCapitalization: TextCapitalization.sentences,
-                leading: Icon(Icons.search, size: 32, color: Colors.grey),
-                hintText: 'Search...',
-                padding: WidgetStatePropertyAll(
-                  const EdgeInsets.symmetric(horizontal: 16),
+                leading: const Icon(Icons.search, size: 32, color: Colors.grey),
+                hintText: 'Search by invoice number or travel name...',
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 16),
                 ),
+                onChanged: onSearch,
               ),
               SizedBox(height: getPropScreenWidth(18)),
               Expanded(
-                child: invoices.isEmpty
-                    ? SizedBox(
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(height: SizeConfig.screenHeight * 0.2),
-                            SvgPicture.asset(
-                              'assets/svgs/empty_invoice.svg',
-                              width: getPropScreenWidth(200),
-                            ),
-                            SizedBox(height: getPropScreenWidth(14)),
-                            Text(
-                              'No Invoice',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'You don\'t have any invoice yet.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      )
+                child: filteredInvoices.isEmpty
+                    ? _buildEmptyContent()
                     : ListView.builder(
                         padding: EdgeInsets.zero,
-                        itemCount: invoices.length,
+                        itemCount: filteredInvoices.length,
                         itemBuilder: (context, index) {
-                          final invoice = invoices[index];
+                          final invoice = filteredInvoices[index];
                           return CustomCard(
                             imageLeading: 'assets/images/travel_icon.png',
                             title: invoice.id,
@@ -106,6 +109,69 @@ class ListInvoiceScreen extends StatelessWidget {
                               ScreenRoute.invoiceScreen.route,
                               arguments: invoice,
                             ),
+                            trailing: PopupMenuButton(
+                              iconColor: InvoiceColor.primary.color,
+                              itemBuilder: (context) => [
+                                if (invoice.status == 'Booking' ||
+                                    invoice.status == 'Lunas')
+                                  PopupMenuItem(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        ScreenRoute.updateInvoice.route,
+                                        arguments: invoice,
+                                      );
+                                    },
+                                    child: Text('Edit Invoice'),
+                                  ),
+                                PopupMenuItem(
+                                    onTap: () async {
+                                      final service =
+                                          context.read<InvoiceService>();
+                                      final navigator = Navigator.of(context);
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text('Hapus ${invoice.id}?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () async {
+                                                  await service.deleteInvoice(
+                                                    uid: context
+                                                        .read<
+                                                            FirebaseAuthProvider>()
+                                                        .profile!
+                                                        .uid!,
+                                                    invoiceId: invoice.id,
+                                                  );
+                                                  navigator.pop();
+                                                },
+                                                child: Text(
+                                                  'Hapus',
+                                                  style: TextStyle(
+                                                      color: InvoiceColor
+                                                          .error.color),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    navigator.pop(),
+                                                child: Text(
+                                                  'Batal',
+                                                  style: TextStyle(
+                                                      color: InvoiceColor
+                                                          .primary.color),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Text('Hapus Invoice')),
+                              ],
+                            ),
                           );
                         },
                       ),
@@ -113,6 +179,36 @@ class ListInvoiceScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyContent() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: SizeConfig.screenHeight * 0.2),
+          SvgPicture.asset(
+            'assets/svgs/empty_invoice.svg',
+            width: getPropScreenWidth(200),
+          ),
+          SizedBox(height: getPropScreenWidth(14)),
+          Text(
+            'No Invoice',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            'You don\'t have any invoices yet.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

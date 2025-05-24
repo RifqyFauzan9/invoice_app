@@ -7,7 +7,6 @@ import 'package:my_invoice_app/api/pdf_api.dart';
 import 'package:my_invoice_app/api/pdf_invoice_api.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
 import 'package:my_invoice_app/provider/company_provider.dart';
-import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:provider/provider.dart';
@@ -42,28 +41,23 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   final fieldLabelStyle = GoogleFonts.montserrat(
     color: InvoiceColor.primary.color,
     fontWeight: FontWeight.w600,
-    fontSize: getPropScreenWidth(14),
+    fontSize: getPropScreenWidth(16),
   );
 
   final fieldTextStyle = GoogleFonts.montserrat(
-    fontSize: getPropScreenWidth(11),
+    fontSize: getPropScreenWidth(13),
     fontWeight: FontWeight.w500,
     color: InvoiceColor.primary.color,
   );
 
   final hintTextStyle = GoogleFonts.montserrat(
-    fontSize: getPropScreenWidth(11),
+    fontSize: getPropScreenWidth(13),
     fontWeight: FontWeight.w500,
     color: InvoiceColor.primary.color.withOpacity(0.5),
   );
 
   InputDecoration inputFieldDecoration(String hintText) {
     return InputDecoration(
-      isDense: true,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 12,
-      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
@@ -142,30 +136,19 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 onTap: viewInvoicePdf,
                 child: Text('View Invoice Pdf'),
               ),
-              if (widget.invoice.status == 'Booking' ||
-                  widget.invoice.status == 'Lunas')
-                PopupMenuItem(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      ScreenRoute.updateInvoice.route,
-                      arguments: widget.invoice,
-                    );
-                  },
-                  child: Text('Update Invoice'),
-                ),
-              if (widget.invoice.status == 'Booking' ||
-                  widget.invoice.status == 'Lunas')
-                PopupMenuItem(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          contentPadding:
-                              EdgeInsets.all(getPropScreenWidth(24)),
-                          content: Form(
-                            key: _formKey,
+              PopupMenuItem(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: getPropScreenWidth(30),
+                          vertical: getPropScreenWidth(40),
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: SingleChildScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -174,12 +157,20 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                   'Update Status',
                                   style: fieldLabelStyle,
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 8),
                                 DropdownButtonFormField(
+                                  value: widget.invoice.status,
                                   icon: Icon(
                                     Icons.keyboard_arrow_down_outlined,
                                     color: InvoiceColor.primary.color,
                                   ),
+                                  validator: (value) {
+                                    if (value == 'Lunas' &&
+                                        outstandingAmount != 0) {
+                                      return 'Harga belum lunas';
+                                    }
+                                    return null;
+                                  },
                                   style: fieldTextStyle,
                                   hint: Text(
                                     'Pilih Status',
@@ -187,12 +178,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                   ),
                                   decoration:
                                       inputFieldDecoration('Pilih Status'),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      selectedStatus = widget.invoice.status;
-                                    }
-                                    return null;
-                                  },
                                   items: [
                                     'Booking',
                                     'Lunas',
@@ -205,20 +190,25 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     );
                                   }).toList(),
                                   onChanged: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        selectedStatus = value;
-                                      });
-                                    }
+                                    setState(() {
+                                      selectedStatus = value;
+                                    });
                                   },
                                 ),
-                                if (outstandingAmount != 0) ...[
+                                if (widget.invoice.status == 'Booking' ||
+                                    widget.invoice.status == 'Lunas') ...[
                                   const SizedBox(height: 12),
                                   Text(
                                     'Harga di Bayar',
                                     style: fieldLabelStyle,
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Sisa Harga: ${outstandingAmount == 0 ? 'Lunas' : outstandingAmount}',
+                                    style: GoogleFonts.montserrat(
+                                        color: InvoiceColor.primary.color),
+                                  ),
+                                  const SizedBox(height: 8),
                                   TextFormField(
                                     keyboardType: TextInputType.number,
                                     controller: _paymentController,
@@ -240,14 +230,13 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     'Tanggal Dibayar',
                                     style: fieldLabelStyle,
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
                                   TextFormField(
                                     controller: _paidDateController,
                                     readOnly: true,
                                     style: fieldTextStyle,
-                                    decoration: inputFieldDecoration(
-                                        DateFormat('d MMMM yyyy')
-                                            .format(paidDate)),
+                                    decoration:
+                                        inputFieldDecoration('Tanggal Dibayar'),
                                     onTap: () async {
                                       final pickedDate = await showDatePicker(
                                         context: context,
@@ -266,7 +255,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     },
                                   ),
                                 ],
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 24),
                                 FilledButton(
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
@@ -286,14 +275,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                         await service.updateInvoicePayment(
                                           paidDate:
                                               Timestamp.fromDate(paidDate),
+                                          amountPaid: amountPaid,
                                           uid: uid!,
                                           invoiceId: invoiceId,
-                                          amountPaid: amountPaid,
-                                          selectedStatus: selectedStatus,
+                                          selectedStatus: selectedStatus ??
+                                              widget.invoice.status,
                                         );
-
-                                        debugPrint(
-                                            'Berhasil update pembayaran!');
                                       } on Exception catch (e) {
                                         debugPrint(e.toString());
                                       } finally {
@@ -302,16 +289,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     }
                                   },
                                   child: Text('Update Pembayaran'),
-                                )
+                                ),
                               ],
                             ),
                           ),
-                        );
-                      },
-                    );
-                  },
-                  child: Text('Update Payment'),
-                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Text('Update Payment'),
+              ),
             ],
           ),
         ],

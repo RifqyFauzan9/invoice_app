@@ -93,7 +93,7 @@ class NoteScreen extends StatelessWidget {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      title: Text('Note ${note.type}'),
+                                      title: Text(note.noteName),
                                       content: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -131,7 +131,7 @@ class NoteScreen extends StatelessWidget {
                                 );
                               },
                               imageLeading: 'assets/images/note_icon.png',
-                              title: note.type,
+                              title: note.noteName,
                               trailing: PopupMenuButton(
                                 iconColor: InvoiceColor.primary.color,
                                 itemBuilder: (context) => [
@@ -149,7 +149,7 @@ class NoteScreen extends StatelessWidget {
                                       showDialog(context: context, builder: (context) {
                                         return  AlertDialog(
                                           title: Text(
-                                            'Hapus note ${note.type}?',
+                                            'Hapus note ${note.noteName}?',
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                                 fontSize:
@@ -160,7 +160,7 @@ class NoteScreen extends StatelessWidget {
                                               onPressed: () {
                                                 context
                                                     .read<NoteService>()
-                                                    .deleteNote(uid: context.read<FirebaseAuthProvider>().profile!.uid!, noteId: note.type,);
+                                                    .deleteNote(uid: context.read<FirebaseAuthProvider>().profile!.uid!, noteId: note.noteName,);
                                                 Navigator.pop(context);
                                               },
                                               child: Text(

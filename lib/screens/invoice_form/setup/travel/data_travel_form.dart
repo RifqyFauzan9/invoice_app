@@ -7,19 +7,20 @@ import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/widgets/main_widgets/custom_icon_button.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../model/setup/travel.dart';
 import '../../../../provider/firebase_auth_provider.dart';
 import '../../../../style/colors/invoice_color.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 
 class DataTravelForm extends StatefulWidget {
-  const DataTravelForm({
+  DataTravelForm({
     super.key,
     required this.mode,
     this.oldTravel,
   });
 
   final FormMode mode;
-  final dynamic oldTravel;
+  Travel? oldTravel;
 
   @override
   State<DataTravelForm> createState() => _DataTravelFormState();
@@ -38,11 +39,11 @@ class _DataTravelFormState extends State<DataTravelForm> {
   void initState() {
     super.initState();
     if (widget.mode == FormMode.edit && widget.oldTravel != null) {
-      _nameController.text = widget.oldTravel['travelName'];
-      _contactPersonController.text = widget.oldTravel['contactPerson'];
-      _addressController.text = widget.oldTravel['travelAddress'];
-      _phoneController.text = widget.oldTravel['phoneNumber'].toString();
-      _emailController.text = widget.oldTravel['emailAddress'];
+      _nameController.text = widget.oldTravel!.travelName;
+      _contactPersonController.text = widget.oldTravel!.contactPerson;
+      _addressController.text = widget.oldTravel!.travelAddress;
+      _phoneController.text = widget.oldTravel!.phoneNumber.toString();
+      _emailController.text = widget.oldTravel!.emailAddress;
     }
   }
 
@@ -232,7 +233,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
     final email = _emailController.text;
     final navigator = Navigator.of(context);
     final travelId = widget.oldTravel != null && widget.mode == FormMode.edit
-        ? widget.oldTravel!['travelId']
+        ? widget.oldTravel!.travelId
         : await service.generateTravelIdFromFirestore(
             context.read<FirebaseAuthProvider>().profile!.uid!);
 

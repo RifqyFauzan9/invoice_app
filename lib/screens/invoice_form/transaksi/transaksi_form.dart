@@ -374,7 +374,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
                         controller: _pelunasanController,
                         decoration: InputDecoration(
                           hintText:
-                              'Cth: ${DateFormat('d MMMM yyyy').format(DateTime.now())}',
+                              'Masukkan Pelunasan',
                           hintStyle: hintTextStyle,
                         ),
                         validator: (value) {
@@ -427,14 +427,14 @@ class _TransaksiFormState extends State<TransaksiForm> {
                       const SizedBox(height: 4),
                       CustomDropdown(
                         items: availableNotes,
-                        itemLabelBuilder: (note) => note.type,
+                        itemLabelBuilder: (note) => note.noteName,
                         onChanged: (Note? note) async {
                           if (note != null) {
                             await showDialog(
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  title: Text('Note ${note.type}'),
+                                  title: Text(note.noteName),
                                   content: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -604,6 +604,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
         note: selectedNote!,
         travel: selectedTravel!,
         banks: listBank,
+        status: 'Booking',
       );
 
       await service.saveInvoice(

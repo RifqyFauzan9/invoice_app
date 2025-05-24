@@ -89,7 +89,7 @@ class _DataAirlinesFormState extends State<DataAirlinesForm> {
                 Align(
                   alignment: Alignment.center,
                   child: SectionTitleForm(
-                    text: 'Add Data Maskapai',
+                    text: widget.mode == FormMode.add ? 'Add Data Maskapai' : 'Edit Data Maskapai',
                   ),
                 ),
                 SizedBox(height: getPropScreenWidth(15)),

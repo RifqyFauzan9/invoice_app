@@ -85,7 +85,7 @@ class _DataItemFormState extends State<DataItemForm> {
                 Align(
                   alignment: Alignment.center,
                   child: SectionTitleForm(
-                    text: 'Add Item Data',
+                    text: widget.mode == FormMode.add ? 'Add Item Data' : 'Edit Item Data',
                   ),
                 ),
                 SizedBox(height: getPropScreenWidth(15)),

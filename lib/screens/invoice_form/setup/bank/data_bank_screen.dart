@@ -69,21 +69,6 @@ class DataBankScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // SearchBar(
-            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
-            //   elevation: WidgetStatePropertyAll(0),
-            //   shape: WidgetStatePropertyAll(
-            //     RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(16),
-            //     ),
-            //   ),
-            //   textCapitalization: TextCapitalization.sentences,
-            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
-            //   hintText: 'Search...',
-            //   padding: WidgetStatePropertyAll(
-            //     const EdgeInsets.symmetric(horizontal: 16),
-            //   ),
-            // ),
             Expanded(
               child: StreamProvider<List<Bank>>(
                 create: (context) => context.read<BankService>().getBank(

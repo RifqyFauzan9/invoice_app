@@ -46,7 +46,11 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
         .doc(uid)
         .collection(collectionPath)
         .get();
-    return snapshot.docs.map((doc) => fromJson(doc.data())).toList();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['airlineId'] = doc.id; // Inject document ID
+      return fromJson(data);
+    }).toList();
   }
 
   @override
@@ -67,26 +71,26 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
     _pnrController.text = widget.oldInvoice.pnrCode;
     _programController.text = widget.oldInvoice.program;
     _flightNotesController.text = widget.oldInvoice.flightNotes;
-    selectedAirline = widget.oldInvoice.airline;
 
-    _initializeItemControllers(widget.oldInvoice.items);
-
+    // Ambil airlines dan items terlebih dahulu
     getDocumentsOnce(collectionPath: 'airlines', fromJson: Airline.fromJson)
         .then((airlines) {
-      if (airlines.isNotEmpty) {
-        setState(() {
-          availableAirlines = airlines;
-        });
-      }
+      setState(() {
+        availableAirlines = airlines;
+        selectedAirline = airlines.firstWhere(
+          (a) => a.airlineId == widget.oldInvoice.airline.airlineId,
+          orElse: () => airlines.first,
+        );
+      });
     });
 
     getDocumentsOnce(collectionPath: 'items', fromJson: Item.fromJson)
         .then((items) {
-      if (items.isNotEmpty) {
-        setState(() {
-          availableItems = items;
-        });
-      }
+      setState(() {
+        availableItems = items;
+        // Inisialisasi item controllers setelah availableItems terisi
+        _initializeItemControllers(widget.oldInvoice.items);
+      });
     });
   }
 
@@ -169,31 +173,22 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
                       Text('Maskapai', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       DropdownButtonFormField(
-                        icon: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: InvoiceColor.primary.color,
-                        ),
+                        value: selectedAirline,
+                        icon: Icon(Icons.keyboard_arrow_down,
+                            color: InvoiceColor.primary.color),
                         hint: Text(
-                          selectedAirline?.airlineName ?? 'No airline chosen',
-                          style: hintTextStyle,
-                        ),
+                            selectedAirline?.airlineName ?? 'Pilih Maskapai'),
                         items: availableAirlines.map((airline) {
                           return DropdownMenuItem(
-                            value: airline,
+                            value:
+                                airline, // Ensure value is from availableAirlines
                             child: Text(airline.airlineName),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedAirline = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Airline harus dipilih';
-                          }
-                          return null;
-                        },
+                        onChanged: (value) =>
+                            setState(() => selectedAirline = value),
+                        validator: (value) =>
+                            value == null ? 'Pilih Maskapai' : null,
                       ),
                       const SizedBox(height: 8),
                       Text('Program', style: fieldLabelStyle),
@@ -377,12 +372,20 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
 
   void _initializeItemControllers(List<InvoiceItem> existingItems) {
     itemController = existingItems.map((invoiceItem) {
+      // Cari item yang sesuai dari availableItems berdasarkan ID
+      final matchedItem = availableItems.firstWhere(
+        (item) => item.itemId == invoiceItem.item.itemId,
+        orElse: () => invoiceItem.item, // Fallback jika tidak ditemukan
+      );
+
       return <String, Object>{
-        'item': invoiceItem.item,
-        'quantityController':
-            TextEditingController(text: invoiceItem.quantity.toString()),
-        'priceController':
-            TextEditingController(text: invoiceItem.itemPrice.toString()),
+        'item': matchedItem, // Gunakan item yang sudah dicocokkan
+        'quantityController': TextEditingController(
+          text: invoiceItem.quantity.toString(),
+        ),
+        'priceController': TextEditingController(
+          text: invoiceItem.itemPrice.toString(),
+        ),
       };
     }).toList();
   }
@@ -413,26 +416,24 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
             Expanded(
               flex: 2,
               child: DropdownButtonFormField<Item>(
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: InvoiceColor.primary.color,
-                ),
-                hint: Text(item.itemName, style: hintTextStyle),
+                value: item, // Pastikan value ada di items
+                icon: Icon(Icons.keyboard_arrow_down,
+                    color: InvoiceColor.primary.color),
+                hint: Text('Pilih Item', style: hintTextStyle),
                 items: items.map((item) {
                   return DropdownMenuItem<Item>(
-                    value: item,
+                    value: item, // Pastikan nilai unik (berdasarkan ID)
                     child: Text(item.itemName),
                   );
                 }).toList(),
                 onChanged: (Item? newValue) {
-                  setState(() {
-                    itemData['item'] = newValue!;
-                  });
+                  if (newValue != null) {
+                    setState(() {
+                      itemData['item'] = newValue; // Update item yang dipilih
+                    });
+                  }
                 },
-                validator: (value) {
-                  if (value == null) return 'Item harus dipilih';
-                  return null;
-                },
+                validator: (value) => value == null ? 'Pilih Item' : null,
               ),
             ),
             const SizedBox(width: 8),
@@ -442,8 +443,9 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
                 controller: quantityController,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Quantity tidak boleh kosong';
+                  }
                   if (int.tryParse(value) == null) return 'Harus angka';
                   return null;
                 },
@@ -465,8 +467,9 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
             ),
           ),
           validator: (value) {
-            if (value == null || value.isEmpty)
+            if (value == null || value.isEmpty) {
               return 'Harga tidak boleh kosong';
+            }
             if (int.tryParse(value) == null) return 'Harus angka';
             return null;
           },

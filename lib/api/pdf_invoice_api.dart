@@ -32,7 +32,6 @@ class PdfInvoiceApi {
     pdf.addPage(
       MultiPage(
         pageFormat: PdfPageFormat.a3,
-        maxPages: 2,
         build: (context) => [
           buildPdfHeader(
               company, boldPoppins, mediumPoppins, semiBoldPoppins),

@@ -13,10 +13,17 @@ import '../../static/screen_route.dart';
 import '../../widgets/main_widgets/custom_card.dart';
 import '../../widgets/main_widgets/custom_icon_button.dart';
 
-class StatusInvoiceScreen extends StatelessWidget {
+class StatusInvoiceScreen extends StatefulWidget {
   const StatusInvoiceScreen({super.key, required this.status});
 
   final String status;
+
+  @override
+  State<StatusInvoiceScreen> createState() => _StatusInvoiceScreenState();
+}
+
+class _StatusInvoiceScreenState extends State<StatusInvoiceScreen> {
+  String searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +47,7 @@ class StatusInvoiceScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   Text(
-                    '$status Invoices',
+                    '${widget.status} Invoices',
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w700,
                       fontSize: getPropScreenWidth(20),
@@ -62,24 +69,35 @@ class StatusInvoiceScreen extends StatelessWidget {
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 leading: Icon(Icons.search, size: 32, color: Colors.grey),
-                hintText: 'Search ${status.toLowerCase()} invoices...',
+                hintText: 'Search ${widget.status.toLowerCase()} invoices...',
                 padding: WidgetStatePropertyAll(
                   const EdgeInsets.symmetric(horizontal: 16),
                 ),
+                onChanged: (value) {
+                  setState(() => searchQuery = value.trim());
+                },
               ),
-              SizedBox(height: getPropScreenWidth(18)),
+              const SizedBox(height: 18),
               Expanded(
                 child: StreamBuilder<List<Invoice>>(
                   stream: context.read<InvoiceService>().getInvoiceByStatus(
-                        status,
-                        context.read<FirebaseAuthProvider>().profile!.uid!,
-                      ),
+                      widget.status,
+                      context.read<FirebaseAuthProvider>().profile!.uid!),
                   initialData: const <Invoice>[],
                   builder: (context, snapshot) {
-                    final invoices = snapshot.data ?? [];
-                    return !snapshot.hasData
-                        ? shimmerStatusList()
-                        : actualInvoiceList(invoices);
+                    if (!snapshot.hasData) return shimmerStatusList();
+
+                    final invoices = snapshot.data!;
+                    // Lakukan filtering di sisi klien:
+                    final filtered = searchQuery.isEmpty
+                        ? invoices
+                        : invoices.where((inv) {
+                            final q = searchQuery.toLowerCase();
+                            return inv.id.toLowerCase().contains(q) ||
+                                inv.travel.travelName.toLowerCase().contains(q);
+                          }).toList();
+
+                    return actualInvoiceList(filtered);
                   },
                 ),
               ),
@@ -120,7 +138,7 @@ class StatusInvoiceScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'You don\'t have any ${status.toLowerCase()} invoice yet.',
+              'You don\'t have any ${widget.status.toLowerCase()} invoice yet.',
               textAlign: TextAlign.center,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
@@ -148,6 +166,63 @@ class StatusInvoiceScreen extends StatelessWidget {
             context,
             ScreenRoute.invoiceScreen.route,
             arguments: invoice,
+          ),
+          trailing: PopupMenuButton(
+            iconColor: InvoiceColor.primary.color,
+            itemBuilder: (context) => [
+              if (invoice.status == 'Booking' || invoice.status == 'Lunas')
+                PopupMenuItem(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      ScreenRoute.updateInvoice.route,
+                      arguments: invoice,
+                    );
+                  },
+                  child: Text('Edit Invoice'),
+                ),
+              PopupMenuItem(
+                  onTap: () async {
+                    final service = context.read<InvoiceService>();
+                    final navigator = Navigator.of(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Hapus ${invoice.id}?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () async {
+                                await service.deleteInvoice(
+                                  uid: context
+                                      .read<FirebaseAuthProvider>()
+                                      .profile!
+                                      .uid!,
+                                  invoiceId: invoice.id,
+                                );
+                                navigator.pop();
+                              },
+                              child: Text(
+                                'Hapus',
+                                style:
+                                    TextStyle(color: InvoiceColor.error.color),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => navigator.pop(),
+                              child: Text(
+                                'Batal',
+                                style: TextStyle(
+                                    color: InvoiceColor.primary.color),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text('Hapus Invoice')),
+            ],
           ),
         );
       },

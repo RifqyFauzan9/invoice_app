@@ -21,7 +21,7 @@ class Invoice {
   List<String>? itemNames;
   List<String>? searchKeywords;
   List<Map<String, dynamic>>? paymentHistory;
-  String? status;
+  final String status;
 
   Invoice({
     this.searchKeywords,
@@ -39,7 +39,7 @@ class Invoice {
     required this.items,
     this.paymentHistory,
     required this.dateCreated,
-    this.status,
+    required this.status,
   });
 
   // Convert Firestore JSON to Invoice object
@@ -77,7 +77,7 @@ class Invoice {
         'airline': airline.toJson(),
         'items': items.map((x) => x.toJson()).toList(),
         'dateCreated': dateCreated,
-        'status': status ?? 'Booking',
+        'status': status,
         'itemNames': items.map((x) => x.item.itemName).toList(),
         'invoiceNumber': id,
         'departure': departure,

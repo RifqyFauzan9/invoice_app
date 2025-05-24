@@ -1,102 +1,96 @@
 import 'dart:io';
 
-import 'package:another_flushbar/flushbar.dart';
-import 'package:excel/excel.dart' as exc;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
-import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
-import 'package:my_invoice_app/services/airline_service.dart';
-import 'package:my_invoice_app/services/invoice_service.dart';
-import 'package:my_invoice_app/services/item_service.dart';
-import 'package:my_invoice_app/static/size_config.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
-import '../../widgets/main_widgets/custom_icon_button.dart';
+import '../../model/setup/item.dart';
+import '../../provider/firebase_auth_provider.dart';
+import 'package:my_invoice_app/services/invoice_service.dart';
+import '../../static/size_config.dart';
+import 'package:excel/excel.dart' as exc;
+import 'package:path/path.dart' as path;
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
-
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  String? selectedStatus = 'All Status';
-  String? selectedPeriod = 'All Period';
-  String? selectedAirline = 'All Maskapai';
-  String? selectedItem = 'All Item';
+  // filter state
+  String selectedStatus = 'All Status';
+  String selectedAirline = 'All Maskapai';
+  String selectedItem = 'All Item';
+  DateTime? periodFrom;
+  DateTime? periodTo;
+  DateTime? departureDate;
+
+  String searchQuery = '';
   final _fromDateController = TextEditingController();
   final _toDateController = TextEditingController();
-  final _searchController = TextEditingController();
   final _departureController = TextEditingController();
-  DateTime? _fromDate;
-  DateTime? _toDate;
-  DateTime? _departure;
-  Stream<List<Invoice>>? filteredInvoices;
-  List<Invoice>? invoices;
 
-  final ScrollController verticalScroll = ScrollController();
-  final ScrollController verticalScrollForNo = ScrollController();
-  final ScrollController horizontalScroll = ScrollController();
-  final ScrollController horizontalScrollForHeader = ScrollController();
+  List<String> availableAirlines = [];
+  List<String> availableItems = [];
 
-  final headerColor = const Color(0xFF2E6D89);
-
-  final columns = [
-    'No',
-    'Inv No',
-    'Inv Date',
-    'Customer',
-    'Status',
-    'Qty',
-    'Total Amount'
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    verticalScroll.addListener(() {
-      if (verticalScroll.offset != verticalScrollForNo.offset) {
-        verticalScrollForNo.jumpTo(verticalScroll.offset);
-      }
-    });
-    verticalScrollForNo.addListener(() {
-      if (verticalScroll.offset != verticalScrollForNo.offset) {
-        verticalScroll.jumpTo(verticalScrollForNo.offset);
-      }
-    });
-    horizontalScroll.addListener(() {
-      if (horizontalScroll.offset != horizontalScrollForHeader.offset) {
-        horizontalScrollForHeader.jumpTo(horizontalScroll.offset);
-      }
-    });
-    horizontalScrollForHeader.addListener(() {
-      if (horizontalScroll.offset != horizontalScrollForHeader.offset) {
-        horizontalScroll.jumpTo(horizontalScrollForHeader.offset);
-      }
-    });
-
-    _loadAirlines(context.read<FirebaseAuthProvider>().profile!.uid!);
-    _loadItems(context.read<FirebaseAuthProvider>().profile!.uid!);
+  Future<List<T>> getDocumentsOnce<T>({
+    required String collectionPath,
+    required T Function(Map<String, dynamic> data) fromJson,
+  }) async {
+    final uid = context.read<FirebaseAuthProvider>().profile!.uid;
+    final snapshot = await FirebaseFirestore.instance
+        .collection(collectionPath)
+        .doc(uid)
+        .collection(collectionPath)
+        .get();
+    return snapshot.docs.map((doc) => fromJson(doc.data())).toList();
   }
 
   @override
   void dispose() {
+    super.dispose();
     _fromDateController.dispose();
     _toDateController.dispose();
-    _searchController.dispose();
     _departureController.dispose();
-    verticalScroll.dispose();
-    verticalScrollForNo.dispose();
-    horizontalScroll.dispose();
-    horizontalScrollForHeader.dispose();
-    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDocumentsOnce(collectionPath: 'airlines', fromJson: Airline.fromJson)
+        .then((airlines) {
+      setState(() {
+        availableAirlines.add('All Maskapai');
+      });
+      if (airlines.isNotEmpty) {
+        for (var airline in airlines) {
+          setState(() {
+            availableAirlines.add(airline.airlineName);
+          });
+        }
+      }
+    });
+    getDocumentsOnce(collectionPath: 'items', fromJson: Item.fromJson)
+        .then((items) {
+      setState(() {
+        availableItems.add('All Item');
+      });
+      if (items.isNotEmpty) {
+        for (var item in items) {
+          setState(() {
+            availableItems.add(item.itemName);
+          });
+        }
+      }
+    });
   }
 
   void exportExcel(List<Invoice> invoices) async {
@@ -147,7 +141,7 @@ class _ReportScreenState extends State<ReportScreen> {
           .value = exc.TextCellValue(invoice.travel.travelName.toUpperCase());
       sheet
           .cell(exc.CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: i + 1))
-          .value = exc.TextCellValue(invoice.status!.toUpperCase());
+          .value = exc.TextCellValue(invoice.status.toUpperCase());
       sheet
           .cell(exc.CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: i + 1))
           .value = exc.DoubleCellValue(invoice.items.length.toDouble());
@@ -182,557 +176,430 @@ class _ReportScreenState extends State<ReportScreen> {
     await OpenFile.open(filePath);
   }
 
-  DateTimeRange? getSelectedPeriod() {
-    final start = _fromDate;
-    final end = _toDate;
-
-    if (start != null && end != null) {
-      if (start.isAfter(end)) return null;
-      return DateTimeRange(start: start, end: end);
-    }
-    return null;
-  }
-
-  void updateFilter() {
-    final service = context.read<InvoiceService>();
+  void _exportFilteredInvoices() async {
     final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
-    String searchQuery = _searchController.text.toLowerCase();
-    setState(() {
-      filteredInvoices = service.getFilteredInvoices(
-        uid: uid,
-        airline: selectedAirline,
-        status: selectedStatus,
-        period: getSelectedPeriod(),
-        item: selectedItem,
-        searchQuery: searchQuery,
-        departure: _departure,
+    final service = context.read<InvoiceService>();
+
+    final allInvoices = await service.getAllInvoices(uid).first;
+    final filteredInvoices = _filterInvoices(allInvoices);
+
+    if (filteredInvoices.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No invoices to export')),
       );
-    });
-  }
+      return;
+    }
 
-  List<String> statusItems = [
-    'All Status',
-    'Booking',
-    'Lunas',
-    'Cancel',
-    'Issued',
-  ];
-  List<String> periodItems = [
-    'All Period',
-    'Last Month',
-    '2 Months Ago',
-  ];
-  List<String> airlineItems = [
-    'All Maskapai',
-    'Sriwijaya Air',
-    'Garuda',
-    'Batik Air',
-  ];
-  List<String> itemItems = [
-    'All Item',
-    'Adult',
-    'Child',
-    'Infant',
-  ];
-
-  void _loadAirlines(String uid) {
-    context.read<AirlineService>().getAirline(uid).listen((airlines) {
-      setState(() {
-        airlineItems.clear();
-        airlineItems.add('All Maskapai');
-      });
-      if (airlines.isNotEmpty) {
-        for (var airline in airlines) {
-          setState(() {
-            airlineItems.add(airline.airlineName);
-          });
-        }
-      }
-    });
-  }
-
-  void _loadItems(String uid) {
-    context.read<ItemService>().getItem(uid).listen((items) {
-      setState(() {
-        itemItems.clear();
-        itemItems.add('All Item');
-      });
-      if (items.isNotEmpty) {
-        for (var item in items) {
-          setState(() {
-            itemItems.add(item.itemName);
-          });
-        }
-      }
-    });
-  }
-
-  final TextStyle fieldLabelStyle = GoogleFonts.montserrat(
-    fontWeight: FontWeight.bold,
-    fontSize: getPropScreenWidth(14),
-    color: InvoiceColor.primary.color,
-  );
-
-  final TextStyle dropdownTextStyle = GoogleFonts.montserrat(
-    fontWeight: FontWeight.w500,
-    fontSize: getPropScreenWidth(12),
-    color: Colors.black.withOpacity(0.6),
-  );
-
-  void _showFlushbar(String message, Color bgColor, IconData icon) {
-    Flushbar(
-      message: message,
-      messageColor: Theme.of(context).colorScheme.onPrimary,
-      messageSize: 12,
-      duration: const Duration(seconds: 3),
-      margin: const EdgeInsets.all(20),
-      borderRadius: BorderRadius.circular(10),
-      backgroundColor: bgColor,
-      flushbarPosition: FlushbarPosition.TOP,
-      flushbarStyle: FlushbarStyle.FLOATING,
-      icon: Icon(
-        icon,
-        color: Theme.of(context).colorScheme.onPrimary,
-      ),
-    ).show(context);
+    exportExcel(filteredInvoices);
   }
 
   @override
   Widget build(BuildContext context) {
+    final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
+    final service = context.read<InvoiceService>();
+    final TextStyle fieldLabelStyle = GoogleFonts.montserrat(
+      fontWeight: FontWeight.bold,
+      fontSize: getPropScreenWidth(14),
+      color: InvoiceColor.primary.color,
+    );
+
+    final TextStyle dropdownTextStyle = GoogleFonts.montserrat(
+      fontWeight: FontWeight.w500,
+      fontSize: getPropScreenWidth(12),
+      color: Colors.black.withOpacity(0.6),
+    );
+
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: getPropScreenWidth(25),
-            vertical: getPropScreenWidth(60),
+      appBar: AppBar(
+        title: const Text('Report Invoices'),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back),
+          color: InvoiceColor.primary.color,
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => _exportFilteredInvoices(),
+            icon: Icon(Icons.download),
+            color: InvoiceColor.primary.color,
           ),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomIconButton(
-                      icon: Icons.arrow_back,
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Text(
-                      'Report',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w700,
-                        fontSize: getPropScreenWidth(20),
-                        letterSpacing: 0,
-                        color: InvoiceColor.primary.color,
-                      ),
-                    ),
-                    CustomIconButton(
-                        icon: Icons.download,
-                        onPressed: () {
-                          if (invoices == null || invoices!.isEmpty) {
-                            _showFlushbar(
-                              'No invoices to display',
-                              InvoiceColor.error.color,
-                              Icons.error_outline,
+        ],
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(25),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Status', style: fieldLabelStyle),
+                        const SizedBox(height: 4),
+                        DropdownButtonFormField(
+                          style: dropdownTextStyle,
+                          icon: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: InvoiceColor.primary.color,
+                          ),
+                          value: selectedStatus,
+                          items: [
+                            'All Status',
+                            'Booking',
+                            'Lunas',
+                            'Cancel',
+                            'Issued'
+                          ].map((status) {
+                            return DropdownMenuItem(
+                              value: status,
+                              child: Text(status),
                             );
-                          } else {
-                            exportExcel(invoices!);
-                          }
-                        })
-                  ],
-                ),
-                SizedBox(height: SizeConfig.screenHeight * 0.04),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Status', style: fieldLabelStyle),
-                          const SizedBox(height: 4),
-                          DropdownButtonFormField(
-                            style: dropdownTextStyle,
-                            icon: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            value: selectedStatus,
-                            items: statusItems.map((status) {
-                              return DropdownMenuItem(
-                                value: status,
-                                child: Text(
-                                  status,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
                               setState(() {
                                 selectedStatus = value;
                               });
-                            },
-                          )
-                        ],
-                      ),
+                            }
+                          },
+                        )
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Periode', style: fieldLabelStyle),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _fromDateController,
-                                  decoration: InputDecoration(hintText: 'From'),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    final pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2020),
-                                      lastDate: DateTime(2050),
-                                    );
-                                    if (pickedDate != null) {
-                                      _fromDateController.text =
-                                          DateFormat('dd-MMM-yy')
-                                              .format(pickedDate);
-                                      _fromDate = pickedDate;
-                                    }
-                                  },
-                                ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Periode', style: fieldLabelStyle),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _fromDateController,
+                                decoration: InputDecoration(hintText: 'From'),
+                                readOnly: true,
+                                onTap: () async {
+                                  final pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2050),
+                                  );
+                                  if (pickedDate != null) {
+                                    _fromDateController.text =
+                                        DateFormat('dd-MMM-yy')
+                                            .format(pickedDate);
+                                    setState(() {
+                                      periodFrom = pickedDate;
+                                    });
+                                  }
+                                },
                               ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _toDateController,
-                                  decoration: InputDecoration(hintText: 'To'),
-                                  readOnly: true,
-                                  onTap: () async {
-                                    final pickedDate = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2020),
-                                      lastDate: DateTime(2050),
-                                    );
-                                    if (pickedDate != null) {
-                                      _toDateController.text =
-                                          DateFormat('dd-MMM-yy')
-                                              .format(pickedDate);
-                                      _toDate = pickedDate;
-                                    }
-                                  },
-                                ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: TextFormField(
+                                controller: _toDateController,
+                                decoration: InputDecoration(hintText: 'To'),
+                                readOnly: true,
+                                onTap: () async {
+                                  final pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2050),
+                                  );
+                                  if (pickedDate != null) {
+                                    _toDateController.text =
+                                        DateFormat('dd-MMM-yy')
+                                            .format(pickedDate);
+                                    setState(() {
+                                      periodTo = pickedDate;
+                                    });
+                                  }
+                                },
                               ),
-                            ],
-                          )
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                SizedBox(height: getPropScreenWidth(6)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Departure', style: fieldLabelStyle),
-                    const SizedBox(height: 4),
-                    TextFormField(
-                      controller: _departureController,
-                      decoration: InputDecoration(
-                        hintText: 'All Departure',
-                      ),
-                      readOnly: true,
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2050),
-                        );
-                        if (pickedDate != null) {
-                          _departureController.text =
-                              DateFormat('d MMMM yyyy').format(pickedDate);
-                          _departure = pickedDate;
-                        }
-                      },
-                    )
-                  ],
-                ),
-                SizedBox(height: getPropScreenWidth(6)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Maskapai', style: fieldLabelStyle),
-                    const SizedBox(height: 4),
-                    DropdownButtonFormField(
-                      style: dropdownTextStyle,
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      value: selectedAirline,
-                      items: airlineItems.map((airline) {
-                        return DropdownMenuItem(
-                          value: airline,
-                          child: Text(
-                            airline,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Departure', style: fieldLabelStyle),
+                  SizedBox(height: 4),
+                  TextFormField(
+                    controller: _departureController,
+                    decoration: InputDecoration(hintText: 'All Departure'),
+                    readOnly: true,
+                    onTap: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2050),
+                      );
+                      if (pickedDate != null) {
+                        _departureController.text =
+                            DateFormat('d MMMM yyyy').format(pickedDate);
+                        setState(() {
+                          departureDate = pickedDate;
+                        });
+                      }
+                    },
+                  )
+                ],
+              ),
+              SizedBox(height: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Maskapai', style: fieldLabelStyle),
+                  SizedBox(height: 4),
+                  DropdownButtonFormField<String>(
+                    style: dropdownTextStyle,
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: InvoiceColor.primary.color,
+                    ),
+                    value: selectedAirline,
+                    items: availableAirlines.map((airlineName) {
+                      return DropdownMenuItem(
+                        value: airlineName,
+                        child: Text(airlineName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
                         setState(() {
                           selectedAirline = value;
                         });
-                      },
-                    )
-                  ],
-                ),
-                SizedBox(height: getPropScreenWidth(6)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Item', style: fieldLabelStyle),
-                    const SizedBox(height: 4),
-                    DropdownButtonFormField(
+                      }
+                    },
+                  )
+                ],
+              ),
+              SizedBox(height: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Item', style: fieldLabelStyle),
+                  SizedBox(height: 4),
+                  DropdownButtonFormField(
                       style: dropdownTextStyle,
                       icon: Icon(
                         Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: InvoiceColor.primary.color,
                       ),
                       value: selectedItem,
-                      items: itemItems.map((item) {
+                      items: availableItems.map((itemName) {
                         return DropdownMenuItem(
-                          value: item,
-                          child: Text(
-                            item,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          value: itemName,
+                          child: Text(itemName),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedItem = value;
-                        });
+                      onChanged: (String? value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedItem = value;
+                          });
+                        }
+                      }),
+                ],
+              ),
+              SizedBox(height: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Search', style: fieldLabelStyle),
+                  SizedBox(height: 4),
+                  SearchBar(
+                    hintText: 'Seach customer or invoice number',
+                    leading: Icon(
+                      Icons.search,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value.toLowerCase();
+                      });
+                    },
+                  )
+                ],
+              ),
+              SizedBox(height: 16),
+              // --- RESULT LIST --- //
+              Expanded(
+                child: StreamBuilder<List<Invoice>>(
+                  stream: service.getAllInvoices(uid),
+                  builder: (ctx, snap) {
+                    if (!snap.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final filteredInvoices = _filterInvoices(snap.data!);
+
+                    if (filteredInvoices.isEmpty) {
+                      return const Center(child: Text('No matching invoices.'));
+                    }
+
+                    return ListView.builder(
+                      itemCount: filteredInvoices.length,
+                      itemBuilder: (c, i) {
+                        final inv = filteredInvoices[i];
+                        return Container(
+                          margin: EdgeInsets.symmetric(
+                            vertical: getPropScreenWidth(6),
+                          ),
+                          padding: EdgeInsets.all(getPropScreenWidth(14)),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              width: 2,
+                              color:
+                                  InvoiceColor.primary.color.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    inv.id,
+                                    style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: InvoiceColor.primary.color,
+                                    ),
+                                  ),
+                                  Text(
+                                    inv.status,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: InvoiceColor.primary.color,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 2),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    inv.travel.travelName,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 15,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('d MMM yyyy')
+                                        .format(inv.dateCreated.toDate()),
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 15,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                '${inv.items.length} items • ${NumberFormat.currency(symbol: 'Rp', decimalDigits: 0, locale: 'id_ID').format(
+                                  inv.items.fold<int>(
+                                    0,
+                                    (sum, item) =>
+                                        sum + (item.itemPrice * item.quantity),
+                                  ),
+                                )}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              )
+                            ],
+                          ),
+                        );
                       },
-                    ),
-                  ],
+                    );
+                  },
                 ),
-                SizedBox(height: getPropScreenWidth(6)),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Search', style: fieldLabelStyle),
-                    const SizedBox(height: 4),
-                    SearchBar(
-                      controller: _searchController,
-                      hintText: 'Search customer or invoice number',
-                      leading: Icon(
-                        Icons.search,
-                        color: Colors.black.withOpacity(0.5),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: getPropScreenWidth(16)),
-                FilledButton(
-                  onPressed: () => updateFilter(),
-                  child: const Text('Search'),
-                ),
-                SizedBox(
-                  height: SizeConfig.screenHeight * 0.24,
-                  child: filteredInvoices == null
-                      ? Center(child: Text('Tekan tombol Search'))
-                      : StreamBuilder<List<Invoice>>(
-                          stream: filteredInvoices,
-                          builder: (context, snapshot) {
-                            !snapshot.hasData
-                                ? CircularProgressIndicator()
-                                : null;
-
-                            invoices = snapshot.data ?? [];
-                            if (invoices!.isEmpty) {
-                              return Center(
-                                  child: Text('Tidak ada invoice ditemukan'));
-                            }
-
-                            return Stack(
-                              children: [
-                                // Main scrollable table
-                                Positioned.fill(
-                                  left: 60,
-                                  top: 50,
-                                  child: SingleChildScrollView(
-                                    controller: verticalScroll,
-                                    scrollDirection: Axis.vertical,
-                                    child: SingleChildScrollView(
-                                      controller: horizontalScroll,
-                                      scrollDirection: Axis.horizontal,
-                                      child: Column(
-                                        children: invoices!.map((invoice) {
-                                          return Row(
-                                            children: [
-                                              _buildCell(invoice.id),
-                                              _buildCell(DateFormat('M/d/yyyy')
-                                                  .format(invoice.dateCreated
-                                                      .toDate())),
-                                              _buildCell(
-                                                  invoice.travel.travelName),
-                                              _buildCell(invoice.status!),
-                                              _buildCell(invoice.items.length
-                                                  .toString()),
-                                              _buildCell(
-                                                NumberFormat.currency(
-                                                  locale: 'id_ID',
-                                                  decimalDigits: 0,
-                                                  symbol: '',
-                                                ).format(
-                                                  invoice.items.fold<int>(
-                                                    0,
-                                                    (sum, item) =>
-                                                        sum +
-                                                        (item.itemPrice *
-                                                            item.quantity),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                // Sticky header (columns)
-                                Positioned(
-                                  top: 0,
-                                  left: 60,
-                                  right: 0,
-                                  height: 50,
-                                  child: SingleChildScrollView(
-                                    controller: horizontalScrollForHeader,
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        _buildHeaderCell('Inv No'),
-                                        _buildHeaderCell('Inv Date'),
-                                        _buildHeaderCell('Customer'),
-                                        _buildHeaderCell('Status'),
-                                        _buildHeaderCell('Qty'),
-                                        _buildHeaderCell('Total Amount'),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                // Sticky column "No"
-                                Positioned(
-                                  left: 0,
-                                  top: 50,
-                                  bottom: 0,
-                                  width: 60,
-                                  child: SingleChildScrollView(
-                                    controller: verticalScrollForNo,
-                                    child: Column(
-                                      children: List.generate(invoices!.length,
-                                          (index) {
-                                        return Container(
-                                          width: 60,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: InvoiceColor
-                                                    .primary.color
-                                                    .withOpacity(0.3),
-                                                width: 1,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Text('${index + 1}'),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                ),
-
-                                // Sticky "No" header
-                                Positioned(
-                                  left: 0,
-                                  top: 0,
-                                  width: 60,
-                                  height: 50,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                      width: 1,
-                                      color: InvoiceColor.primary.color
-                                          .withOpacity(0.3),
-                                    ))),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'No',
-                                      style: GoogleFonts.montserrat(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                )
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCell(String value) {
-    return Container(
-      width: 120,
-      height: 50,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: InvoiceColor.primary.color.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Text(value, textAlign: TextAlign.center),
-    );
-  }
+  List<Invoice> _filterInvoices(List<Invoice> invoices) {
+    var filtered = invoices;
 
-  Widget _buildHeaderCell(String label) {
-    return Container(
-      width: 120,
-      height: 50,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-        color: InvoiceColor.primary.color.withOpacity(0.3),
-        width: 1,
-      ))),
-      child: Text(
-        label,
-        style: GoogleFonts.montserrat(fontWeight: FontWeight.bold),
-      ),
-    );
+    // Filter berdasarkan status
+    if (selectedStatus != 'All Status') {
+      filtered = filtered.where((inv) => inv.status == selectedStatus).toList();
+    }
+
+    // Filter berdasarkan periode
+    if (periodFrom != null && periodTo != null) {
+      filtered = filtered.where((inv) {
+        final date = inv.dateCreated.toDate();
+        return !date.isBefore(periodFrom!) && !date.isAfter(periodTo!);
+      }).toList();
+    }
+
+    // Filter berdasarkan departure date
+    if (departureDate != null) {
+      filtered = filtered.where((inv) {
+        final date = inv.departure.toDate();
+        return date.year == departureDate!.year &&
+            date.month == departureDate!.month &&
+            date.day == departureDate!.day;
+      }).toList();
+    }
+
+    // Filter berdasarkan maskapai
+    if (selectedAirline != 'All Maskapai') {
+      filtered = filtered
+          .where((inv) => inv.airline.airlineName == selectedAirline)
+          .toList();
+    }
+
+    // Filter berdasarkan item
+    if (selectedItem != 'All Item') {
+      filtered = filtered
+          .where((inv) => inv.itemNames?.contains(selectedItem) ?? false)
+          .toList();
+    }
+
+    // Filter berdasarkan search query
+    if (searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      filtered = filtered.where((inv) {
+        return inv.id.toLowerCase().contains(query) ||
+            inv.travel.travelName.toLowerCase().contains(query) ||
+            (inv.searchKeywords?.any((k) => k.toLowerCase().contains(query)) ??
+                false);
+      }).toList();
+    }
+
+    return filtered;
   }
 }
