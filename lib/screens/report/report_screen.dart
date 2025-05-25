@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
+import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
 import 'package:my_invoice_app/style/colors/invoice_color.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -41,18 +41,6 @@ class _ReportScreenState extends State<ReportScreen> {
   List<String> availableAirlines = [];
   List<String> availableItems = [];
 
-  Future<List<T>> getDocumentsOnce<T>({
-    required String collectionPath,
-    required T Function(Map<String, dynamic> data) fromJson,
-  }) async {
-    final uid = context.read<FirebaseAuthProvider>().profile!.uid;
-    final snapshot = await FirebaseFirestore.instance
-        .collection(collectionPath)
-        .doc(uid)
-        .collection(collectionPath)
-        .get();
-    return snapshot.docs.map((doc) => fromJson(doc.data())).toList();
-  }
 
   @override
   void dispose() {
@@ -65,7 +53,9 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    getDocumentsOnce(collectionPath: 'airlines', fromJson: Airline.fromJson)
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        collectionPath: 'airlines', fromJson: Airline.fromJson)
         .then((airlines) {
       setState(() {
         availableAirlines.add('All Maskapai');
@@ -78,7 +68,9 @@ class _ReportScreenState extends State<ReportScreen> {
         }
       }
     });
-    getDocumentsOnce(collectionPath: 'items', fromJson: Item.fromJson)
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        collectionPath: 'items', fromJson: Item.fromJson)
         .then((items) {
       setState(() {
         availableItems.add('All Item');
@@ -229,320 +221,323 @@ class _ReportScreenState extends State<ReportScreen> {
         padding: EdgeInsets.all(25),
         child: SizedBox(
           width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Status', style: fieldLabelStyle),
-                        const SizedBox(height: 4),
-                        DropdownButtonFormField(
-                          style: dropdownTextStyle,
-                          icon: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: InvoiceColor.primary.color,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Status', style: fieldLabelStyle),
+                          const SizedBox(height: 4),
+                          DropdownButtonFormField(
+                            style: dropdownTextStyle,
+                            icon: Icon(
+                              Icons.keyboard_arrow_down,
+                              color: InvoiceColor.primary.color,
+                            ),
+                            value: selectedStatus,
+                            items: [
+                              'All Status',
+                              'Booking',
+                              'Lunas',
+                              'Cancel',
+                              'Issued'
+                            ].map((status) {
+                              return DropdownMenuItem(
+                                value: status,
+                                child: Text(status),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  selectedStatus = value;
+                                });
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Periode', style: fieldLabelStyle),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _fromDateController,
+                                  decoration: InputDecoration(hintText: 'From'),
+                                  readOnly: true,
+                                  onTap: () async {
+                                    final pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2050),
+                                    );
+                                    if (pickedDate != null) {
+                                      _fromDateController.text =
+                                          DateFormat('dd-MMM-yy')
+                                              .format(pickedDate);
+                                      setState(() {
+                                        periodFrom = pickedDate;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: _toDateController,
+                                  decoration: InputDecoration(hintText: 'To'),
+                                  readOnly: true,
+                                  onTap: () async {
+                                    final pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2050),
+                                    );
+                                    if (pickedDate != null) {
+                                      _toDateController.text =
+                                          DateFormat('dd-MMM-yy')
+                                              .format(pickedDate);
+                                      setState(() {
+                                        periodTo = pickedDate;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                          value: selectedStatus,
-                          items: [
-                            'All Status',
-                            'Booking',
-                            'Lunas',
-                            'Cancel',
-                            'Issued'
-                          ].map((status) {
-                            return DropdownMenuItem(
-                              value: status,
-                              child: Text(status),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                selectedStatus = value;
-                              });
-                            }
-                          },
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Periode', style: fieldLabelStyle),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _fromDateController,
-                                decoration: InputDecoration(hintText: 'From'),
-                                readOnly: true,
-                                onTap: () async {
-                                  final pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2050),
-                                  );
-                                  if (pickedDate != null) {
-                                    _fromDateController.text =
-                                        DateFormat('dd-MMM-yy')
-                                            .format(pickedDate);
-                                    setState(() {
-                                      periodFrom = pickedDate;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _toDateController,
-                                decoration: InputDecoration(hintText: 'To'),
-                                readOnly: true,
-                                onTap: () async {
-                                  final pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2050),
-                                  );
-                                  if (pickedDate != null) {
-                                    _toDateController.text =
-                                        DateFormat('dd-MMM-yy')
-                                            .format(pickedDate);
-                                    setState(() {
-                                      periodTo = pickedDate;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Departure', style: fieldLabelStyle),
-                  SizedBox(height: 4),
-                  TextFormField(
-                    controller: _departureController,
-                    decoration: InputDecoration(hintText: 'All Departure'),
-                    readOnly: true,
-                    onTap: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2050),
-                      );
-                      if (pickedDate != null) {
-                        _departureController.text =
-                            DateFormat('d MMMM yyyy').format(pickedDate);
-                        setState(() {
-                          departureDate = pickedDate;
-                        });
-                      }
-                    },
-                  )
-                ],
-              ),
-              SizedBox(height: 6),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Maskapai', style: fieldLabelStyle),
-                  SizedBox(height: 4),
-                  DropdownButtonFormField<String>(
-                    style: dropdownTextStyle,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: InvoiceColor.primary.color,
-                    ),
-                    value: selectedAirline,
-                    items: availableAirlines.map((airlineName) {
-                      return DropdownMenuItem(
-                        value: airlineName,
-                        child: Text(airlineName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedAirline = value;
-                        });
-                      }
-                    },
-                  )
-                ],
-              ),
-              SizedBox(height: 6),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Item', style: fieldLabelStyle),
-                  SizedBox(height: 4),
-                  DropdownButtonFormField(
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Departure', style: fieldLabelStyle),
+                    SizedBox(height: 4),
+                    TextFormField(
+                      controller: _departureController,
+                      decoration: InputDecoration(hintText: 'All Departure'),
+                      readOnly: true,
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2050),
+                        );
+                        if (pickedDate != null) {
+                          _departureController.text =
+                              DateFormat('d MMMM yyyy').format(pickedDate);
+                          setState(() {
+                            departureDate = pickedDate;
+                          });
+                        }
+                      },
+                    )
+                  ],
+                ),
+                SizedBox(height: 6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Maskapai', style: fieldLabelStyle),
+                    SizedBox(height: 4),
+                    DropdownButtonFormField<String>(
                       style: dropdownTextStyle,
                       icon: Icon(
                         Icons.keyboard_arrow_down,
                         color: InvoiceColor.primary.color,
                       ),
-                      value: selectedItem,
-                      items: availableItems.map((itemName) {
+                      value: selectedAirline,
+                      items: availableAirlines.map((airlineName) {
                         return DropdownMenuItem(
-                          value: itemName,
-                          child: Text(itemName),
+                          value: airlineName,
+                          child: Text(airlineName),
                         );
                       }).toList(),
-                      onChanged: (String? value) {
+                      onChanged: (value) {
                         if (value != null) {
                           setState(() {
-                            selectedItem = value;
+                            selectedAirline = value;
                           });
                         }
-                      }),
-                ],
-              ),
-              SizedBox(height: 6),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Search', style: fieldLabelStyle),
-                  SizedBox(height: 4),
-                  SearchBar(
-                    hintText: 'Seach customer or invoice number',
-                    leading: Icon(
-                      Icons.search,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value.toLowerCase();
-                      });
-                    },
-                  )
-                ],
-              ),
-              SizedBox(height: 16),
-              // --- RESULT LIST --- //
-              Expanded(
-                child: StreamBuilder<List<Invoice>>(
-                  stream: service.getAllInvoices(uid),
-                  builder: (ctx, snap) {
-                    if (!snap.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final filteredInvoices = _filterInvoices(snap.data!);
-
-                    if (filteredInvoices.isEmpty) {
-                      return const Center(child: Text('No matching invoices.'));
-                    }
-
-                    return ListView.builder(
-                      itemCount: filteredInvoices.length,
-                      itemBuilder: (c, i) {
-                        final inv = filteredInvoices[i];
-                        return Container(
-                          margin: EdgeInsets.symmetric(
-                            vertical: getPropScreenWidth(6),
-                          ),
-                          padding: EdgeInsets.all(getPropScreenWidth(14)),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              width: 2,
-                              color:
-                                  InvoiceColor.primary.color.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    inv.id,
-                                    style: GoogleFonts.montserrat(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                      color: InvoiceColor.primary.color,
-                                    ),
-                                  ),
-                                  Text(
-                                    inv.status,
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: InvoiceColor.primary.color,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 2),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    inv.travel.travelName,
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 15,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    DateFormat('d MMM yyyy')
-                                        .format(inv.dateCreated.toDate()),
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 15,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  )
-                                ],
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                '${inv.items.length} items • ${NumberFormat.currency(symbol: 'Rp', decimalDigits: 0, locale: 'id_ID').format(
-                                  inv.items.fold<int>(
-                                    0,
-                                    (sum, item) =>
-                                        sum + (item.itemPrice * item.quantity),
-                                  ),
-                                )}',
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                ),
-                              )
-                            ],
-                          ),
-                        );
                       },
-                    );
-                  },
+                    )
+                  ],
                 ),
-              ),
-            ],
+                SizedBox(height: 6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Item', style: fieldLabelStyle),
+                    SizedBox(height: 4),
+                    DropdownButtonFormField(
+                        style: dropdownTextStyle,
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: InvoiceColor.primary.color,
+                        ),
+                        value: selectedItem,
+                        items: availableItems.map((itemName) {
+                          return DropdownMenuItem(
+                            value: itemName,
+                            child: Text(itemName),
+                          );
+                        }).toList(),
+                        onChanged: (String? value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedItem = value;
+                            });
+                          }
+                        }),
+                  ],
+                ),
+                SizedBox(height: 6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Search', style: fieldLabelStyle),
+                    SizedBox(height: 4),
+                    SearchBar(
+                      hintText: 'Seach customer or invoice number',
+                      leading: Icon(
+                        Icons.search,
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value.toLowerCase();
+                        });
+                      },
+                    )
+                  ],
+                ),
+                SizedBox(height: 16),
+                // --- RESULT LIST --- //
+                SizedBox(
+                  height: SizeConfig.screenHeight * 0.4,
+                  child: StreamBuilder<List<Invoice>>(
+                    stream: service.getAllInvoices(uid),
+                    builder: (ctx, snap) {
+                      if (!snap.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final filteredInvoices = _filterInvoices(snap.data!);
+
+                      if (filteredInvoices.isEmpty) {
+                        return const Center(child: Text('No matching invoices.'));
+                      }
+
+                      return ListView.builder(
+                        itemCount: filteredInvoices.length,
+                        itemBuilder: (c, i) {
+                          final inv = filteredInvoices[i];
+                          return Container(
+                            margin: EdgeInsets.symmetric(
+                              vertical: getPropScreenWidth(6),
+                            ),
+                            padding: EdgeInsets.all(getPropScreenWidth(14)),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                width: 2,
+                                color:
+                                    InvoiceColor.primary.color.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      inv.id,
+                                      style: GoogleFonts.montserrat(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: InvoiceColor.primary.color,
+                                      ),
+                                    ),
+                                    Text(
+                                      inv.status,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        color: InvoiceColor.primary.color,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      inv.travel.travelName,
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      DateFormat('d MMM yyyy')
+                                          .format(inv.dateCreated.toDate()),
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  '${inv.items.length} items • ${NumberFormat.currency(symbol: 'Rp', decimalDigits: 0, locale: 'id_ID').format(
+                                    inv.items.fold<int>(
+                                      0,
+                                      (sum, item) =>
+                                          sum + (item.itemPrice * item.quantity),
+                                    ),
+                                  )}',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -585,7 +580,10 @@ class _ReportScreenState extends State<ReportScreen> {
     // Filter berdasarkan item
     if (selectedItem != 'All Item') {
       filtered = filtered
-          .where((inv) => inv.itemNames?.contains(selectedItem) ?? false)
+          .where((inv) => inv.items
+              .map((item) => item.item.itemName)
+              .toList()
+              .contains(selectedItem))
           .toList();
     }
 
@@ -594,9 +592,7 @@ class _ReportScreenState extends State<ReportScreen> {
       final query = searchQuery.toLowerCase();
       filtered = filtered.where((inv) {
         return inv.id.toLowerCase().contains(query) ||
-            inv.travel.travelName.toLowerCase().contains(query) ||
-            (inv.searchKeywords?.any((k) => k.toLowerCase().contains(query)) ??
-                false);
+            inv.travel.travelName.toLowerCase().contains(query);
       }).toList();
     }
 

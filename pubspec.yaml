@@ -57,7 +57,7 @@ dependencies:
   path: ^1.9.1
   uuid: ^4.5.1
 #  flutter_image_compress: ^2.4.0
-  drop_down_search_field: ^1.1.3
+  flutter_typeahead: ^5.2.0
 
 dev_dependencies:
   flutter_test:

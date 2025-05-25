@@ -71,15 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             base64Decode(company!.companyLogo!),
                             fit: BoxFit.contain,
                           )
-                        : Text(
-                            'No company logo',
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w700,
-                              fontSize: getPropScreenWidth(18),
-                              color:
-                                  InvoiceColor.primary.color.withOpacity(0.5),
-                            ),
-                          ),
+                        : null
                   ),
                 ),
                 SizedBox(height: getPropScreenWidth(12)),

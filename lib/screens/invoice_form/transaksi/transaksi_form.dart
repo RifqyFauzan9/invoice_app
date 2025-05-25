@@ -1,6 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:drop_down_search_field/drop_down_search_field.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -42,19 +42,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
   final _pelunasanController = TextEditingController();
   DateTime? pickedDeparture;
 
-  Future<List<T>> getDocumentsOnce<T>({
-    required String collectionPath,
-    required T Function(Map<String, dynamic> data) fromJson,
-  }) async {
-    final uid = context.read<FirebaseAuthProvider>().profile!.uid;
-    final snapshot = await FirebaseFirestore.instance
-        .collection(collectionPath)
-        .doc(uid)
-        .collection(collectionPath)
-        .get();
-    return snapshot.docs.map((doc) => fromJson(doc.data())).toList();
-  }
-
   // List Invoice Item
   List<Map<String, dynamic>> itemController = [];
 
@@ -79,15 +66,14 @@ class _TransaksiFormState extends State<TransaksiForm> {
     });
     _dateController.text = DateFormat('d MMMM yyyy').format(dateCreated);
     // Get Travels
-    getDocumentsOnce(
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+      uid: context.read<FirebaseAuthProvider>().profile!.uid!,
       collectionPath: 'travels',
       fromJson: Travel.fromJson,
     ).then((travels) {
       if (travels.isNotEmpty) {
         setState(() {
           availableTravels = travels;
-          selectedTravel = travels.first;
-          _searchTravelController.text = travels.first.travelName;
         });
       } else {
         debugPrint('List travel empty!');
@@ -95,7 +81,8 @@ class _TransaksiFormState extends State<TransaksiForm> {
     });
 
     //  Get Airlines
-    getDocumentsOnce(
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+      uid: context.read<FirebaseAuthProvider>().profile!.uid!,
       collectionPath: 'airlines',
       fromJson: Airline.fromJson,
     ).then((airlines) {
@@ -110,7 +97,8 @@ class _TransaksiFormState extends State<TransaksiForm> {
     });
 
     // Get Items
-    getDocumentsOnce(
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+      uid: context.read<FirebaseAuthProvider>().profile!.uid!,
       collectionPath: 'items',
       fromJson: Item.fromJson,
     ).then((items) {
@@ -124,7 +112,8 @@ class _TransaksiFormState extends State<TransaksiForm> {
     });
 
     // Get Notes
-    getDocumentsOnce(
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+      uid: context.read<FirebaseAuthProvider>().profile!.uid!,
       collectionPath: 'notes',
       fromJson: Note.fromJson,
     ).then((notes) {
@@ -139,7 +128,8 @@ class _TransaksiFormState extends State<TransaksiForm> {
     });
 
     // Get Banks
-    getDocumentsOnce(
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+      uid: context.read<FirebaseAuthProvider>().profile!.uid!,
       collectionPath: 'banks',
       fromJson: Bank.fromJson,
     ).then((banks) {
@@ -215,50 +205,40 @@ class _TransaksiFormState extends State<TransaksiForm> {
                     children: [
                       Text('Nama Travel', style: fieldLabelStyle),
                       const SizedBox(height: 4),
-                      DropDownSearchField<Travel>(
-                        isMultiSelectDropdown: false,
-                        displayAllSuggestionWhenTap: true,
+                      TypeAheadField<Travel>(
+                        controller: _searchTravelController,
+                        focusNode: _travelFocusNode,
                         suggestionsCallback: (pattern) async {
                           return availableTravels
                               .where((travel) => travel.travelName
-                                  .toLowerCase()
-                                  .contains(pattern.toLowerCase()))
+                              .toLowerCase()
+                              .contains(pattern.toLowerCase()))
                               .toList();
                         },
-                        itemBuilder: (context, travel) {
+                        itemBuilder: (context, Travel travel) {
                           return ListTile(
                             title: Text(travel.travelName),
                           );
                         },
-                        validator: (value) {
-                          if (selectedTravel == null) {
-                            return 'Pilih travel terlebih dahulu';
-                          }
-                          return null;
+                        onSelected: (Travel travel) {
+                          setState(() {
+                            selectedTravel = travel;
+                            _searchTravelController.text = travel.travelName;
+                          });
                         },
-                        noItemsFoundBuilder: (context) => ListTile(
-                          title: Text('No Item Found'),
+                        emptyBuilder: (context) => ListTile(
+                          title: Text('No travel found'),
                         ),
-                        onSuggestionSelected: (Travel? travel) {
-                          if (travel != null && mounted) {
-                            setState(() {
-                              selectedTravel = travel;
-                              _searchTravelController.text = travel.travelName;
-                            });
-                          }
+                        builder: (context, controller, focusNode) {
+                          return TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              hintText: 'Pilih atau ketik nama travel',
+                              hintStyle: hintTextStyle,
+                            ),
+                          );
                         },
-                        textFieldConfiguration: TextFieldConfiguration(
-                          focusNode: _travelFocusNode,
-                          textInputAction: TextInputAction.next,
-                          keyboardType: TextInputType.text,
-                          textCapitalization: TextCapitalization.sentences,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w500,
-                          ),
-                          controller: _searchTravelController,
-                          onSubmitted: (value) => _handleTravelSelection(value),
-                          onTapOutside: (event) => _travelFocusNode.unfocus(),
-                        ),
                       ),
                       const SizedBox(height: 8),
                       Text('PNR', style: fieldLabelStyle),
@@ -373,8 +353,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
                         textInputAction: TextInputAction.next,
                         controller: _pelunasanController,
                         decoration: InputDecoration(
-                          hintText:
-                              'Masukkan Pelunasan',
+                          hintText: 'Masukkan Pelunasan',
                           hintStyle: hintTextStyle,
                         ),
                         validator: (value) {
@@ -521,36 +500,16 @@ class _TransaksiFormState extends State<TransaksiForm> {
   }
 
   void _handleTravelSelection(String inputText) {
-    if (inputText.isEmpty) {
-      if (mounted) {
-        setState(() {
-          selectedTravel = null;
-        });
-      }
-      return;
-    }
-
     final enteredText = inputText.toLowerCase();
     final matches = availableTravels
         .where(
             (travel) => travel.travelName.toLowerCase().contains(enteredText))
         .toList();
 
-    if (matches.isNotEmpty) {
-      if (mounted) {
-        setState(() {
-          selectedTravel = matches.first;
-          _searchTravelController.text = selectedTravel!.travelName;
-        });
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          selectedTravel = availableTravels.first;
-          _searchTravelController.text = availableTravels.first.travelName;
-        });
-      }
-    }
+    setState(() {
+      selectedTravel = matches.isNotEmpty ? matches.first : null;
+      _searchTravelController.text = selectedTravel?.travelName ?? inputText;
+    });
   }
 
   Future<void> _submitForm() async {
@@ -575,12 +534,13 @@ class _TransaksiFormState extends State<TransaksiForm> {
 
     try {
       final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
-      final lastNumber = await firestoreService.generateAutoIncrementType(
+      final sequenceNumber = await firestoreService.generateAutoIncrementType(
         uid: uid,
         prefix: '',
         docType: 'invoices',
         padding: 0,
         returnType: AutoIncrementReturnType.number,
+        date: dateCreated, // Tetap kirim dateCreated meskipun parameter nullable
       );
 
       List<InvoiceItem> items = itemController.map((item) {
@@ -598,7 +558,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
         flightNotes: _flightNotesController.text,
         pnrCode: _pnrController.text,
         program: _programController.text,
-        id: service.generateNoBukti(lastNumber),
+        id: service.generateNoBukti(sequenceNumber, dateCreated),
         airline: selectedAirline!,
         items: items,
         note: selectedNote!,

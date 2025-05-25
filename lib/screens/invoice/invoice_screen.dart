@@ -41,23 +41,28 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   final fieldLabelStyle = GoogleFonts.montserrat(
     color: InvoiceColor.primary.color,
     fontWeight: FontWeight.w600,
-    fontSize: getPropScreenWidth(16),
+    fontSize: getPropScreenWidth(15),
   );
 
   final fieldTextStyle = GoogleFonts.montserrat(
-    fontSize: getPropScreenWidth(13),
+    fontSize: getPropScreenWidth(12),
     fontWeight: FontWeight.w500,
     color: InvoiceColor.primary.color,
   );
 
   final hintTextStyle = GoogleFonts.montserrat(
-    fontSize: getPropScreenWidth(13),
+    fontSize: getPropScreenWidth(12),
     fontWeight: FontWeight.w500,
     color: InvoiceColor.primary.color.withOpacity(0.5),
   );
 
   InputDecoration inputFieldDecoration(String hintText) {
     return InputDecoration(
+      isDense: true,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: getPropScreenWidth(16),
+        vertical: getPropScreenWidth(12),
+      ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
@@ -138,17 +143,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               ),
               PopupMenuItem(
                 onTap: () {
-                  showModalBottomSheet(
+                  showDialog(
                     context: context,
                     builder: (context) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: getPropScreenWidth(30),
-                          vertical: getPropScreenWidth(40),
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: SingleChildScrollView(
+                      return AlertDialog(
+                        content: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: getPropScreenWidth(10)),
+                          child: Form(
+                            key: _formKey,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -164,18 +167,20 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                     Icons.keyboard_arrow_down_outlined,
                                     color: InvoiceColor.primary.color,
                                   ),
-                                  validator: (value) {
-                                    if (value == 'Lunas' &&
-                                        outstandingAmount != 0) {
-                                      return 'Harga belum lunas';
-                                    }
-                                    return null;
-                                  },
                                   style: fieldTextStyle,
                                   hint: Text(
                                     'Pilih Status',
                                     style: hintTextStyle,
                                   ),
+                                  validator: (value) {
+                                    final paidInput = int.tryParse(_paymentController.text) ?? 0;
+                                    final remainingAfterPayment = outstandingAmount - paidInput;
+
+                                    if (value == 'Lunas' && remainingAfterPayment != 0) {
+                                      return 'Harga belum lunas';
+                                    }
+                                    return null;
+                                  },
                                   decoration:
                                       inputFieldDecoration('Pilih Status'),
                                   items: [
@@ -204,7 +209,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'Sisa Harga: ${outstandingAmount == 0 ? 'Lunas' : outstandingAmount}',
+                                    'Sisa Harga: ${outstandingAmount == 0 ? 'Lunas' : NumberFormat.currency(
+                                      locale: 'id_ID',
+                                      decimalDigits: 0,
+                                      symbol: '',
+                                    ).format(outstandingAmount)}',
                                     style: GoogleFonts.montserrat(
                                         color: InvoiceColor.primary.color),
                                   ),

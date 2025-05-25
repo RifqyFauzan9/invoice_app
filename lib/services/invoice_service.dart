@@ -29,12 +29,10 @@ class InvoiceService {
     });
   }
 
-  String generateNoBukti(int lastNumber) {
-    final now = DateTime.now();
-    final year = now.year % 100; // ambil dua digit terakhir tahun
-    final month = now.month.toString().padLeft(2, '0'); // misal 04
-    final sequence = (lastNumber + 1).toString().padLeft(4, '0'); // misal 00001
-
+  String generateNoBukti(int sequenceNumber, DateTime date) {
+    final year = date.year % 100;
+    final month = date.month.toString().padLeft(2, '0');
+    final sequence = sequenceNumber.toString().padLeft(4, '0');
     return 'SO-$year$month-$sequence';
   }
 
@@ -76,15 +74,6 @@ class InvoiceService {
     } else {
       await invoiceRef.update({'status': selectedStatus});
     }
-  }
-
-  Future<void> deleteInvoice({required String uid, required String invoiceId}) {
-    return _firebaseFirestore
-        .collection('invoices')
-        .doc(uid)
-        .collection('invoices')
-        .doc(invoiceId)
-        .delete();
   }
 
   Stream<List<Invoice>> getAllInvoices(String uid) {

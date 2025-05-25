@@ -170,7 +170,28 @@ class _StatusInvoiceScreenState extends State<StatusInvoiceScreen> {
           trailing: PopupMenuButton(
             iconColor: InvoiceColor.primary.color,
             itemBuilder: (context) => [
-              if (invoice.status == 'Booking' || invoice.status == 'Lunas')
+              if (invoice.status != 'Booking' && invoice.status != 'Lunas')
+                PopupMenuItem(
+                  child: const Text('Edit Invoice'),
+                  onTap: () {
+                    Future.delayed(Duration.zero, () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Tidak Bisa Diedit'),
+                          content: const Text('Invoice tidak bisa diedit karena statusnya bukan Booking atau Lunas.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+                  },
+                )
+              else
                 PopupMenuItem(
                   onTap: () {
                     Navigator.pushNamed(
@@ -181,47 +202,6 @@ class _StatusInvoiceScreenState extends State<StatusInvoiceScreen> {
                   },
                   child: Text('Edit Invoice'),
                 ),
-              PopupMenuItem(
-                  onTap: () async {
-                    final service = context.read<InvoiceService>();
-                    final navigator = Navigator.of(context);
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Hapus ${invoice.id}?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () async {
-                                await service.deleteInvoice(
-                                  uid: context
-                                      .read<FirebaseAuthProvider>()
-                                      .profile!
-                                      .uid!,
-                                  invoiceId: invoice.id,
-                                );
-                                navigator.pop();
-                              },
-                              child: Text(
-                                'Hapus',
-                                style:
-                                    TextStyle(color: InvoiceColor.error.color),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => navigator.pop(),
-                              child: Text(
-                                'Batal',
-                                style: TextStyle(
-                                    color: InvoiceColor.primary.color),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: Text('Hapus Invoice')),
             ],
           ),
         );

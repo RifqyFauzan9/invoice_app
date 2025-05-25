@@ -1,9 +1,9 @@
 import 'package:another_flushbar/flushbar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
+import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
 import 'package:my_invoice_app/static/size_config.dart';
 import 'package:provider/provider.dart';
 
@@ -36,21 +36,15 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
 
   List<Map<String, Object>> itemController = [];
 
-  Future<List<T>> getDocumentsOnce<T>({
-    required String collectionPath,
-    required T Function(Map<String, dynamic> data) fromJson,
-  }) async {
-    final uid = context.read<FirebaseAuthProvider>().profile!.uid;
-    final snapshot = await FirebaseFirestore.instance
-        .collection(collectionPath)
-        .doc(uid)
-        .collection(collectionPath)
-        .get();
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      data['airlineId'] = doc.id; // Inject document ID
-      return fromJson(data);
-    }).toList();
+  void resetForm() {
+    _formKey.currentState!.reset();
+    setState(() {
+      selectedAirline = availableAirlines.first;
+      itemController.clear();
+      _pnrController.clear();
+      _flightNotesController.clear();
+      _programController.clear();
+    });
   }
 
   @override
@@ -73,7 +67,9 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
     _flightNotesController.text = widget.oldInvoice.flightNotes;
 
     // Ambil airlines dan items terlebih dahulu
-    getDocumentsOnce(collectionPath: 'airlines', fromJson: Airline.fromJson)
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        collectionPath: 'airlines', fromJson: Airline.fromJson)
         .then((airlines) {
       setState(() {
         availableAirlines = airlines;
@@ -84,11 +80,12 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
       });
     });
 
-    getDocumentsOnce(collectionPath: 'items', fromJson: Item.fromJson)
+    context.read<FirebaseFirestoreService>().getDocumentsOnce(
+        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+        collectionPath: 'items', fromJson: Item.fromJson)
         .then((items) {
       setState(() {
         availableItems = items;
-        // Inisialisasi item controllers setelah availableItems terisi
         _initializeItemControllers(widget.oldInvoice.items);
       });
     });
@@ -142,7 +139,7 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
                     ),
                     CustomIconButton(
                       icon: Icons.sync,
-                      onPressed: () {},
+                      onPressed: () => resetForm(),
                     ),
                   ],
                 ),

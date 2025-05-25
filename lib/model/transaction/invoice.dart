@@ -18,14 +18,10 @@ class Invoice {
   final Timestamp dateCreated;
   final Timestamp departure;
   final String pelunasan;
-  List<String>? itemNames;
-  List<String>? searchKeywords;
   List<Map<String, dynamic>>? paymentHistory;
   final String status;
 
   Invoice({
-    this.searchKeywords,
-    this.itemNames,
     required this.pelunasan,
     required this.departure,
     required this.id,
@@ -46,8 +42,6 @@ class Invoice {
   factory Invoice.fromJson(Map<String, dynamic> json) => Invoice(
         pelunasan: json['pelunasan'],
         departure: json['departure'] as Timestamp,
-        itemNames: List<String>.from(json['itemNames']),
-        searchKeywords: List<String>.from(json['searchKeywords']),
         id: json['invoiceNumber'],
         note: Note.fromJson(json['note']),
         banks: List<Bank>.from(json['banks'].map((x) => Bank.fromJson(x))),
@@ -67,7 +61,6 @@ class Invoice {
 
   // Convert Invoice object to JSON (for Firestore)
   Map<String, dynamic> toJson() => {
-        'searchKeywords': [id.toLowerCase(), travel.travelName.toLowerCase()],
         'note': note.toJson(),
         'banks': banks.map((x) => x.toJson()).toList(),
         'pnrCode': pnrCode,
@@ -78,7 +71,6 @@ class Invoice {
         'items': items.map((x) => x.toJson()).toList(),
         'dateCreated': dateCreated,
         'status': status,
-        'itemNames': items.map((x) => x.item.itemName).toList(),
         'invoiceNumber': id,
         'departure': departure,
         'pelunasan': pelunasan,
