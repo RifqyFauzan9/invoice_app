@@ -81,6 +81,7 @@ class TravelService {
         .collection('travels')
         .doc(uid)
         .collection('travels')
+        .orderBy('dateCreated', descending: true)
         .snapshots()
         .map(
           (event) => event.docs.map(

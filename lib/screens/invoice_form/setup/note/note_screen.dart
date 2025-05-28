@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_invoice_app/model/setup/note.dart';
@@ -84,6 +86,7 @@ class NoteScreen extends StatelessWidget {
                           child: Text('Empty List'),
                         )
                       : ListView.builder(
+                    padding: Platform.isIOS ? EdgeInsets.zero : null,
                           itemCount: notes.length,
                           itemBuilder: (context, index) {
                             final note = notes[index];

@@ -114,6 +114,12 @@ class _NoteFormState extends State<NoteForm> {
                           hintText: 'Masukkan Judul Note',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Judul note tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       Text('Note', style: fieldLabelStyle),
@@ -129,6 +135,12 @@ class _NoteFormState extends State<NoteForm> {
                           hintText: 'Masukkan Note',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Note tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       Text('Term Payment', style: fieldLabelStyle),
@@ -144,6 +156,12 @@ class _NoteFormState extends State<NoteForm> {
                           hintText: 'Masukkan Term Payment',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Term payment tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       SizedBox(height: 24),
                       isLoading

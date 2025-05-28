@@ -33,6 +33,7 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
   List<Item> availableItems = [];
   Airline? selectedAirline;
   bool isLoading = false;
+  bool isInitialLoading = true; // Add this for initial data loading
 
   List<Map<String, Object>> itemController = [];
 
@@ -66,33 +67,70 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
     _programController.text = widget.oldInvoice.program;
     _flightNotesController.text = widget.oldInvoice.flightNotes;
 
-    // Ambil airlines dan items terlebih dahulu
-    context.read<FirebaseFirestoreService>().getDocumentsOnce(
-        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
-        collectionPath: 'airlines', fromJson: Airline.fromJson)
-        .then((airlines) {
+    // Set loading state to true when starting to fetch data
+    setState(() => isInitialLoading = true);
+
+    // Fetch airlines and items
+    final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
+    final firestoreService = context.read<FirebaseFirestoreService>();
+
+    // Use Future.wait to fetch both data simultaneously
+    Future.wait([
+      firestoreService.getDocumentsOnce(
+        uid: uid,
+        collectionPath: 'airlines',
+        fromJson: Airline.fromJson,
+      ),
+      firestoreService.getDocumentsOnce(
+        uid: uid,
+        collectionPath: 'items',
+        fromJson: Item.fromJson,
+      ),
+    ]).then((results) {
+      final airlines = results[0] as List<Airline>;
+      final items = results[1] as List<Item>;
+
       setState(() {
         availableAirlines = airlines;
+        availableItems = items;
+
+        // Set selected airline
         selectedAirline = airlines.firstWhere(
           (a) => a.airlineId == widget.oldInvoice.airline.airlineId,
           orElse: () => airlines.first,
         );
-      });
-    });
 
-    context.read<FirebaseFirestoreService>().getDocumentsOnce(
-        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
-        collectionPath: 'items', fromJson: Item.fromJson)
-        .then((items) {
-      setState(() {
-        availableItems = items;
+        // Initialize item controllers
         _initializeItemControllers(widget.oldInvoice.items);
+
+        // Data loading complete
+        isInitialLoading = false;
       });
+    }).catchError((error) {
+      debugPrint('Error loading data: $error');
+      setState(() => isInitialLoading = false);
+      _showFlushbar(
+        'Gagal memuat data',
+        InvoiceColor.error.color,
+        Icons.error_outline,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator while initial data is loading
+    if (isInitialLoading) {
+      return Scaffold(
+        body: Center(
+          child: LoadingAnimationWidget.fourRotatingDots(
+            color: InvoiceColor.primary.color,
+            size: getPropScreenWidth(40),
+          ),
+        ),
+      );
+    }
+
     // Field label style
     TextStyle fieldLabelStyle = GoogleFonts.montserrat(
       color: InvoiceColor.primary.color,
@@ -108,6 +146,7 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
       fontWeight: FontWeight.w600,
       letterSpacing: 0,
     );
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -177,8 +216,7 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
                             selectedAirline?.airlineName ?? 'Pilih Maskapai'),
                         items: availableAirlines.map((airline) {
                           return DropdownMenuItem(
-                            value:
-                                airline, // Ensure value is from availableAirlines
+                            value: airline,
                             child: Text(airline.airlineName),
                           );
                         }).toList(),

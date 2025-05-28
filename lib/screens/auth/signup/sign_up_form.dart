@@ -37,10 +37,10 @@ class _SignUpFormState extends State<SignUpForm> {
         case FirebaseAuthStatus.accountCreated:
           // Tampilkan Flushbar dengan pesan sukses
           Flushbar(
-            message: 'Account created successfully! Please login.',
+            message: 'Account created successfully! Please check your email to verify your account.',
             messageColor: Theme.of(context).colorScheme.onPrimary,
             messageSize: 12,
-            duration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
             margin: const EdgeInsets.all(20),
             borderRadius: BorderRadius.circular(10),
             backgroundColor: Colors.green, // Warna hijau untuk pesan sukses

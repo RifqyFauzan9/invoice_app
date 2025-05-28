@@ -109,6 +109,12 @@ class _DataAirlinesFormState extends State<DataAirlinesForm> {
                           hintText: 'Masukkan Nama Maskapai',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Nama maskapai tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text('Kode', style: fieldLabelStyle),
@@ -122,6 +128,12 @@ class _DataAirlinesFormState extends State<DataAirlinesForm> {
                           hintText: 'Masukkan Kode Maskapai',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Kode maskapai tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 24),
                       isLoading

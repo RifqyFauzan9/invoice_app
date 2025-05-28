@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/bank.dart';
 import 'package:my_invoice_app/services/bank_service.dart';
@@ -85,6 +87,7 @@ class DataBankScreen extends StatelessWidget {
                           child: Text('Empty List'),
                         )
                       : ListView.builder(
+                    padding: Platform.isIOS ? EdgeInsets.zero : null,
                           itemCount: banks.length,
                           itemBuilder: (context, index) {
                             final bank = banks[index];

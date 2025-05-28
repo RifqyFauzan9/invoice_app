@@ -35,7 +35,7 @@ class _LoginFormState extends State<LoginForm> {
 
     if (email.isNotEmpty && password.isNotEmpty) {
       final sharedPreferenceProvider =
-          context.read<SharedPreferencesProvider>();
+      context.read<SharedPreferencesProvider>();
       final firebaseAuthProvider = context.read<FirebaseAuthProvider>();
       final navigator = Navigator.of(context);
 
@@ -190,19 +190,19 @@ class _LoginFormState extends State<LoginForm> {
             builder: (context, value, child) {
               return switch (value.authStatus) {
                 FirebaseAuthStatus.authenticating => Center(
-                    child: LoadingAnimationWidget.fourRotatingDots(
-                      color: Theme.of(context).colorScheme.primary,
-                      size: getPropScreenWidth(30),
-                    ),
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: getPropScreenWidth(30),
                   ),
+                ),
                 _ => FilledButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _tapToLogin();
-                      }
-                    },
-                    child: const Text('Sign In'),
-                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _tapToLogin();
+                    }
+                  },
+                  child: const Text('Sign In'),
+                ),
               };
             },
           ),

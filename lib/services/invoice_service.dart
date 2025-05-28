@@ -93,6 +93,22 @@ class InvoiceService {
     });
   }
 
+  Future<Invoice> getInvoiceById(
+      {required String uid, required String invoiceId}) async {
+    final result = await _firebaseFirestore
+        .collection('invoices')
+        .doc(uid)
+        .collection('invoices')
+        .doc(invoiceId)
+        .get();
+
+    if (result.exists) {
+      return Invoice.fromJson(result.data()!);
+    } else {
+      throw Exception('Invoice not found');
+    }
+  }
+
   Future<void> updateInvoice({
     required String uid,
     required String invoiceId,

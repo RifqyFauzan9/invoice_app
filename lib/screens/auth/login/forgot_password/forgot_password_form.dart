@@ -46,11 +46,11 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
             builder: (context, value, child) {
               return switch (value.authStatus) {
                 FirebaseAuthStatus.sendingCode => Center(
-                    child: LoadingAnimationWidget.fourRotatingDots(
-                      color: Theme.of(context).colorScheme.primary,
-                      size: getPropScreenWidth(30),
-                    ),
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Theme.of(context).colorScheme.primary,
+                    size: getPropScreenWidth(30),
                   ),
+                ),
                 _ => FilledButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {

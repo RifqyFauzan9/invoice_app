@@ -13,14 +13,14 @@ import '../../../../style/colors/invoice_color.dart';
 import '../../../../widgets/invoice_form/section_title_form.dart';
 
 class DataTravelForm extends StatefulWidget {
-  DataTravelForm({
+  const DataTravelForm({
     super.key,
     required this.mode,
     this.oldTravel,
   });
 
   final FormMode mode;
-  Travel? oldTravel;
+  final Travel? oldTravel;
 
   @override
   State<DataTravelForm> createState() => _DataTravelFormState();
@@ -119,7 +119,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar!';
+                            return 'Nama travel tidak boleh kosong!';
                           }
                           return null;
                         },
@@ -138,7 +138,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar!';
+                            return 'Kontak person tidak boleh kosong!';
                           }
                           return null;
                         },
@@ -157,7 +157,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar!';
+                            return 'Alamat travel tidak boleh kosong!';
                           }
                           return null;
                         },
@@ -175,7 +175,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar!';
+                            return 'Nomor telepon tidak boleh kosong!';
                           }
                           return null;
                         },
@@ -194,7 +194,7 @@ class _DataTravelFormState extends State<DataTravelForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar!';
+                            return 'Email travel tidak boleh kosong!';
                           }
                           return null;
                         },
@@ -209,7 +209,9 @@ class _DataTravelFormState extends State<DataTravelForm> {
                             )
                           : FilledButton(
                               onPressed: () {
-                                _saveTravel();
+                                if (_formKey.currentState!.validate()) {
+                                  _saveTravel();
+                                }
                               },
                               child: const Text('Submit'),
                             ),
@@ -236,8 +238,6 @@ class _DataTravelFormState extends State<DataTravelForm> {
         ? widget.oldTravel!.travelId
         : await service.generateTravelIdFromFirestore(
             context.read<FirebaseAuthProvider>().profile!.uid!);
-
-    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       isLoading = true;

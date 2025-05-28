@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/item.dart';
 import 'package:my_invoice_app/services/item_service.dart';
@@ -66,21 +68,6 @@ class DataItemScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // SearchBar(
-            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
-            //   elevation: WidgetStatePropertyAll(0),
-            //   textCapitalization: TextCapitalization.sentences,
-            //   shape: WidgetStatePropertyAll(
-            //     RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(16),
-            //     ),
-            //   ),
-            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
-            //   hintText: 'Search...',
-            //   padding: WidgetStatePropertyAll(
-            //     const EdgeInsets.symmetric(horizontal: 16),
-            //   ),
-            // ),
             Expanded(
                 child: StreamProvider<List<Item>>(
               create: (context) => context
@@ -98,6 +85,7 @@ class DataItemScreen extends StatelessWidget {
                         child: Text('Empty List'),
                       )
                     : ListView.builder(
+                  padding: Platform.isIOS ? EdgeInsets.zero : null,
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           final item = items[index];

@@ -24,8 +24,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _selectedPeriod = 'Bulan Ini';
-  final _periodOptions = const ['Bulan Ini', 'Bulan Lalu', '2 Bulan Lalu'];
+  String _selectedPeriod = 'This Mth';
+  final _periodOptions = const ['This Mth', 'last Mth', '2 Mth Ago'];
 
   @override
   Widget build(BuildContext context) {
@@ -375,37 +375,35 @@ class _RecentInvoiceItem extends StatelessWidget {
 
   Widget? _buildPopupMenu(BuildContext context) {
     return PopupMenuButton(
-      iconColor: InvoiceColor.primary.color,
-      itemBuilder: (context) => [
-        if (invoice.status != 'Booking' && invoice.status != 'Lunas')
-          PopupMenuItem(
-            child: const Text('Edit Invoice'),
-            onTap: () {
-              Future.delayed(Duration.zero, () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Tidak Bisa Diedit'),
-                    content: const Text('Invoice tidak bisa diedit karena statusnya bukan Booking atau Lunas.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              });
-            },
-          )
-        else
-          PopupMenuItem(
-            onTap: () => _navigateToUpdateInvoice(context),
-            child: const Text('Edit Invoice'),
-          ),
-      ]
-
-    );
+        iconColor: InvoiceColor.primary.color,
+        itemBuilder: (context) => [
+              if (invoice.status != 'Booking' && invoice.status != 'Lunas')
+                PopupMenuItem(
+                  child: const Text('Edit Invoice'),
+                  onTap: () {
+                    Future.delayed(Duration.zero, () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Tidak bisa edit invoice'),
+                          content: Text('Invoice ${invoice.status}.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+                  },
+                )
+              else
+                PopupMenuItem(
+                  onTap: () => _navigateToUpdateInvoice(context),
+                  child: const Text('Edit Invoice'),
+                ),
+            ]);
   }
 
   void _navigateToInvoiceDetail(BuildContext context) {
@@ -603,10 +601,10 @@ class InvoiceUtils {
     return invoices.where((invoice) {
       final date = invoice.dateCreated.toDate();
       switch (period) {
-        case 'Bulan Lalu':
+        case 'Last Mth':
           final lastMonth = DateTime(now.year, now.month - 1);
           return date.month == lastMonth.month && date.year == lastMonth.year;
-        case '2 Bulan Lalu':
+        case '2 Mth Ago':
           final twoMonthsAgo = DateTime(now.year, now.month - 2);
           return date.month == twoMonthsAgo.month &&
               date.year == twoMonthsAgo.year;

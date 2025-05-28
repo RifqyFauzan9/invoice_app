@@ -20,12 +20,12 @@ class ForgotPasswordScreen extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned(
-                    top: SizeConfig.screenHeight * 0.04,
+                    top: SizeConfig.screenHeight * 0.05,
                     left: 0,
                     right: 0,
                     child: SvgPicture.asset(
                       'assets/svgs/otp.svg',
-                      width: SizeConfig.screenWidth * 0.9,
+                      width: SizeConfig.screenWidth * 0.85,
                     ),
                   ),
                   Positioned(

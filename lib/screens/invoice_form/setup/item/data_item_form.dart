@@ -105,6 +105,12 @@ class _DataItemFormState extends State<DataItemForm> {
                           hintText: 'Masukkan Kode Item',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Kode item tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 8),
                       Text('Nama Item', style: fieldLabelStyle),
@@ -118,6 +124,12 @@ class _DataItemFormState extends State<DataItemForm> {
                           hintText: 'Masukkan Nama Item',
                           hintStyle: hintTextStyle,
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Nama item tidak boleh kosong';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 32),
                       isLoading

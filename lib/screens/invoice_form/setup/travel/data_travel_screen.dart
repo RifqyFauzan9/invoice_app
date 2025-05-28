@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/travel.dart';
 import 'package:my_invoice_app/services/travel_service.dart';
@@ -119,6 +121,7 @@ class _DataTravelScreenState extends State<DataTravelScreen> {
                           child: Text('Empty List'),
                         )
                       : ListView.builder(
+                    padding: Platform.isIOS ? EdgeInsets.zero : null,
                           itemCount: filtered.length,
                           itemBuilder: (context, index) {
                             final travel = filtered[index];

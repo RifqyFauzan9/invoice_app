@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/services/airline_service.dart';
@@ -69,21 +71,6 @@ class DataAirlinesScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // SearchBar(
-            //   backgroundColor: WidgetStatePropertyAll(Colors.white),
-            //   elevation: WidgetStatePropertyAll(0),
-            //   shape: WidgetStatePropertyAll(
-            //     RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(16),
-            //     ),
-            //   ),
-            //   textCapitalization: TextCapitalization.sentences,
-            //   leading: Icon(Icons.search, size: 32, color: Colors.grey),
-            //   hintText: 'Search...',
-            //   padding: WidgetStatePropertyAll(
-            //     const EdgeInsets.symmetric(horizontal: 16),
-            //   ),
-            // ),
             Expanded(
               child: StreamProvider<List<Airline>>(
                 create: (context) => context.read<AirlineService>().getAirline(
@@ -101,6 +88,7 @@ class DataAirlinesScreen extends StatelessWidget {
                           child: Text('Empty List'),
                         )
                       : ListView.builder(
+                    padding: Platform.isIOS ? EdgeInsets.zero : null,
                           itemCount: airlines.length,
                           itemBuilder: (context, index) {
                             final airline = airlines[index];

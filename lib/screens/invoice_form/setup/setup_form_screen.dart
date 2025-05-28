@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_invoice_app/static/screen_route.dart';
 import 'package:my_invoice_app/static/size_config.dart';
@@ -67,7 +69,9 @@ class SetupFormScreen extends StatelessWidget {
                 icon: Icons.arrow_back,
                 onPressed: () => Navigator.pop(context),
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.04),
+              Platform.isIOS
+                  ? SizedBox(height: SizeConfig.screenHeight * 0.01)
+                  : SizedBox(height: SizeConfig.screenHeight * 0.04),
               Expanded(
                 child: ListView(
                   children: formCardList.map((card) {

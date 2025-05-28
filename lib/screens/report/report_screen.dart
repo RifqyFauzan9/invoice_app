@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,6 @@ class _ReportScreenState extends State<ReportScreen> {
   List<String> availableAirlines = [];
   List<String> availableItems = [];
 
-
   @override
   void dispose() {
     super.dispose();
@@ -53,9 +53,12 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FirebaseFirestoreService>().getDocumentsOnce(
-        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
-        collectionPath: 'airlines', fromJson: Airline.fromJson)
+    context
+        .read<FirebaseFirestoreService>()
+        .getDocumentsOnce(
+            uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+            collectionPath: 'airlines',
+            fromJson: Airline.fromJson)
         .then((airlines) {
       setState(() {
         availableAirlines.add('All Maskapai');
@@ -68,9 +71,12 @@ class _ReportScreenState extends State<ReportScreen> {
         }
       }
     });
-    context.read<FirebaseFirestoreService>().getDocumentsOnce(
-        uid: context.read<FirebaseAuthProvider>().profile!.uid!,
-        collectionPath: 'items', fromJson: Item.fromJson)
+    context
+        .read<FirebaseFirestoreService>()
+        .getDocumentsOnce(
+            uid: context.read<FirebaseAuthProvider>().profile!.uid!,
+            collectionPath: 'items',
+            fromJson: Item.fromJson)
         .then((items) {
       setState(() {
         availableItems.add('All Item');
@@ -168,6 +174,24 @@ class _ReportScreenState extends State<ReportScreen> {
     await OpenFile.open(filePath);
   }
 
+  void _showFlushbar(String message, Color bgColor, IconData icon) {
+    Flushbar(
+      message: message,
+      messageColor: Colors.white,
+      messageSize: 12,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(20),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: bgColor,
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      icon: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    ).show(context);
+  }
+
   void _exportFilteredInvoices() async {
     final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
     final service = context.read<InvoiceService>();
@@ -176,8 +200,10 @@ class _ReportScreenState extends State<ReportScreen> {
     final filteredInvoices = _filterInvoices(allInvoices);
 
     if (filteredInvoices.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No invoices to export')),
+      _showFlushbar(
+        'No invoice to export',
+        InvoiceColor.error.color,
+        Icons.info_outline,
       );
       return;
     }
@@ -445,7 +471,8 @@ class _ReportScreenState extends State<ReportScreen> {
                       final filteredInvoices = _filterInvoices(snap.data!);
 
                       if (filteredInvoices.isEmpty) {
-                        return const Center(child: Text('No matching invoices.'));
+                        return const Center(
+                            child: Text('No matching invoices.'));
                       }
 
                       return ListView.builder(
@@ -520,7 +547,8 @@ class _ReportScreenState extends State<ReportScreen> {
                                     inv.items.fold<int>(
                                       0,
                                       (sum, item) =>
-                                          sum + (item.itemPrice * item.quantity),
+                                          sum +
+                                          (item.itemPrice * item.quantity),
                                     ),
                                   )}',
                                   style: GoogleFonts.montserrat(

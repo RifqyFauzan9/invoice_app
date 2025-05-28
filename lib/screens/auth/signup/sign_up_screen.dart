@@ -22,12 +22,12 @@ class SignUpScreen extends StatelessWidget {
                     left: 0,
                     right: 0,
                     child: Positioned(
-                      top: SizeConfig.screenHeight * 0.02,
+                      top: SizeConfig.screenHeight * 0.03,
                       left: 0,
                       right: 0,
                       child: SvgPicture.asset(
                         'assets/svgs/sign_up.svg',
-                        width: SizeConfig.screenWidth * 0.9,
+                        width: SizeConfig.screenWidth * 0.85,
                       ),
                     ),
                   ),

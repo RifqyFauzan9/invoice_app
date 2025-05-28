@@ -13,6 +13,9 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
+
+      await sendEmailVerification(result.user!);
+
       return result;
     } on FirebaseAuthException catch (e) {
       final errorMessage = switch (e.code) {
@@ -35,6 +38,15 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
+
+      final user = result.user;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        await _auth.signOut();
+
+        throw 'Email not verified. Please check your email to verify.';
+      }
+
       return result;
     } on FirebaseAuthException catch (e) {
       final errorMessage = switch (e.code) {
@@ -42,11 +54,12 @@ class FirebaseAuthService {
         "user-disabled" => "User disabled.",
         "user-not-found" => "No user found with this email.",
         "wrong-password" => "Wrong email/password combination.",
+        'email_not_verified' => 'Email belum verified',
         _ => "Login failed. Please try again.",
       };
       throw errorMessage;
     } catch (e) {
-      throw Exception(e);
+      rethrow;
     }
   }
 
@@ -75,4 +88,10 @@ class FirebaseAuthService {
   }
 
   Future<User?> userChanges() => _auth.userChanges().first;
+
+  Future<void> sendEmailVerification(User user) async {
+    if (!user.emailVerified) {
+      await user.sendEmailVerification();
+    }
+  }
 }

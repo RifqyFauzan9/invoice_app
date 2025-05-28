@@ -29,7 +29,7 @@ class ChooseFormScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
-                SizedBox(height: SizeConfig.screenHeight * 0.07),
+                SizedBox(height: SizeConfig.screenHeight * 0.06),
                 ChooseFormCard(
                   icon: Icons.settings,
                   onPressed: () => Navigator.pushNamed(

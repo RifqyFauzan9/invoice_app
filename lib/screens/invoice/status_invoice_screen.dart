@@ -178,8 +178,8 @@ class _StatusInvoiceScreenState extends State<StatusInvoiceScreen> {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Tidak Bisa Diedit'),
-                          content: const Text('Invoice tidak bisa diedit karena statusnya bukan Booking atau Lunas.'),
+                          title: const Text('Tidak bisa edit invoice'),
+                          content: Text('Invoice ${invoice.status}'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),

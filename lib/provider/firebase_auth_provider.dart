@@ -25,7 +25,7 @@ class FirebaseAuthProvider extends ChangeNotifier {
 
       UserCredential user = await _service.createUser(email, password);
       _authStatus = FirebaseAuthStatus.accountCreated;
-      _message = 'Account Created Successfully!';
+      _message = 'Account created successfully. Please check email to verify.';
 
       return user;
     } catch (e) {

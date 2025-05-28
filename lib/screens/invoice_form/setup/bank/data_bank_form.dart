@@ -112,7 +112,7 @@ class _DataBankFormState extends State<DataBankForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar.';
+                            return 'Nama bank tidak boleh kosong.';
                           }
                           return null;
                         },
@@ -130,7 +130,7 @@ class _DataBankFormState extends State<DataBankForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar.';
+                            return 'Nomor rekening tidak boleh kosong.';
                           }
                           return null;
                         },
@@ -149,7 +149,7 @@ class _DataBankFormState extends State<DataBankForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar.';
+                            return 'Cabang bank tidak boleh kosong.';
                           }
                           return null;
                         },
@@ -168,7 +168,7 @@ class _DataBankFormState extends State<DataBankForm> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Mohon isi form dengan benar.';
+                            return 'Account holder tidak boleh kosong.';
                           }
                           return null;
                         },
