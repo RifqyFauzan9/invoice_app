@@ -356,12 +356,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
                           hintText: 'Masukkan Pelunasan',
                           hintStyle: hintTextStyle,
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Pelunasan tidak boleh kosong';
-                          }
-                          return null;
-                        },
                       ),
                       SizedBox(height: itemController.isEmpty ? 16 : 8),
                       ...List.generate(
@@ -408,7 +402,7 @@ class _TransaksiFormState extends State<TransaksiForm> {
                         items: availableNotes,
                         itemLabelBuilder: (note) => note.noteName,
                         onChanged: (Note? note) async {
-                          if (note != null) {
+                          if (note != null && note != selectedNote) {
                             await showDialog(
                               context: context,
                               builder: (context) {
@@ -683,7 +677,6 @@ class _TransaksiFormState extends State<TransaksiForm> {
     setState(() {
       selectedTravel = availableTravels.first;
       selectedAirline = availableAirlines.first;
-      selectedNote = availableNotes.first;
       itemController.clear();
       _pnrController.clear();
       _flightNotesController.clear();

@@ -20,6 +20,10 @@ class CompanyService {
     }
   }
 
+  Future<DocumentSnapshot> getCompany(String uid) async {
+    return await FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
   Future<void> saveCompanyData(String uid, Company company) async {
     final docRef = _firebaseFirestore.collection('companies').doc(uid);
     final docSnapshot = await docRef.get();

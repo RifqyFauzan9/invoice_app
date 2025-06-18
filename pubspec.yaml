@@ -56,8 +56,10 @@ dependencies:
   excel: ^4.0.6
   path: ^1.9.1
   uuid: ^4.5.1
-#  flutter_image_compress: ^2.4.0
+  flutter_image_compress: ^2.4.0
   flutter_typeahead: ^5.2.0
+  month_picker_dialog: ^6.2.2
+
 
 dev_dependencies:
   flutter_test:

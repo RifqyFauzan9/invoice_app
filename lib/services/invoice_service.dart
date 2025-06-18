@@ -117,6 +117,8 @@ class InvoiceService {
     required String program,
     required String flightNotes,
     required List<InvoiceItem> items,
+    required Timestamp departure,
+    required String pelunasan,
   }) async {
     final invoiceRef = _firebaseFirestore
         .collection('invoices')
@@ -130,6 +132,8 @@ class InvoiceService {
       'program': program,
       'flightNotes': flightNotes,
       'items': items.map((item) => item.toJson()).toList(),
+      'departure': departure,
+      'pelunasan': pelunasan,
     };
 
     await invoiceRef.update(data);

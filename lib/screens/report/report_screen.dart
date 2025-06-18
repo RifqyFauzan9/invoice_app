@@ -4,6 +4,8 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:my_invoice_app/model/setup/airline.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
 import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
@@ -103,16 +105,24 @@ class _ReportScreenState extends State<ReportScreen> {
       'Trans. Date',
       'Customer',
       'Status',
+      'PNR',
+      'Maskapai',
+      'Departure',
+      'Program',
       'Total Qty',
-      'Total Amount'
+      'Total Amount',
     ];
 
     sheet.setColumnWidth(0, 20);
     sheet.setColumnWidth(1, 20);
-    sheet.setColumnWidth(2, 30);
+    sheet.setColumnWidth(2, 35);
     sheet.setColumnWidth(3, 15);
-    sheet.setColumnWidth(4, 15);
-    sheet.setColumnWidth(5, 17);
+    sheet.setColumnWidth(4, 17);
+    sheet.setColumnWidth(5, 20);
+    sheet.setColumnWidth(6, 20);
+    sheet.setColumnWidth(7, 17);
+    sheet.setColumnWidth(8, 15);
+    sheet.setColumnWidth(9, 17);
 
     exc.CellStyle headerStyle = exc.CellStyle(bold: true);
 
@@ -123,35 +133,47 @@ class _ReportScreenState extends State<ReportScreen> {
       cell.cellStyle = headerStyle;
     }
 
-    // Isi data dari invoices
     for (int i = 0; i < invoices.length; i++) {
       final invoice = invoices[i];
+      final row = i + 1;
+
       sheet
-          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i + 1))
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
           .value = exc.TextCellValue(invoice.id);
       sheet
-          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i + 1))
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
           .value = exc.TextCellValue(DateFormat(
               'dd/MM/yyyy H:mm')
           .format(invoice.dateCreated.toDate()));
       sheet
-          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: i + 1))
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
           .value = exc.TextCellValue(invoice.travel.travelName.toUpperCase());
       sheet
-          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: i + 1))
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row))
           .value = exc.TextCellValue(invoice.status.toUpperCase());
       sheet
-          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: i + 1))
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row))
+          .value = exc.TextCellValue(invoice.pnrCode);
+      sheet
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: row))
+          .value = exc.TextCellValue(invoice.airline.airlineName);
+      sheet
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: row))
+          .value = exc.TextCellValue(DateFormat(
+              'd MMMM yyyy')
+          .format(invoice.departure.toDate()));
+      sheet
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: row))
+          .value = exc.TextCellValue(invoice.program);
+      sheet
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: row))
           .value = exc.DoubleCellValue(invoice.items.length.toDouble());
-      final totalAmountCell = sheet.cell(
-          exc.CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: i + 1));
 
+      final totalAmountCell = sheet
+          .cell(exc.CellIndex.indexByColumnRow(columnIndex: 9, rowIndex: row));
       totalAmountCell.value = exc.TextCellValue(
-        NumberFormat.currency(
-          locale: 'id_ID',
-          decimalDigits: 0,
-          symbol: '',
-        ).format(
+        NumberFormat.currency(locale: 'id_ID', decimalDigits: 0, symbol: '')
+            .format(
           invoice.items.fold<int>(
             0,
             (sum, item) => sum + (item.itemPrice * item.quantity),
@@ -356,28 +378,50 @@ class _ReportScreenState extends State<ReportScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Departure', style: fieldLabelStyle),
+                    Text('Departure Month', style: fieldLabelStyle),
                     SizedBox(height: 4),
-                    TextFormField(
-                      controller: _departureController,
-                      decoration: InputDecoration(hintText: 'All Departure'),
-                      readOnly: true,
+                    InkWell(
                       onTap: () async {
-                        final pickedDate = await showDatePicker(
+                        final selected = await showMonthPicker(
                           context: context,
-                          initialDate: DateTime.now(),
+                          initialDate: departureDate ?? DateTime.now(),
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2050),
                         );
-                        if (pickedDate != null) {
-                          _departureController.text =
-                              DateFormat('d MMMM yyyy').format(pickedDate);
+
+                        if (selected != null) {
                           setState(() {
-                            departureDate = pickedDate;
+                            departureDate = selected;
+                            _departureController.text =
+                                DateFormat('MMMM yyyy').format(selected);
                           });
                         }
                       },
-                    )
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          hintText: 'All Departure Months',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _departureController.text.isEmpty
+                                  ? 'Select Month'
+                                  : _departureController.text,
+                              style: dropdownTextStyle,
+                            ),
+                            Icon(
+                              Icons.calendar_today,
+                              size: 20,
+                              color: InvoiceColor.primary.color,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 SizedBox(height: 6),
@@ -457,18 +501,23 @@ class _ReportScreenState extends State<ReportScreen> {
                     )
                   ],
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 12),
                 // --- RESULT LIST --- //
                 SizedBox(
                   height: SizeConfig.screenHeight * 0.4,
                   child: StreamBuilder<List<Invoice>>(
                     stream: service.getAllInvoices(uid),
-                    builder: (ctx, snap) {
-                      if (!snap.hasData) {
-                        return const Center(child: CircularProgressIndicator());
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: LoadingAnimationWidget.fourRotatingDots(
+                            color: InvoiceColor.primary.color,
+                            size: getPropScreenWidth(40),
+                          ),
+                        );
                       }
 
-                      final filteredInvoices = _filterInvoices(snap.data!);
+                      final filteredInvoices = _filterInvoices(snapshot.data!);
 
                       if (filteredInvoices.isEmpty) {
                         return const Center(
@@ -477,8 +526,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
                       return ListView.builder(
                         itemCount: filteredInvoices.length,
-                        itemBuilder: (c, i) {
-                          final inv = filteredInvoices[i];
+                        itemBuilder: (context, index) {
+                          final invoice = filteredInvoices[index];
                           return Container(
                             margin: EdgeInsets.symmetric(
                               vertical: getPropScreenWidth(6),
@@ -500,7 +549,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      inv.id,
+                                      invoice.id,
                                       style: GoogleFonts.montserrat(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 17,
@@ -508,7 +557,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                       ),
                                     ),
                                     Text(
-                                      inv.status,
+                                      invoice.status,
                                       style: GoogleFonts.montserrat(
                                         fontSize: 17,
                                         fontWeight: FontWeight.bold,
@@ -523,7 +572,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      inv.travel.travelName,
+                                      invoice.travel.travelName,
                                       style: GoogleFonts.montserrat(
                                         fontSize: 15,
                                         color: Colors.black,
@@ -532,7 +581,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                     ),
                                     Text(
                                       DateFormat('d MMM yyyy')
-                                          .format(inv.dateCreated.toDate()),
+                                          .format(invoice.dateCreated.toDate()),
                                       style: GoogleFonts.montserrat(
                                         fontSize: 15,
                                         color: Colors.black,
@@ -543,8 +592,8 @@ class _ReportScreenState extends State<ReportScreen> {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  '${inv.items.length} items • ${NumberFormat.currency(symbol: 'Rp', decimalDigits: 0, locale: 'id_ID').format(
-                                    inv.items.fold<int>(
+                                  '${invoice.items.length} items • ${NumberFormat.currency(symbol: 'Rp', decimalDigits: 0, locale: 'id_ID').format(
+                                    invoice.items.fold<int>(
                                       0,
                                       (sum, item) =>
                                           sum +
@@ -588,13 +637,12 @@ class _ReportScreenState extends State<ReportScreen> {
       }).toList();
     }
 
-    // Filter berdasarkan departure date
+    // Filter berdasarkan departure month
     if (departureDate != null) {
       filtered = filtered.where((inv) {
         final date = inv.departure.toDate();
         return date.year == departureDate!.year &&
-            date.month == departureDate!.month &&
-            date.day == departureDate!.day;
+            date.month == departureDate!.month;
       }).toList();
     }
 

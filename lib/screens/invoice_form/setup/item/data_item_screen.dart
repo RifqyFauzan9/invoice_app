@@ -68,6 +68,7 @@ class DataItemScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            if (Platform.isIOS) SizedBox(height: SizeConfig.screenHeight * 0.01),
             Expanded(
                 child: StreamProvider<List<Item>>(
               create: (context) => context

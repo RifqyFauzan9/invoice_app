@@ -1,6 +1,8 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
 import 'package:my_invoice_app/services/app_service/firebase_firestore_service.dart';
@@ -28,6 +30,9 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
   final _formKey = GlobalKey<FormState>();
   final _pnrController = TextEditingController();
   final _programController = TextEditingController();
+  final _departureController = TextEditingController();
+  final _pelunasanController = TextEditingController();
+  Timestamp? _pickedDeparture;
   final _flightNotesController = TextEditingController();
   List<Airline> availableAirlines = [];
   List<Item> availableItems = [];
@@ -66,9 +71,14 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
     _pnrController.text = widget.oldInvoice.pnrCode;
     _programController.text = widget.oldInvoice.program;
     _flightNotesController.text = widget.oldInvoice.flightNotes;
+    _departureController.text =
+        DateFormat('dd MMMM yyyy').format(widget.oldInvoice.departure.toDate());
+    _pelunasanController.text = widget.oldInvoice.pelunasan;
 
     // Set loading state to true when starting to fetch data
-    setState(() => isInitialLoading = true);
+    setState(() {
+      isInitialLoading = true;
+    });
 
     // Fetch airlines and items
     final uid = context.read<FirebaseAuthProvider>().profile!.uid!;
@@ -245,6 +255,49 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
                         },
                       ),
                       const SizedBox(height: 8),
+                      TextFormField(
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        controller: _pelunasanController,
+                        decoration: InputDecoration(
+                          hintText: 'Masukkan Pelunasan',
+                          hintStyle: hintTextStyle,
+                        ),
+
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _departureController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          hintText:
+                              DateFormat('d MMMM yyyy').format(DateTime.now()),
+                          hintStyle: hintTextStyle,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Departure harus diisi';
+                          }
+                          return null;
+                        },
+                        onTap: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2050),
+                          );
+                          if (pickedDate != null) {
+                            _departureController.text =
+                                DateFormat('d MMMM yyyy').format(pickedDate);
+                            setState(() {
+                              _pickedDeparture = Timestamp.fromDate(pickedDate);
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 8),
                       Text('Detail Penerbangan', style: fieldLabelStyle),
                       const SizedBox(height: 4),
                       TextFormField(
@@ -395,6 +448,8 @@ class _UpdateInvoiceState extends State<UpdateInvoice> {
             program: _programController.text,
             flightNotes: _flightNotesController.text,
             items: items,
+            pelunasan: _pelunasanController.text,
+            departure: _pickedDeparture ?? widget.oldInvoice.departure,
           );
 
       Navigator.pop(context);

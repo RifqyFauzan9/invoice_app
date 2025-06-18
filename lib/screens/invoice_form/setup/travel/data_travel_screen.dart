@@ -98,6 +98,7 @@ class _DataTravelScreenState extends State<DataTravelScreen> {
                 });
               },
             ),
+            if (Platform.isIOS) SizedBox(height: SizeConfig.screenHeight * 0.01),
             Expanded(
               child: StreamProvider<List<Travel>>(
                 create: (context) => context.read<TravelService>().getTravel(

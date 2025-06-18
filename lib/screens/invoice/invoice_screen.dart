@@ -174,7 +174,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 DropdownButtonFormField(
-                                  value: _currentInvoice?.status ?? widget.invoice.status,
+                                  value: _currentInvoice?.status ??
+                                      widget.invoice.status,
                                   icon: Icon(
                                     Icons.keyboard_arrow_down_outlined,
                                     color: InvoiceColor.primary.color,
@@ -284,7 +285,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                 FilledButton(
                                   onPressed: () async {
                                     if (_formKey.currentState!.validate()) {
-                                      final invoiceId = _currentInvoice?.id ?? widget.invoice.id;
+                                      final invoiceId = _currentInvoice?.id ??
+                                          widget.invoice.id;
                                       final amountPaid = int.tryParse(
                                               _paymentController.text) ??
                                           0;
@@ -304,7 +306,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                           uid: uid!,
                                           invoiceId: invoiceId,
                                           selectedStatus: selectedStatus ??
-                                              _currentInvoice?.status ?? widget.invoice.status,
+                                              _currentInvoice?.status ??
+                                              widget.invoice.status,
                                         );
                                         await _loadInvoice();
                                       } on Exception catch (e) {
@@ -314,7 +317,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                       }
                                     }
                                   },
-                                  child: Text(_currentInvoice!.status != 'Booking' && _currentInvoice!.status != 'Lunas' ? 'Update Status' : 'Update Pembayaran',),
+                                  child: Text(
+                                    _currentInvoice!.status != 'Booking' &&
+                                            _currentInvoice!.status != 'Lunas'
+                                        ? 'Update Status'
+                                        : 'Update Pembayaran',
+                                  ),
                                 ),
                               ],
                             ),
@@ -367,8 +375,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       children: [
                         Text('Tanggal', style: labelStyle),
                         Text(
-                          DateFormat('dd/MM/yyyy')
-                              .format(_currentInvoice?.dateCreated.toDate() ?? widget.invoice.dateCreated.toDate()),
+                          DateFormat('dd/MM/yyyy').format(
+                              _currentInvoice?.dateCreated.toDate() ??
+                                  widget.invoice.dateCreated.toDate()),
                           style: valueStyle,
                         ),
                       ],
@@ -381,7 +390,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           'Kepada',
                           style: labelStyle,
                         ),
-                        Text(_currentInvoice?.travel.travelName ?? widget.invoice.travel.travelName,
+                        Text(
+                            _currentInvoice?.travel.travelName ??
+                                widget.invoice.travel.travelName,
                             style: valueStyle),
                       ],
                     ),
@@ -394,7 +405,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          _currentInvoice?.travel.contactPerson ?? widget.invoice.travel.contactPerson,
+                          _currentInvoice?.travel.contactPerson ??
+                              widget.invoice.travel.contactPerson,
                           style: valueStyle,
                         ),
                       ],
@@ -422,7 +434,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          _currentInvoice?.pnrCode.toUpperCase() ?? widget.invoice.pnrCode.toUpperCase(),
+                          _currentInvoice?.pnrCode.toUpperCase() ??
+                              widget.invoice.pnrCode.toUpperCase(),
                           style: valueStyle,
                         ),
                       ],
@@ -450,7 +463,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           style: labelStyle,
                         ),
                         Text(
-                          _currentInvoice?.airline.airlineName ?? widget.invoice.airline.airlineName,
+                          _currentInvoice?.airline.airlineName ??
+                              widget.invoice.airline.airlineName,
                           style: valueStyle,
                         ),
                       ],
@@ -475,23 +489,26 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       children: [
                         Text('Departure', style: labelStyle),
                         Text(
-                          DateFormat('d MMMM yyyy')
-                              .format(_currentInvoice?.departure.toDate() ?? widget.invoice.departure.toDate()),
+                          DateFormat('d MMMM yyyy').format(
+                              _currentInvoice?.departure.toDate() ??
+                                  widget.invoice.departure.toDate()),
                           style: valueStyle,
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Pelunasan', style: labelStyle),
-                        Text(
-                          _currentInvoice?.pelunasan ?? widget.invoice.pelunasan,
-                          style: valueStyle,
-                        ),
-                      ],
-                    ),
+                    if (_currentInvoice!.pelunasan.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Pelunasan', style: labelStyle),
+                          Text(
+                            _currentInvoice?.pelunasan ??
+                                widget.invoice.pelunasan,
+                            style: valueStyle,
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 4),
                     Text(
                       'Detail Penerbangan',
@@ -499,7 +516,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _currentInvoice?.flightNotes.toUpperCase() ?? widget.invoice.flightNotes.toUpperCase(),
+                      _currentInvoice?.flightNotes.toUpperCase() ??
+                          widget.invoice.flightNotes.toUpperCase(),
                       style: valueStyle,
                     ),
                   ],
@@ -624,7 +642,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Kekurangan', style: labelStyle),
+                        Text(outstandingAmount < 0 ? 'Kelebihan' : 'Kekurangan', style: labelStyle,),
                         Text(
                           outstandingAmount == 0
                               ? 'Rp0 (Lunas)'
@@ -694,7 +712,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     Text(
-                      _currentInvoice?.note.content.toUpperCase() ?? widget.invoice.note.content.toUpperCase(),
+                      _currentInvoice?.note.content.toUpperCase() ??
+                          widget.invoice.note.content.toUpperCase(),
                       maxLines: noteViewAll ? null : 5,
                       overflow: noteViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
@@ -736,7 +755,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       ],
                     ),
                     Text(
-                      _currentInvoice?.note.termPayment.toUpperCase() ?? widget.invoice.note.termPayment.toUpperCase(),
+                      _currentInvoice?.note.termPayment.toUpperCase() ??
+                          widget.invoice.note.termPayment.toUpperCase(),
                       maxLines: termViewAll ? null : 5,
                       overflow: termViewAll ? null : TextOverflow.ellipsis,
                       style: labelStyle,
@@ -752,8 +772,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   void viewInvoicePdf() async {
-    final invoice = _currentInvoice ?? widget.invoice;
-    final pdfFile = await PdfInvoiceApi.generate(invoice, company);
+    final invoice = _currentInvoice;
+    final pdfFile =
+        await PdfInvoiceApi.generate(invoice ?? widget.invoice, company);
     PdfApi.openFile(pdfFile);
   }
 

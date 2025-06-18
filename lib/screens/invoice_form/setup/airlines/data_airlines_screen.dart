@@ -71,6 +71,7 @@ class DataAirlinesScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            if (Platform.isIOS) SizedBox(height: SizeConfig.screenHeight * 0.01),
             Expanded(
               child: StreamProvider<List<Airline>>(
                 create: (context) => context.read<AirlineService>().getAirline(

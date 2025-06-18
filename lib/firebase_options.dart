@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'my-invoice-app-c3c73.firebasestorage.app',
     iosBundleId: 'com.example.myInvoiceApp',
   );
+
 }

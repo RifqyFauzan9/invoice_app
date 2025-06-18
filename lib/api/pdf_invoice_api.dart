@@ -145,17 +145,15 @@ class PdfInvoiceApi {
     }) {
       final totalInvoiceAmount = items.fold<int>(
         0,
-        (sum, item) => sum + (item.itemPrice * item.quantity),
+            (sum, item) => sum + (item.itemPrice * item.quantity),
       );
 
       final totalPaid = paymentHistory.fold<int>(
         0,
-        (sum, payment) => sum + (payment['last_payment'] as int),
+            (sum, payment) => sum + (payment['last_payment'] as int),
       );
 
-      final kekurangan = totalInvoiceAmount - totalPaid;
-
-      return kekurangan < 0 ? 0 : kekurangan; // prevent negative
+      return totalInvoiceAmount - totalPaid;
     }
 
     final outstandingAmount = calculateOutstandingAmount(
@@ -278,7 +276,7 @@ class PdfInvoiceApi {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Kekurangan: ',
+                    outstandingAmount < 0 ? 'Kelebihan: ' : 'Kekurangan: ',
                     style: TextStyle(font: poppinsFont),
                   ),
                   Text(
@@ -516,8 +514,12 @@ class PdfInvoiceApi {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'PIC: ${company?.companyPic ?? '-'}',
+              invoice.pelunasan.isNotEmpty ? Text(
+                'Pelunasan: ${invoice.pelunasan}',
+                style: TextStyle(font: poppins),
+              )
+              : Text(
+                'Pelunasan: -',
                 style: TextStyle(font: poppins),
               ),
               SizedBox(height: PdfPageFormat.mm * 1),
@@ -592,6 +594,7 @@ class PdfInvoiceApi {
               ),
               Text(
                 company?.companyAddress ?? 'No Company Address',
+                maxLines: 2,
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   color: PdfColors.black,

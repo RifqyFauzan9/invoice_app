@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:my_invoice_app/model/transaction/invoice.dart';
 import 'package:my_invoice_app/services/invoice_service.dart';
 import 'package:my_invoice_app/static/invoice_status.dart';
@@ -24,8 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _selectedPeriod = 'This Mth';
-  final _periodOptions = const ['This Mth', 'last Mth', '2 Mth Ago'];
+  String _selectedPeriod = DateFormat('MMM yyyy').format(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
           invoices: invoices,
           selectedPeriod: _selectedPeriod,
           onPeriodChanged: (period) => setState(() => _selectedPeriod = period),
-          periodOptions: _periodOptions,
         ),
         SizedBox(height: getPropScreenWidth(14)),
         SectionTitle(title: 'Status', viewAll: false),
@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: hasData
               ? _RecentInvoiceList(
-                  invoices: invoices, selectedPeriod: _selectedPeriod)
+              invoices: invoices, selectedPeriod: _selectedPeriod)
               : const _ShimmerRecentList(),
         ),
       ],
@@ -143,18 +143,91 @@ class _GreetingHeader extends StatelessWidget {
   }
 }
 
+class _MonthPickerButton extends StatelessWidget {
+  final String selectedPeriod;
+  final ValueChanged<String> onChanged;
+
+  const _MonthPickerButton({
+    required this.selectedPeriod,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => _showMonthPicker(context),
+      child: InputDecorator(
+        decoration: _buildInputDecoration(context),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedPeriod,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_down_outlined,
+              color: InvoiceColor.primary.color,
+              size: 13,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(BuildContext context) {
+    return InputDecoration(
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      prefixIcon: Icon(
+        Icons.date_range,
+        color: Theme.of(context).colorScheme.primary,
+        size: 14,
+      ),
+      prefixIconConstraints: const BoxConstraints(minWidth: 40),
+      border: _inputBorder(context),
+      enabledBorder: _inputBorder(context),
+      focusedBorder: _inputBorder(context),
+    );
+  }
+
+  OutlineInputBorder _inputBorder(BuildContext context) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+    );
+  }
+
+  Future<void> _showMonthPicker(BuildContext context) async {
+    final selected = await showMonthPicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+
+    if (selected != null) {
+      final formattedDate = DateFormat('MMM yyyy').format(selected);
+      onChanged(formattedDate); // Contoh: "May 2023"
+    }
+  }
+}
+
 // Banner Component
 class _HomeBanner extends StatelessWidget {
   final List<Invoice> invoices;
   final String selectedPeriod;
   final ValueChanged<String> onPeriodChanged;
-  final List<String> periodOptions;
 
   const _HomeBanner({
     required this.invoices,
     required this.selectedPeriod,
     required this.onPeriodChanged,
-    required this.periodOptions,
   });
 
   @override
@@ -195,9 +268,8 @@ class _HomeBanner extends StatelessWidget {
           ),
         ),
         SizedBox(height: getPropScreenWidth(6)),
-        _PeriodDropdown(
+        _MonthPickerButton(
           selectedPeriod: selectedPeriod,
-          periodOptions: periodOptions,
           onChanged: onPeriodChanged,
         ),
       ],
@@ -213,63 +285,6 @@ class _HomeBanner extends StatelessWidget {
 
   int _calculateTotalInvoices() {
     return InvoiceUtils.filterInvoicesByPeriod(invoices, selectedPeriod).length;
-  }
-}
-
-class _PeriodDropdown extends StatelessWidget {
-  final String selectedPeriod;
-  final List<String> periodOptions;
-  final ValueChanged<String> onChanged;
-
-  const _PeriodDropdown({
-    required this.selectedPeriod,
-    required this.periodOptions,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      value: selectedPeriod,
-      icon: Icon(Icons.keyboard_arrow_down_outlined,
-          color: InvoiceColor.primary.color),
-      iconSize: 13,
-      style: GoogleFonts.montserrat(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      decoration: _buildDropdownDecoration(context),
-      items: periodOptions.map(_buildDropdownMenuItem).toList(),
-      onChanged: (value) => value != null ? onChanged(value) : null,
-    );
-  }
-
-  InputDecoration _buildDropdownDecoration(BuildContext context) {
-    return InputDecoration(
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      prefixIcon: Icon(Icons.date_range,
-          color: Theme.of(context).colorScheme.primary, size: 14),
-      prefixIconConstraints: const BoxConstraints(minWidth: 40),
-      border: _inputBorder(context),
-      enabledBorder: _inputBorder(context),
-      focusedBorder: _inputBorder(context),
-    );
-  }
-
-  OutlineInputBorder _inputBorder(BuildContext context) {
-    return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-    );
-  }
-
-  DropdownMenuItem<String> _buildDropdownMenuItem(String value) {
-    return DropdownMenuItem(
-      value: value,
-      child: Text(value),
-    );
   }
 }
 
@@ -289,7 +304,7 @@ class _StatusList extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: InvoiceStatus.values
             .map((status) =>
-                _StatusCard(status: status, count: statusCounts[status] ?? 0))
+            _StatusCard(status: status, count: statusCounts[status] ?? 0))
             .toList(),
       ),
     );
@@ -334,7 +349,7 @@ class _RecentInvoiceList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filteredInvoices =
-        InvoiceUtils.filterInvoicesByPeriod(invoices, selectedPeriod);
+    InvoiceUtils.filterInvoicesByPeriod(invoices, selectedPeriod);
 
     if (filteredInvoices.isEmpty) {
       return const _EmptyInvoiceState();
@@ -377,33 +392,33 @@ class _RecentInvoiceItem extends StatelessWidget {
     return PopupMenuButton(
         iconColor: InvoiceColor.primary.color,
         itemBuilder: (context) => [
-              if (invoice.status != 'Booking' && invoice.status != 'Lunas')
-                PopupMenuItem(
-                  child: const Text('Edit Invoice'),
-                  onTap: () {
-                    Future.delayed(Duration.zero, () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Tidak bisa edit invoice'),
-                          content: Text('Invoice ${invoice.status}.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
+          if (invoice.status != 'Booking' && invoice.status != 'Lunas')
+            PopupMenuItem(
+              child: const Text('Edit Invoice'),
+              onTap: () {
+                Future.delayed(Duration.zero, () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Tidak bisa edit invoice'),
+                      content: Text('Invoice ${invoice.status}.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
                         ),
-                      );
-                    });
-                  },
-                )
-              else
-                PopupMenuItem(
-                  onTap: () => _navigateToUpdateInvoice(context),
-                  child: const Text('Edit Invoice'),
-                ),
-            ]);
+                      ],
+                    ),
+                  );
+                });
+              },
+            )
+          else
+            PopupMenuItem(
+              onTap: () => _navigateToUpdateInvoice(context),
+              child: const Text('Edit Invoice'),
+            ),
+        ]);
   }
 
   void _navigateToInvoiceDetail(BuildContext context) {
@@ -586,7 +601,7 @@ class InvoiceUtils {
   static Map<InvoiceStatus, int> calculateStatusCounts(List<Invoice> invoices) {
     return InvoiceStatus.values.fold<Map<InvoiceStatus, int>>(
       {},
-      (map, status) {
+          (map, status) {
         map[status] = invoices
             .where((i) => InvoiceStatusExt.fromString(i.status) == status)
             .length;
@@ -597,20 +612,15 @@ class InvoiceUtils {
 
   static List<Invoice> filterInvoicesByPeriod(
       List<Invoice> invoices, String period) {
-    final now = DateTime.now();
-    return invoices.where((invoice) {
-      final date = invoice.dateCreated.toDate();
-      switch (period) {
-        case 'Last Mth':
-          final lastMonth = DateTime(now.year, now.month - 1);
-          return date.month == lastMonth.month && date.year == lastMonth.year;
-        case '2 Mth Ago':
-          final twoMonthsAgo = DateTime(now.year, now.month - 2);
-          return date.month == twoMonthsAgo.month &&
-              date.year == twoMonthsAgo.year;
-        default: // Bulan Ini
-          return date.month == now.month && date.year == now.year;
-      }
-    }).toList();
+    try {
+      final selectedDate = DateFormat('MMM yyyy').parse(period);
+      return invoices.where((invoice) {
+        final date = invoice.dateCreated.toDate();
+        return date.month == selectedDate.month &&
+            date.year == selectedDate.year;
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 }

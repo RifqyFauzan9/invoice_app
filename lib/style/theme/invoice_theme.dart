@@ -427,12 +427,10 @@ class InvoiceTheme {
             ),
           ),
           padding: WidgetStatePropertyAll(
-            EdgeInsets.symmetric(
-              horizontal: 24
-            ),
+            EdgeInsets.symmetric(horizontal: 24),
           ),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

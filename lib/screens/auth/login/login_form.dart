@@ -26,18 +26,48 @@ class _LoginFormState extends State<LoginForm> {
   bool isObsecure = true;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _companyIdController = TextEditingController();
 
   void _tapToLogin() async {
+    final companyId = _companyIdController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
     final companyProvider = context.read<CompanyProvider>();
     final companyService = context.read<CompanyService>();
 
-    if (email.isNotEmpty && password.isNotEmpty) {
+    if (email.isNotEmpty && password.isNotEmpty /* && companyId.isNotEmpty */) {
       final sharedPreferenceProvider =
-      context.read<SharedPreferencesProvider>();
+          context.read<SharedPreferencesProvider>();
       final firebaseAuthProvider = context.read<FirebaseAuthProvider>();
       final navigator = Navigator.of(context);
+
+      // await firebaseAuthProvider.signInUser(email, password);
+      // switch (firebaseAuthProvider.authStatus) {
+      //   case FirebaseAuthStatus.authenticated:
+      //     final uid = firebaseAuthProvider.profile!.uid!;
+      //     final userDoc = await companyService.getCompany(uid);
+      //     if (!userDoc.exists || userDoc['companyId'] != companyId) {
+      //       await firebaseAuthProvider.signOutUser();
+      //       showFlushbar(
+      //         'Invalid Company ID',
+      //         Icons.error_outline,
+      //         InvoiceColor.error.color,
+      //       );
+      //       return;
+      //     }
+      //     final role = userDoc['role'] as String;
+      //     sharedPreferenceProvider.setRole(role);
+      //     sharedPreferenceProvider.login();
+      //     navigator.pushReplacementNamed(ScreenRoute.main.route);
+      //     break;
+      //
+      //   default:
+      //     showFlushbar(
+      //       firebaseAuthProvider.message ?? 'Login Failed',
+      //       Icons.error_outline,
+      //       InvoiceColor.error.color,
+      //     );
+      // }
 
       await firebaseAuthProvider.signInUser(email, password);
       switch (firebaseAuthProvider.authStatus) {
@@ -107,6 +137,24 @@ class _LoginFormState extends State<LoginForm> {
       key: _formKey,
       child: Column(
         children: [
+          // TextFormField(
+          //   controller: _companyIdController,
+          //   keyboardType: TextInputType.text,
+          //   textInputAction: TextInputAction.next,
+          //   decoration: InputDecoration(
+          //     prefixIcon: Icon(Icons.business),
+          //     hintText: 'Company ID',
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your company ID';
+          //     }
+          //     return null;
+          //   },
+          // ),
+          // SizedBox(
+          //   height: getPropScreenWidth(16),
+          // ),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -190,24 +238,42 @@ class _LoginFormState extends State<LoginForm> {
             builder: (context, value, child) {
               return switch (value.authStatus) {
                 FirebaseAuthStatus.authenticating => Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                    color: Theme.of(context).colorScheme.primary,
-                    size: getPropScreenWidth(30),
+                    child: LoadingAnimationWidget.fourRotatingDots(
+                      color: Theme.of(context).colorScheme.primary,
+                      size: getPropScreenWidth(30),
+                    ),
                   ),
-                ),
                 _ => FilledButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _tapToLogin();
-                    }
-                  },
-                  child: const Text('Sign In'),
-                ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _tapToLogin();
+                      }
+                    },
+                    child: const Text('Sign In'),
+                  ),
               };
             },
           ),
         ],
       ),
     );
+  }
+
+  void showFlushbar(String message, IconData icon, Color bgColor) {
+    Flushbar(
+      message: message,
+      messageColor: Theme.of(context).colorScheme.onError,
+      messageSize: 14,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(20),
+      borderRadius: BorderRadius.circular(10),
+      backgroundColor: bgColor,
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      icon: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.onError,
+      ),
+    ).show(context);
   }
 }

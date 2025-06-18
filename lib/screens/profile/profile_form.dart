@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -10,6 +11,8 @@ import 'package:my_invoice_app/model/common/company.dart';
 import 'package:my_invoice_app/provider/company_provider.dart';
 import 'package:my_invoice_app/provider/firebase_auth_provider.dart';
 import 'package:my_invoice_app/services/company_service.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../static/size_config.dart';
@@ -39,8 +42,8 @@ class _ProfileFormState extends State<ProfileFormScreen> {
   final _picController = TextEditingController();
   Uint8List? _companyLogoBytes;
   Uint8List? _companySignatureBytes;
-  File? companyLogoFile;
-  File? companySignatureFile;
+  XFile? companyLogoFile;
+  XFile? companySignatureFile;
   String? logoBase64String;
   String? signatureBase64String;
 
@@ -132,7 +135,7 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                             ),
                             child: companyLogoFile != null
                                 ? Image.file(
-                                    companyLogoFile!,
+                                    File(companyLogoFile!.path),
                                     fit: BoxFit.contain,
                                   )
                                 : _companyLogoBytes != null
@@ -237,7 +240,7 @@ class _ProfileFormState extends State<ProfileFormScreen> {
                           ),
                           child: companySignatureFile != null
                               ? Image.file(
-                                  companySignatureFile!,
+                                  File(companySignatureFile!.path),
                                   fit: BoxFit.contain,
                                 )
                               : _companySignatureBytes != null
@@ -555,34 +558,115 @@ class _ProfileFormState extends State<ProfileFormScreen> {
     );
   }
 
-  void _chooseDigitalSignature() async {
+  Future<void> _chooseDigitalSignature() async {
     final getImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
+
     if (getImage != null) {
       setState(() {
-        companySignatureFile = File(getImage.path);
+        isLoading = true;
       });
-      List<int> imageBytes = File(getImage.path).readAsBytesSync();
-      signatureBase64String = base64Encode(imageBytes);
-    } else {
-      debugPrint('digital signature null!');
+
+      try {
+        final fileSize = await getImage.length();
+        const maxSize = 1 * 1024 * 1024;
+
+        if (fileSize > maxSize) {
+          final tempDir = await getTemporaryDirectory();
+          final targetPath = path.join(
+            tempDir.path,
+            "${path.basenameWithoutExtension(getImage.path)}_compressed.jpg",
+          );
+          final compressedFile = await FlutterImageCompress.compressAndGetFile(
+            getImage.path,
+            targetPath,
+            quality: 85,
+            minWidth: 800,
+            minHeight: 800,
+          );
+
+          if (compressedFile != null) {
+            final compressedBytes = await compressedFile.readAsBytes();
+            setState(() {
+              companySignatureFile = compressedFile;
+              _companySignatureBytes = compressedBytes;
+              signatureBase64String = base64Encode(compressedBytes);
+            });
+          }
+        } else {
+          final imageBytes = await getImage.readAsBytes();
+          setState(() {
+            companySignatureFile = getImage;
+            _companySignatureBytes = imageBytes;
+            signatureBase64String = base64Encode(imageBytes);
+          });
+        }
+      } catch (e) {
+        debugPrint('Error processing signature image: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
     }
   }
 
-  void _chooseCompanyLogo() async {
+  Future<void> _chooseCompanyLogo() async {
     final getImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
+
     if (getImage != null) {
       setState(() {
-        companyLogoFile = File(getImage.path);
+        isLoading = true;
       });
 
-      List<int> imageBytes = File(getImage.path).readAsBytesSync();
-      logoBase64String = base64Encode(imageBytes);
-    } else {
-      debugPrint('company logo null!');
+      try {
+        final fileSize = await getImage.length();
+        const maxSize = 1 * 1024 * 1024;
+
+        if (fileSize > maxSize) {
+          final tempDir = await getTemporaryDirectory();
+          final targetPath = path.join(
+            tempDir.path,
+            "${path.basenameWithoutExtension(getImage.path)}_compressed.jpg",
+          );
+          final compressedFile = await FlutterImageCompress.compressAndGetFile(
+            getImage.path,
+            targetPath,
+            quality: 85,
+            minWidth: 800,
+            minHeight: 800,
+          );
+
+          if (compressedFile != null) {
+            final compressedBytes = await compressedFile.readAsBytes();
+            setState(() {
+              companyLogoFile = compressedFile;
+              _companyLogoBytes = compressedBytes;
+              logoBase64String = base64Encode(compressedBytes);
+            });
+          }
+        } else {
+          final imageBytes = await getImage.readAsBytes();
+          setState(() {
+            companyLogoFile = getImage;
+            _companyLogoBytes = imageBytes;
+            logoBase64String = base64Encode(imageBytes);
+          });
+        }
+      } catch (e) {
+        debugPrint('Error processing logo image: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
     }
   }
 }

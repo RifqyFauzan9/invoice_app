@@ -20,4 +20,13 @@ class SharedPreferencesProvider extends ChangeNotifier {
     _isLogin = false;
     notifyListeners();
   }
+
+  Future setRole(String role) async {
+    await _service.setRole(role);
+    notifyListeners();
+  }
+
+  Future getRole() async {
+    await _service.getRole();
+  }
 }

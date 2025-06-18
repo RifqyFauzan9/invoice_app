@@ -70,6 +70,7 @@ class NoteScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            if (Platform.isIOS) SizedBox(height: SizeConfig.screenHeight * 0.01),
             Expanded(
               child: StreamProvider<List<Note>>(
                 create: (context) => context.read<NoteService>().getNote(

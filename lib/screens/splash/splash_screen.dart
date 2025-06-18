@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               currentPage == 0
                   ? buildSkipButton(context)
-                  : SizedBox(height: SizeConfig.screenHeight * 0.045),
+                  : SizedBox(height: SizeConfig.screenHeight * 0.042),
               SizedBox(height: SizeConfig.screenHeight * 0.07),
               Expanded(
                 flex: 11,
